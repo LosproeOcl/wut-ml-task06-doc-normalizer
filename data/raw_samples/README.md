@@ -15,10 +15,10 @@
 
 | 目录 | 类别代码 | 含义 | 目标数量 |
 |---|---|---|---|
-| `01_ppt_text/` | `ppt_text` | 投影幕布，纯文字 | 70 |
-| `02_ppt_formula/` | `ppt_formula` | 投影幕布，含公式 | 70 |
-| `03_paper_text/` | `paper_text` | 纸质或板书，纯文字 | 70 |
-| `04_paper_formula/` | `paper_formula` | 纸质或板书，含公式 | 70 |
+| `01_ppt_text/` | `ppt_text` | 投影幕布，纯文字 | 60（可上浮至 70） |
+| `02_ppt_formula/` | `ppt_formula` | 投影幕布，含公式 | 60（可上浮至 70） |
+| `03_paper_text/` | `paper_text` | 纸质或板书，纯文字 | 60（可上浮至 70） |
+| `04_paper_formula/` | `paper_formula` | 纸质或板书，含公式 | 60（可上浮至 70） |
 | `00_inbox/` | 无 | 待整理 | 无 |
 | `99_unlabeled/` | 无 | 类别存疑 | 无 |
 

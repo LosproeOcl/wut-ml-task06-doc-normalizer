@@ -10,7 +10,7 @@
 | `file` | 字符串 | 是 | 相对于 `data/raw_samples/` 的路径 |
 | `label` | 枚举 | 是 | `ppt_text`、`ppt_formula`、`paper_text`、`paper_formula` |
 | `doc_page_id` | 字符串 | 是 | 文档页分组键。同一文档页的多角度拍摄必须填写相同值 |
-| `shooter` | 字符串 | 是 | 拍摄者姓名 |
+| `shooter` | 字符串 | 是 | 拍摄者姓名缩写，与留证照片命名一致 |
 | `device` | 字符串 | 是 | 手机型号 |
 | `scene` | 枚举 | 是 | `classroom`、`corridor`、`dorm`、`outdoor` |
 | `angle_deg` | 整数 | 是 | 估计倾斜角，0 至 90 |
@@ -25,7 +25,7 @@
 ## 示例行
 
 ```csv
-T06_P03_pptFormula_classroom_017.jpg,02_ppt_formula/T06_P03_pptFormula_classroom_017.jpg,ppt_formula,PPT-CALC-03,余青阳,iPhone 14,classroom,35,ceiling,4032x3024,2026-11-27,幕布右侧高光,true,1,release/02_ppt_formula/T06_P03_pptFormula_classroom_017.jpg
+T06_P03_pptFormula_classroom_017,02_ppt_formula/T06_P03_pptFormula_classroom_017.jpg,ppt_formula,PPT-CALC-03,yyq,iPhone 14,classroom,35,ceiling,4032x3024,2026-11-27,幕布右侧高光,true,1,release/02_ppt_formula/T06_P03_pptFormula_classroom_017.jpg
 ```
 
 ## 登记规则

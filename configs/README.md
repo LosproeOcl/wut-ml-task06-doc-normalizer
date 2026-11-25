@@ -1,6 +1,6 @@
 # 配置目录说明
 
-本目录存放实验配置。配置采用 YAML 格式，按数据、矫正、增强与分类四段组织。
+本目录存放实验配置。配置采用 YAML 格式，按数据、矫正、增强、分类、隐私与运行时六段组织。
 
 ## 约定
 
@@ -15,6 +15,7 @@
 |---|---|
 | `data.manifest` | 样本清单路径 |
 | `data.split` | 划分文件路径 |
+| `data.raw_dir` | 原始样本根目录 |
 | `data.image_size` | 输入图像长边像素数 |
 | `rectify.min_area_ratio` | 四边形面积占画面比例下限 |
 | `rectify.max_area_ratio` | 四边形面积占画面比例上限 |
@@ -38,5 +39,7 @@
 | `privacy.max_document_coverage` | 打码覆盖文档主体的最大比例 |
 | `runtime.seed` | 随机种子 |
 | `runtime.device` | 运行设备，正式评估固定为 `cpu` |
+| `runtime.num_threads` | 计算线程数，正式评估固定为 1 |
+| `runtime.num_workers` | 数据加载进程数，评估阶段固定为 0 |
 
 `configs/default.yaml` 为基线配置示例。其他实验在此基础上覆盖差异项。

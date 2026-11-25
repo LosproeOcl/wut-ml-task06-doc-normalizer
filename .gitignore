@@ -19,7 +19,11 @@ venv/
 runs/
 *.log
 
-# 模型权重
+# 隐私候选预览图，源自原始样本，不得提交
+reports/privacy/
+
+# 模型权重与本地缓存目录
+models/
 *.pt
 *.pth
 *.ckpt
