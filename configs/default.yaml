@@ -1,0 +1,53 @@
+# T06 基线配置示例
+# 本文件为配置结构说明，阶段一实现的程序读取同名配置键。
+
+data:
+  manifest: data/manifests/sample_manifest.csv
+  split: data/splits/split_v1.json
+  raw_dir: data/raw_samples
+  image_size: 1280          # 输入图像长边像素数
+  classes:
+    - ppt_text
+    - ppt_formula
+    - paper_text
+    - paper_formula
+
+rectify:
+  enabled: true
+  min_area_ratio: 0.05      # 四边形面积占画面比例下限
+  max_area_ratio: 0.98      # 四边形面积占画面比例上限
+  canny_low: 50
+  canny_high: 150
+  output_long_edge: 1600
+
+enhance:
+  enabled: true
+  method: clahe
+  clahe_clip: 2.0
+  clahe_grid: 8
+  denoise: true
+
+classify:
+  model: cnn                # classic_svm | classic_rf | cnn
+  backbone: mobilenet_v3_small
+  input_size: 224
+  batch_size: 32
+  epochs_stage1: 10
+  epochs_stage2: 30
+  lr_stage1: 0.001
+  lr_stage2: 0.0001
+  early_stop_patience: 5
+  low_conf_threshold: 0.55
+  augmentation:
+    random_perspective: 0.2
+    rotation_deg: 10
+    brightness: 0.2
+    contrast: 0.2
+    horizontal_flip: false  # 公式页翻转会破坏符号语义
+
+runtime:
+  seed: 42
+  device: cpu               # 正式评估统一使用中央处理器
+  num_threads: 1
+  num_workers: 0
+  output_dir: reports

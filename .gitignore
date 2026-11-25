@@ -1,0 +1,47 @@
+# 操作系统与编辑器
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# 运行产物与日志
+runs/
+*.log
+
+# 模型权重
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+
+# 原始样本图像。保留目录结构、说明文件与占位文件。
+data/raw_samples/**/*.jpg
+data/raw_samples/**/*.jpeg
+data/raw_samples/**/*.JPG
+data/raw_samples/**/*.JPEG
+data/raw_samples/**/*.png
+data/raw_samples/**/*.PNG
+data/raw_samples/**/*.heic
+data/raw_samples/**/*.HEIC
+data/raw_samples/**/*.webp
+data/raw_samples/**/*.bmp
+
+# 标注图像
+data/annotations/**/*.jpg
+data/annotations/**/*.png
+
+# 临时文件
+*.tmp
+*.bak
