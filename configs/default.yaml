@@ -47,6 +47,9 @@ classify:
 
 privacy:
   enabled: true
+  face_detector: yunet      # yunet | haar
+  qr_detector: opencv       # opencv，备选 zxing
+  yunet_model: models/face_detection_yunet_2023mar.onnx
   detect_faces: true
   detect_qr: true
   method: fill              # fill | pixelate，不使用高斯模糊

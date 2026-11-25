@@ -26,6 +26,9 @@
 | `classify.input_size` | 深度模型输入尺寸 |
 | `classify.low_conf_threshold` | 低置信度阈值 |
 | `privacy.enabled` | 是否启用隐私打码 |
+| `privacy.face_detector` | 人脸检测器，取值为 `yunet` 或 `haar` |
+| `privacy.qr_detector` | 二维码检测器，取值为 `opencv`，备选 `zxing` |
+| `privacy.yunet_model` | YuNet 模型路径 |
 | `privacy.detect_faces` | 是否检测人脸候选 |
 | `privacy.detect_qr` | 是否检测二维码候选 |
 | `privacy.method` | 打码方式，取值为 `fill` 或 `pixelate` |

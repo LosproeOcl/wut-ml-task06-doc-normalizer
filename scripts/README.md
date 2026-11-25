@@ -10,7 +10,7 @@
 | `check_manifest.py` | 校验样本清单字段、唯一性与类别分布 | M1 |
 | `make_split.py` | 按分组键生成划分文件并计算清单哈希 | M1 |
 | `check_dataset.py` | 核对清单记录与实际文件是否一致 | M1、M4 |
-| `download_weights.py` | 下载预训练权重并校验校验和 | M2 |
+| `download_weights.py` | 下载 YuNet 与 MobileNetV3 权重并校验哈希 | M2 |
 | `export_report_assets.py` | 汇总图表与指标至报告目录 | M4 |
 
 ## 编写约定
