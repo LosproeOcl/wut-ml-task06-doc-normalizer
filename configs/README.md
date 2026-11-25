@@ -23,6 +23,8 @@
 | `enhance.method` | 增强方法 |
 | `enhance.clahe_clip` | 直方图均衡对比度限值 |
 | `classify.model` | 分类模型，取值为 `classic_svm`、`classic_rf` 或 `cnn` |
+| `classify.label_map` | 归档标签到评估标签的映射，当前为内容二分类（ADR-0008） |
+| `classify.class_weight` | 内容类别类权重策略，默认 `balanced` |
 | `classify.backbone` | 深度模型骨干名称 |
 | `classify.input_size` | 深度模型输入尺寸 |
 | `classify.low_conf_threshold` | 低置信度阈值 |

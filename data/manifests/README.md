@@ -8,7 +8,7 @@
 |---|---|---|---|
 | `sample_id` | 字符串 | 是 | 全局唯一，取文件名去掉扩展名 |
 | `file` | 字符串 | 是 | 相对于 `data/raw_samples/` 的路径 |
-| `label` | 枚举 | 是 | `ppt_text`、`ppt_formula`、`paper_text`、`paper_formula` |
+| `label` | 枚举 | 是 | 归档标签 `ppt_text`、`ppt_formula`、`paper_text`、`paper_formula`；评估时按配置映射为内容二分类 `text`、`formula` |
 | `doc_page_id` | 字符串 | 是 | 文档页分组键。同一文档页的多角度拍摄必须填写相同值 |
 | `shooter` | 字符串 | 是 | 拍摄者姓名缩写，与留证照片命名一致 |
 | `device` | 字符串 | 是 | 手机型号 |

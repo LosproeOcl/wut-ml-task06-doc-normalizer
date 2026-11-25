@@ -6,7 +6,7 @@ data:
   split: data/splits/split_v1.json
   raw_dir: data/raw_samples
   image_size: 1280          # 输入图像长边像素数
-  classes:
+  classes:                  # 归档标签（四格），评估标签由 classify.label_map 映射
     - ppt_text
     - ppt_formula
     - paper_text
@@ -29,6 +29,12 @@ enhance:
 
 classify:
   model: cnn                # classic_svm | classic_rf | cnn
+  label_map:                # 归档标签 → 评估标签，内容二分类，见 ADR-0008
+    ppt_text: text
+    paper_text: text
+    ppt_formula: formula
+    paper_formula: formula
+  class_weight: balanced    # 内容类别类权重，缓解残余不均衡
   backbone: mobilenet_v3_small
   input_size: 224
   batch_size: 32
