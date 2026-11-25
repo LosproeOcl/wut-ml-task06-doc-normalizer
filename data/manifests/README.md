@@ -18,11 +18,14 @@
 | `resolution` | 字符串 | 是 | 宽乘高，单位像素，例如 `4032x3024` |
 | `shot_at` | 日期 | 是 | 格式为 `YYYY-MM-DD` |
 | `notes` | 字符串 | 否 | 反光、遮挡或存疑说明 |
+| `privacy_masked` | 布尔 | 是 | 是否存在打码后的发布副本 |
+| `privacy_regions` | 整数 | 是 | 打码区域数量，无打码时填 0 |
+| `release_file` | 字符串 | 否 | 发布副本路径，无副本时为空 |
 
 ## 示例行
 
 ```csv
-T06_P03_pptFormula_classroom_017.jpg,02_ppt_formula/T06_P03_pptFormula_classroom_017.jpg,ppt_formula,PPT-CALC-03,余青阳,iPhone 14,classroom,35,ceiling,4032x3024,2026-11-27,幕布右侧高光
+T06_P03_pptFormula_classroom_017.jpg,02_ppt_formula/T06_P03_pptFormula_classroom_017.jpg,ppt_formula,PPT-CALC-03,余青阳,iPhone 14,classroom,35,ceiling,4032x3024,2026-11-27,幕布右侧高光,true,1,release/02_ppt_formula/T06_P03_pptFormula_classroom_017.jpg
 ```
 
 ## 登记规则

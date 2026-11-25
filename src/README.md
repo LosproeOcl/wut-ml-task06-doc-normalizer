@@ -26,6 +26,10 @@ src/docnorm/
 ├── eval/
 │   ├── metrics.py      指标计算
 │   └── runner.py       实验编排
+├── privacy/
+│   ├── detector.py     人脸与二维码候选检测
+│   ├── mask.py         区域填充与元数据去除
+│   └── audit.py        复核记录与审计
 └── viz/
     └── figures.py      图表绘制
 ```

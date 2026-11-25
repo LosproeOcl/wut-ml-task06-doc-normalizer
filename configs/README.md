@@ -25,6 +25,14 @@
 | `classify.backbone` | 深度模型骨干名称 |
 | `classify.input_size` | 深度模型输入尺寸 |
 | `classify.low_conf_threshold` | 低置信度阈值 |
+| `privacy.enabled` | 是否启用隐私打码 |
+| `privacy.detect_faces` | 是否检测人脸候选 |
+| `privacy.detect_qr` | 是否检测二维码候选 |
+| `privacy.method` | 打码方式，取值为 `fill` 或 `pixelate` |
+| `privacy.expand_ratio` | 打码区域外扩比例 |
+| `privacy.strip_exif` | 是否去除图像元数据 |
+| `privacy.require_manual_review` | 是否强制人工复核 |
+| `privacy.max_document_coverage` | 打码覆盖文档主体的最大比例 |
 | `runtime.seed` | 随机种子 |
 | `runtime.device` | 运行设备，正式评估固定为 `cpu` |
 

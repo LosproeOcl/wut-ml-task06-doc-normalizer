@@ -42,6 +42,11 @@ data/raw_samples/**/*.bmp
 data/annotations/**/*.jpg
 data/annotations/**/*.png
 
+# 打码后的发布副本，仅保留目录说明
+data/release/**/*.jpg
+data/release/**/*.jpeg
+data/release/**/*.png
+
 # 临时文件
 *.tmp
 *.bak

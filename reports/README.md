@@ -10,6 +10,7 @@ reports/
 ├── experiments/       实验记录
 ├── experiments.csv    实验汇总表
 ├── metrics.json       最终指标
+├── privacy_audit.csv  隐私复核审计记录
 └── repro_check.md     复现核验记录
 ```
 

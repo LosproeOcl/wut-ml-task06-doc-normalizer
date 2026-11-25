@@ -45,6 +45,18 @@ classify:
     contrast: 0.2
     horizontal_flip: false  # 公式页翻转会破坏符号语义
 
+privacy:
+  enabled: true
+  detect_faces: true
+  detect_qr: true
+  method: fill              # fill | pixelate，不使用高斯模糊
+  fill_color: [0, 0, 0]
+  pixelate_block: 16
+  expand_ratio: 0.15        # 区域外扩比例，防止边缘残留
+  strip_exif: true
+  require_manual_review: true
+  max_document_coverage: 0.05  # 覆盖文档主体超过该比例时，样本不进入测试集
+
 runtime:
   seed: 42
   device: cpu               # 正式评估统一使用中央处理器
