@@ -8,7 +8,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     OMP_NUM_THREADS=1 \
     MKL_NUM_THREADS=1 \
     PYTHONHASHSEED=0 \
-    TORCH_HOME=/cache/torch
+    TORCH_HOME=/cache/torch \
+    PYTHONPATH=/app/src
 
 RUN apt-get update && apt-get install -y --no-install-recommends libglib2.0-0 \
     && if [ "$INSTALL_CJK_FONTS" = "1" ]; then \

@@ -34,6 +34,8 @@ from docnorm.classify.cnn import CLASSES, CnnClassifier  # noqa: E402
 from docnorm.data.loader import load_image  # noqa: E402
 from docnorm.data.manifest import load_manifest  # noqa: E402
 from docnorm.data.split import assign_samples, check_manifest_hash, load_split  # noqa: E402
+from docnorm.data.annotations import ManualCornerStore, ManualLabelStore  # noqa: E402
+from docnorm.rectify.geometry import DocumentQuad, RectifyError  # noqa: E402
 from docnorm.enhance.clahe import enhance_document  # noqa: E402
 from docnorm.rectify.detector import detect_document  # noqa: E402
 from docnorm.rectify.warp import warp_document  # noqa: E402
@@ -43,12 +45,22 @@ STD = (0.229, 0.224, 0.225)
 
 
 class DocumentDataset(Dataset):
-    def __init__(self, items, config, transform, *, rectify: bool, enhance: bool):
+    def __init__(
+        self,
+        items,
+        config,
+        transform,
+        *,
+        rectify: bool,
+        enhance: bool,
+        corner_overrides: dict[str, list[list[float]]] | None = None,
+    ):
         self.items = items
         self.config = config
         self.transform = transform
         self.rectify = rectify
         self.enhance = enhance
+        self.corner_overrides = corner_overrides or {}
 
     def __len__(self) -> int:
         return len(self.items)
@@ -60,13 +72,21 @@ class DocumentDataset(Dataset):
             max_long_edge=int(self.config["data"]["image_size"]),
         ).image
         if self.rectify:
-            quad = detect_document(
-                image,
-                canny_low=int(self.config["rectify"]["canny_low"]),
-                canny_high=int(self.config["rectify"]["canny_high"]),
-                min_area_ratio=float(self.config["rectify"]["min_area_ratio"]),
-                max_area_ratio=float(self.config["rectify"]["max_area_ratio"]),
-            )
+            quad = None
+            points = self.corner_overrides.get(item["sample_id"])
+            if points is not None:
+                try:
+                    quad = DocumentQuad(np.asarray(points, dtype=np.float32))
+                except (RectifyError, ValueError):
+                    quad = None
+            if quad is None:
+                quad = detect_document(
+                    image,
+                    canny_low=int(self.config["rectify"]["canny_low"]),
+                    canny_high=int(self.config["rectify"]["canny_high"]),
+                    min_area_ratio=float(self.config["rectify"]["min_area_ratio"]),
+                    max_area_ratio=float(self.config["rectify"]["max_area_ratio"]),
+                )
             if quad is not None:
                 image = warp_document(
                     image,
@@ -136,15 +156,39 @@ def main() -> int:
     split = load_split(ROOT / config["data"]["split"])
     check_manifest_hash(split, ROOT / config["data"]["manifest"])
     assignment = assign_samples(split, samples)
+    overrides = {
+        sample_id: label
+        for sample_id, label in ManualLabelStore(
+            ROOT / "data/annotations/manual_labels.csv"
+        ).load().items()
+        if assignment.get(sample_id) == "train"
+    }
+    corners = {
+        sample_id: points
+        for sample_id, points in ManualCornerStore(
+            ROOT / "data/annotations/manual_corners.csv"
+        ).load().items()
+        if assignment.get(sample_id) == "train"
+    }
+    if overrides:
+        print(f"应用训练集人工标签 {len(overrides)} 条")
+    if corners:
+        print(f"应用训练集人工四角 {len(corners)} 条")
 
     items = {"train": [], "val": []}
     for sample in samples:
-        label = sample.content_label
+        label = overrides.get(sample.sample_id, sample.content_label)
         if label is None:
             continue
         name = assignment[sample.sample_id]
         if name in items:
-            items[name].append({"file": sample.file, "label": label})
+            items[name].append(
+                {
+                    "sample_id": sample.sample_id,
+                    "file": sample.file,
+                    "label": label,
+                }
+            )
 
     rectify = not args.no_rectify
     enhance = not args.no_enhance
@@ -154,6 +198,7 @@ def main() -> int:
         build_transform(True),
         rectify=rectify,
         enhance=enhance,
+        corner_overrides=corners,
     )
     val_dataset = DocumentDataset(
         items["val"],
@@ -161,6 +206,7 @@ def main() -> int:
         build_transform(False),
         rectify=rectify,
         enhance=enhance,
+        corner_overrides=corners,
     )
     train_loader = DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0
@@ -238,7 +284,7 @@ def main() -> int:
         for index, sample in enumerate(items["val"]):
             writer.writerow(
                 [
-                    sample["file"],
+                    sample["sample_id"],
                     true_labels[index],
                     predicted_labels[index],
                     float(probabilities[index, 0]),

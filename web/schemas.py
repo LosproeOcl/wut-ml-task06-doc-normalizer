@@ -1,0 +1,20 @@
+"""网页层请求模型。"""
+from __future__ import annotations
+
+from pydantic import BaseModel, Field
+
+
+class CornersRequest(BaseModel):
+    points: list[tuple[float, float]] = Field(min_length=4, max_length=4)
+
+
+class AnnotationRequest(BaseModel):
+    sample_id: str = Field(min_length=1)
+    label: str = Field(pattern="^(text|formula)$")
+    annotator: str = Field(default="web", max_length=40)
+
+
+class CornerAnnotationRequest(BaseModel):
+    sample_id: str = Field(min_length=1)
+    points: list[tuple[float, float]] = Field(min_length=4, max_length=4)
+    annotator: str = Field(default="web", max_length=40)

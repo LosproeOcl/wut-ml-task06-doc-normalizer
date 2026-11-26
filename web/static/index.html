@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>斜拍文档规范化</title>
+  <link rel="icon" href="/static/favicon.svg" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title"><a href="/">斜拍文档规范化</a></h1>
+    <p class="site-description">定位 · 拉正 · 增强 · 内容分类</p>
+    <nav class="site-nav">
+      <a href="#" class="tab active" data-tab="analyze">单图分析</a>
+      <a href="#" class="tab" data-tab="annotate">训练集标签</a>
+      <a href="#" class="tab" data-tab="corners">训练集四角</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="analyze-panel">
+      <p class="hint">
+        本页面仅在本机运行。上传的图片只写入临时目录，默认一小时后清理，不发送到外部服务。
+      </p>
+
+      <div class="toolbar">
+        <select id="sample-select" aria-label="选择样本">
+          <option value="">从样本库选择</option>
+        </select>
+        <input id="file-input" type="file" accept="image/*" />
+        <label><input id="rectify" type="checkbox" checked /> 拉正</label>
+        <label><input id="enhance" type="checkbox" /> 增强</label>
+        <button id="analyze-btn" class="primary">分析</button>
+        <span id="health" class="hint"></span>
+      </div>
+
+      <div class="stages">
+        <figure>
+          <canvas id="canvas" width="720" height="480"></canvas>
+          <figcaption>原图与四角。可拖拽控制点；未检出时依次点击四个顶点。</figcaption>
+        </figure>
+        <figure>
+          <img id="rectified" alt="矫正图" hidden />
+          <figcaption>矫正结果</figcaption>
+        </figure>
+        <figure>
+          <img id="enhanced" alt="增强图" hidden />
+          <figcaption>增强结果</figcaption>
+        </figure>
+      </div>
+
+      <div class="toolbar">
+        <button id="apply-corners" disabled>应用四角</button>
+        <span id="status" class="hint"></span>
+      </div>
+
+      <div id="result-card" class="card hidden">
+        <h2>分类结果</h2>
+        <p><strong id="label"></strong></p>
+        <div id="probabilities"></div>
+        <p class="hint" id="meta"></p>
+      </div>
+    </section>
+
+    <section id="annotate-panel" class="hidden">
+      <p class="hint">
+        仅允许校正训练集标签。标注写入独立文件，不修改样本清单与冻结划分。
+      </p>
+      <div class="toolbar">
+        <span id="anno-stats" class="hint"></span>
+        <button id="reload-anno">重新载入</button>
+      </div>
+      <div class="annotate">
+        <img id="anno-image" alt="待标注样本" />
+        <div class="anno-side">
+          <p>样本：<code id="anno-id"></code></p>
+          <p>清单标签：<span id="anno-original"></span></p>
+          <p class="hint">快捷键 1 文字，2 公式。</p>
+          <div class="buttons">
+            <button data-label="text" class="primary">文字（1）</button>
+            <button data-label="formula" class="primary">公式（2）</button>
+            <button id="anno-skip">跳过</button>
+          </div>
+          <p id="anno-empty" class="hint hidden">当前没有待标注样本。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="corner-panel" class="hidden">
+      <p class="hint">
+        拖动四个控制点贴合文档四边，点击“确认四角”保存。自动检测结果仅作为初始建议，保存后用于训练时的拉正覆盖。
+      </p>
+      <div class="corner-tool">
+        <canvas id="corner-canvas" width="720" height="480"></canvas>
+        <div class="anno-side">
+          <p>样本：<code id="corner-id"></code></p>
+          <p>清单标签：<span id="corner-label"></span></p>
+          <p>初始来源：<span id="corner-source"></span></p>
+          <p class="hint">拖动圆点调整；无初始四角时在图上依次点击四个顶点。</p>
+          <div class="buttons">
+            <button id="corner-confirm" class="primary" disabled>确认四角</button>
+            <button id="corner-skip">跳过</button>
+          </div>
+          <p id="corner-stats" class="hint"></p>
+          <p id="corner-empty" class="hint hidden">当前没有待标注样本。</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    武汉理工大学《机器学习》课程实践 · 第六组 · 本机演示
+  </footer>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

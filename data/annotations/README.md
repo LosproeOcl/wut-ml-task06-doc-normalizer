@@ -6,6 +6,10 @@
 
 按 ADR-0009，本项目不设离线人工四角标注，也不要求像素级多边形标注。分类监督使用 `data/manifests/sample_manifest.csv` 中的图像级类别。
 
+训练集标签校正写入 `manual_labels.csv`，字段为 `sample_id,label,annotator,updated_at`，只允许训练集样本。训练脚本读取该文件覆盖训练标签，验证与测试保持清单原值，见 ADR-0011。
+
+训练集四角覆盖写入 `manual_corners.csv`，字段为 `sample_id,points,annotator,updated_at`，`points` 为四个顶点 JSON 数组。只允许训练集样本，训练拉正时优先使用，见 ADR-0012；该文件不作为评估金标准。
+
 ## 可选文件
 
 若后续需要记录模型参考角点，可建立 `corners_reference.json`，并明确标注来源为模型预测，不得称为人工真值。

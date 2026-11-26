@@ -30,6 +30,8 @@ from docnorm.classify.classic import ClassicClassifier  # noqa: E402
 from docnorm.data.loader import load_image  # noqa: E402
 from docnorm.data.manifest import load_manifest  # noqa: E402
 from docnorm.data.split import assign_samples, check_manifest_hash, load_split  # noqa: E402
+from docnorm.data.annotations import ManualCornerStore, ManualLabelStore  # noqa: E402
+from docnorm.rectify.geometry import DocumentQuad, RectifyError  # noqa: E402
 from docnorm.enhance.clahe import enhance_document  # noqa: E402
 from docnorm.features.classic import FEATURE_DIM, extract_features  # noqa: E402
 from docnorm.rectify.detector import detect_document  # noqa: E402
@@ -54,7 +56,11 @@ def build_features(
     *,
     use_rectify: bool,
     use_enhance: bool,
+    label_overrides: dict[str, str] | None = None,
+    corner_overrides: dict[str, list[list[float]]] | None = None,
 ) -> tuple[np.ndarray, np.ndarray, list[str], int]:
+    overrides = label_overrides or {}
+    corners = corner_overrides or {}
     vectors: list[np.ndarray] = []
     labels: list[str] = []
     ids: list[str] = []
@@ -62,7 +68,7 @@ def build_features(
     image_size = int(config["data"]["image_size"])
 
     for sample in samples:
-        label = sample.content_label
+        label = overrides.get(sample.sample_id, sample.content_label)
         if label is None:
             continue
         image = load_image(
@@ -71,13 +77,21 @@ def build_features(
         ).image
 
         if use_rectify:
-            quad = detect_document(
-                image,
-                canny_low=int(config["rectify"]["canny_low"]),
-                canny_high=int(config["rectify"]["canny_high"]),
-                min_area_ratio=float(config["rectify"]["min_area_ratio"]),
-                max_area_ratio=float(config["rectify"]["max_area_ratio"]),
-            )
+            quad = None
+            points = corners.get(sample.sample_id)
+            if points is not None:
+                try:
+                    quad = DocumentQuad(np.asarray(points, dtype=np.float32))
+                except (RectifyError, ValueError):
+                    quad = None
+            if quad is None:
+                quad = detect_document(
+                    image,
+                    canny_low=int(config["rectify"]["canny_low"]),
+                    canny_high=int(config["rectify"]["canny_high"]),
+                    min_area_ratio=float(config["rectify"]["min_area_ratio"]),
+                    max_area_ratio=float(config["rectify"]["max_area_ratio"]),
+                )
             if quad is not None:
                 image = warp_document(
                     image,
@@ -135,12 +149,32 @@ def main() -> int:
 
     use_rectify = not args.no_rectify
     use_enhance = not args.no_enhance
+    overrides = {
+        sample_id: label
+        for sample_id, label in ManualLabelStore(
+            ROOT / "data/annotations/manual_labels.csv"
+        ).load().items()
+        if assignment.get(sample_id) == "train"
+    }
+    corners = {
+        sample_id: points
+        for sample_id, points in ManualCornerStore(
+            ROOT / "data/annotations/manual_corners.csv"
+        ).load().items()
+        if assignment.get(sample_id) == "train"
+    }
+    if overrides:
+        print(f"应用训练集人工标签 {len(overrides)} 条")
+    if corners:
+        print(f"应用训练集人工四角 {len(corners)} 条")
     started = time.perf_counter()
     features, labels, ids, failures = build_features(
         samples,
         config,
         use_rectify=use_rectify,
         use_enhance=use_enhance,
+        label_overrides=overrides,
+        corner_overrides=corners,
     )
     feature_seconds = time.perf_counter() - started
 
