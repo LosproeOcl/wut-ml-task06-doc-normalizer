@@ -47,6 +47,7 @@ FIELDS = [
     "model",
     "accuracy",
     "macro_f1",
+    "val_iou",
     "backbone",
     "input_size",
     "augment",
@@ -77,6 +78,8 @@ def mtime_iso(path: Path) -> str:
 
 
 def family_of(exp_id: str) -> str:
+    if exp_id.startswith("screen-detector"):
+        return "screen"
     if exp_id.startswith("pretrain"):
         return "pretrain"
     if exp_id.startswith("ensemble"):
@@ -177,6 +180,17 @@ def rows_for_run(run_dir: Path) -> list[dict]:
             )
             return [row]
         return []
+    if family == "screen":
+        row = dict(base)
+        row.update(
+            {
+                "model": "screen_detector",
+                "accuracy": "",
+                "macro_f1": "",
+                "val_iou": metrics.get("val_iou", ""),
+            }
+        )
+        return [row]
     if family == "pretrain":
         row = dict(base)
         row.update(

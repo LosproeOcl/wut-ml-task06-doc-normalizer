@@ -141,3 +141,21 @@ docker run --rm -v "$PWD:/app" -w /app docnorm:cpu-arm64 \
 检索范围内未找到可直接下载、带文字/公式标签的投影幕布 PPT 实拍数据集。最接近的资源是数字讲义幻灯片（LecSlides-370K、SlideVQA、LPM、SynSlide/RealSlide）和屏幕/行为检测数据（Projection Screen Detection、SCB-Dataset），前者缺少投影畸变与教室光照，后者只有屏幕框而没有课件内容标签。
 
 因此将外部预训练从 2,400 张降到 600 张（公式 300 + 文字 300），只跑 1 轮，作为低强度初始化对照；`runs/exp-cnn-ext-02` 记录该实验。若小样本仍无收益，最终方案不使用外部预训练。
+
+## 9. 投影幕布检测分支
+
+针对“外部内容数据缺少 PPT 幕布”的问题，改为先定位幕布再分类。公开数据调研结论：
+
+- `Projection Screen Detection` 论文有约 2,093 帧投影幕布框，但 Data availability 声明不共享数据，无法直接下载。
+- `SCB-Dataset` 公开（GitHub `Whiffe/SCB-dataset`，HuggingFace `wintonYF/SCB-Dataset`），教师子集包含 `screen` 类框；论文报告 screen 类 mAP@0.5 约 97.9%。
+
+当前实现：
+
+1. `scripts/build_scb_screen_manifest.py`：从 SCB 教师子集提取 screen 框，输出 `data/manifests/scb_screen.csv`。
+2. `scripts/train_screen_detector.py`：MobileNetV3-Small bbox 回归，输出归一化幕布框，损失 SmoothL1 + IoU。
+3. `scripts/eval_screen_fallback.py`：只在自动四角失败时，用屏幕框裁剪幕布，再在裁剪图内做四角检测/拉正，最后分类。
+4. 屏幕检测器只用 SCB 训练；自采验证/测试仍只用于分类评估。
+
+首轮结果：`screen-detector-01`（800/400，160 输入，12 轮）验证 IoU 0.5232、IoU@0.5 召回 0.60；自采验证 baseline 80.39%，screen fallback 80.39%，修复 `IMG_6206` 但改错 `f3ddcd7b...`，净变化 0。
+
+第二轮：`screen-detector-02`（1,600/600，224 输入，20 轮）验证 IoU 0.6551、IoU@0.5 召回 0.7983；但自采 fallback 降到 78.43%，把纸质公式页 `f3ddcd7b...` 改错。说明仅靠 bbox 回归定位不够，必须在自动四角失败时再加“是否投影幕布”的置信门控，否则会误裁纸质页。当前不进入分类主链路。

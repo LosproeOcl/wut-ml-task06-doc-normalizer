@@ -298,8 +298,9 @@ def diagnostics_plot(exp: str, title: str, output: str) -> None:
 
 
 def screen_detector_curves() -> None:
+    exp = "screen-detector-02" if (ROOT / "runs/screen-detector-02/epochs.csv").is_file() else "screen-detector-01"
     diagnostics_plot(
-        "screen-detector-01",
+        exp,
         "屏幕检测器训练诊断（SCB screen 框）",
         "screen_detector_curves.png",
     )
