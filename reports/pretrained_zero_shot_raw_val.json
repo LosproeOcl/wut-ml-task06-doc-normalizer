@@ -1,0 +1,30 @@
+[
+  {
+    "checkpoint": "runs/pretrain-external-01/backbone.pt",
+    "split": "val",
+    "rectify": false,
+    "enhance": false,
+    "n": 51,
+    "accuracy": 0.5686274509803921,
+    "macro_f1": 0.40064102564102566,
+    "text_recall": 1.0,
+    "formula_recall": 0.043478260869565216,
+    "ppt_accuracy": 0.8571428571428571,
+    "paper_accuracy": 0.36666666666666664,
+    "confusion_matrix": "[[28, 0], [22, 1]]"
+  },
+  {
+    "checkpoint": "runs/pretrain-external-small/backbone.pt",
+    "split": "val",
+    "rectify": false,
+    "enhance": false,
+    "n": 51,
+    "accuracy": 0.5686274509803921,
+    "macro_f1": 0.40064102564102566,
+    "text_recall": 1.0,
+    "formula_recall": 0.043478260869565216,
+    "ppt_accuracy": 0.8571428571428571,
+    "paper_accuracy": 0.36666666666666664,
+    "confusion_matrix": "[[28, 0], [22, 1]]"
+  }
+]
