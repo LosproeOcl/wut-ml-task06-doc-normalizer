@@ -14,7 +14,7 @@ data:
 
 rectify:
   enabled: true
-  min_area_ratio: 0.05      # 四边形面积占画面比例下限
+  min_area_ratio: 0.15      # 四边形面积占画面比例下限（置信门槛）
   max_area_ratio: 0.98      # 四边形面积占画面比例上限
   canny_low: 50
   canny_high: 150

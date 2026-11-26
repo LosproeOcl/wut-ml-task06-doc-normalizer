@@ -17,7 +17,7 @@
 | `data.split` | 划分文件路径 |
 | `data.raw_dir` | 原始样本根目录 |
 | `data.image_size` | 输入图像长边像素数 |
-| `rectify.min_area_ratio` | 四边形面积占画面比例下限 |
+| `rectify.min_area_ratio` | 四边形面积占画面比例下限（置信门槛） |
 | `rectify.max_area_ratio` | 四边形面积占画面比例上限 |
 | `enhance.enabled` | 是否启用增强 |
 | `enhance.method` | 增强方法 |
@@ -28,7 +28,7 @@
 | `classify.backbone` | 深度模型骨干名称 |
 | `classify.input_size` | 深度模型输入尺寸 |
 | `classify.low_conf_threshold` | 低置信度阈值 |
-| `privacy.enabled` | 是否启用隐私打码 |
+| `privacy.enabled` | 历史配置，D-01 后固定为 `false` |
 | `privacy.face_detector` | 人脸检测器，取值为 `yunet` 或 `haar` |
 | `privacy.qr_detector` | 二维码检测器，取值为 `opencv`，备选 `zxing` |
 | `privacy.yunet_model` | YuNet 模型路径 |

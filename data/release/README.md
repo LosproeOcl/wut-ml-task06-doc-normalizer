@@ -1,32 +1,11 @@
-# 发布副本目录说明（已停用，决定 D-01）
+# 发布副本目录（历史存档）
 
-自动打码能力已取消开发，本目录既有副本停止维护、不得引用；对外配图仅引用无个人信息样本，敏感样本见 `data/manifests/exclusions.csv`。以下内容仅作历史存档。
+本目录为早期隐私打码设计的输出目录。按决定 D-01，自动打码能力已取消开发，数据清洗改为排除敏感样本，本目录不再生成新内容。
 
-本目录存放完成隐私打码的发布副本，用于报告配图、演示文稿与公开仓库。
+## 当前规则
 
-## 使用规则
+1. 不执行 `privacy apply`，不新增发布副本。
+2. 既有副本停止维护，不得引用，不得进入报告、演示文稿与公开仓库。
+3. 对外材料只使用无个人信息样本，敏感样本清单见 `data/manifests/exclusions.csv`。
 
-1. 本目录中的图像由 `docnorm privacy apply` 生成，不得手工复制原始样本进来。
-2. 目录结构与 `data/raw_samples/` 一致，便于按类别查找。
-3. 图像文件不纳入版本控制，仅保留目录说明。
-4. 对外材料只允许引用本目录中的图像。原始样本不得直接出现在报告、演示文稿与远程仓库中。
-5. 发布副本仅用于展示，不得作为训练或评估输入。
-
-## 生成方式
-
-```bash
-docnorm privacy apply --input data/raw_samples/01_ppt_text \
-  --regions reports/privacy/regions.json --out data/release/01_ppt_text
-```
-
-完整的检测、复核与审计流程见 `docs/04-数据采集与标注规范.md` 第 10 节。
-
-## 审计
-
-发布完成后执行下列命令，生成审计记录。
-
-```bash
-docnorm privacy audit --input data/release --report reports/privacy_audit.csv
-```
-
-审计记录须包含样本标识、区域数量、打码方式、复核人、复核时间与是否通过。
+历史设计见 `docs/adr/0006-隐私打码策略.md` 与 `docs/adr/0007-人脸检测选型YuNet.md`，仅作存档。
