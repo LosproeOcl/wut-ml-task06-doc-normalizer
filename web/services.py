@@ -284,6 +284,14 @@ def _scan_unsharp(image: np.ndarray, amount: float, sigma: float) -> np.ndarray:
     return cv2.addWeighted(image, amount, blurred, -(amount - 1), 0)
 
 
+def _scan_gamma(image: np.ndarray, gamma: float) -> np.ndarray:
+    table = np.array(
+        [((value / 255.0) ** gamma) * 255.0 for value in range(256)],
+        dtype=np.uint8,
+    )
+    return cv2.LUT(image, table)
+
+
 def _scan_block(gray: np.ndarray, preferred: int) -> int:
     block = min(preferred, min(gray.shape[:2]))
     if block % 2 == 0:
@@ -308,6 +316,7 @@ def _apply_scan(array: np.ndarray) -> np.ndarray:
         sigma = max(7.0, min(gray.shape[:2]) / 20.0)
         background = cv2.GaussianBlur(inverted, (0, 0), sigma)
         normalized = cv2.divide(inverted, background, scale=255)
+        normalized = _scan_gamma(normalized, 1.08)
         sharpened = _scan_unsharp(normalized, 1.7, 1.0)
         binary = cv2.adaptiveThreshold(
             sharpened,
@@ -315,18 +324,18 @@ def _apply_scan(array: np.ndarray) -> np.ndarray:
             cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
             cv2.THRESH_BINARY,
             _scan_block(gray, 61),
-            10,
+            12,
         )
         return cv2.medianBlur(binary, 3)
 
-    sharpened = _scan_unsharp(gray, 1.25, 1.0)
+    sharpened = _scan_unsharp(_scan_gamma(gray, 1.12), 1.25, 1.0)
     return cv2.adaptiveThreshold(
         sharpened,
         255,
         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
         cv2.THRESH_BINARY,
         _scan_block(gray, 35),
-        12,
+        14,
     )
 
 

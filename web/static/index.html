@@ -12,7 +12,7 @@
     <h1 class="site-title"><a href="/">斜拍文档规范化</a></h1>
     <p class="site-description">定位 · 拉正 · 扫描件 · 内容分类</p>
     <nav class="site-nav">
-      <a href="#" class="tab active" data-tab="analyze">单图分析</a>
+      <a href="#" class="tab active" data-tab="analyze">图片扫描</a>
       <a href="#" class="tab" data-tab="annotate">训练集标签</a>
       <a href="#" class="tab" data-tab="corners">训练集四角</a>
       <a href="#" class="tab" data-tab="review">标注检查</a>
@@ -43,12 +43,17 @@
 
       <div id="drop-zone" class="drop-zone">
         <input id="file-input" type="file" accept="image/*" multiple hidden />
-        <p><strong>拖拽图片到这里</strong>，或 <button type="button" id="pick-files">选择图片</button></p>
-        <p class="hint">支持多张，单张最大 15 MB；批量会按顺序处理。</p>
+        <input id="camera-input" type="file" accept="image/*" capture="environment" multiple hidden />
+        <p><strong>拖拽图片到这里</strong>，或
+          <button type="button" id="camera-btn">拍照</button>
+          <button type="button" id="pick-files">从相册选择</button>
+        </p>
+        <p class="hint">支持多张，单张最大 15 MB；拍照可重复点击连续添加，批量会按顺序处理。</p>
       </div>
 
       <div id="batch-actions" class="toolbar hidden">
         <span id="batch-stats" class="hint"></span>
+        <span class="hint">点击队列中的图片可切换校准</span>
         <button id="clear-batch">清空队列</button>
       </div>
       <div id="batch-list" class="batch-list hidden"></div>
@@ -56,15 +61,15 @@
       <div class="stages">
         <figure>
           <canvas id="canvas" width="720" height="480"></canvas>
-          <figcaption>原图与四角。可拖拽控制点；未检出时依次点击四个顶点。</figcaption>
+          <figcaption>原图与四角。拖动控制点，或在框内拖动整体移动；未检出时依次点击四个顶点。</figcaption>
         </figure>
         <figure>
           <img id="rectified" alt="矫正图" hidden />
-          <figcaption>矫正结果</figcaption>
+          <figcaption>矫正结果（点击放大）</figcaption>
         </figure>
         <figure>
           <img id="scan" alt="扫描件" hidden />
-          <figcaption>扫描件（自适应黑白）</figcaption>
+          <figcaption>扫描件（点击放大）</figcaption>
         </figure>
       </div>
 
@@ -158,6 +163,11 @@
       </div>
     </section>
   </main>
+
+  <div id="image-modal" class="image-modal hidden" role="dialog" aria-modal="true" aria-label="查看大图">
+    <button id="image-modal-close" class="image-modal-close" type="button" aria-label="关闭">×</button>
+    <img id="image-modal-img" alt="放大查看" />
+  </div>
 
   <footer class="site-footer">
     武汉理工大学《机器学习》课程实践 · 第六组 · 本机演示

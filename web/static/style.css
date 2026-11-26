@@ -195,6 +195,12 @@ button:disabled {
   padding: 6px;
   border: 1px solid var(--border);
   background: #ffffff;
+  cursor: pointer;
+}
+
+.batch-item.active {
+  border-color: var(--link);
+  background: #f7f9ff;
 }
 
 .batch-item img {
@@ -252,6 +258,48 @@ figcaption {
   margin-top: 6px;
   color: var(--muted);
   font-size: 12px;
+}
+
+#rectified,
+#scan { cursor: zoom-in; }
+
+.image-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  background: rgba(0, 0, 0, 0.78);
+}
+
+.image-modal img {
+  max-width: 92vw;
+  max-height: 88vh;
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+}
+
+.image-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 22px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.image-modal-close:hover {
+  border-color: #ffffff;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.55);
 }
 
 .card {

@@ -4,6 +4,9 @@ const state = {
   quad: [],
   pending: [],
   dragging: -1,
+  moving: false,
+  moveStart: null,
+  moveOriginal: null,
   moved: false,
   annotation: [],
   annotationIndex: 0,
@@ -104,10 +107,20 @@ canvas.addEventListener("pointerdown", (event) => {
   const [x, y] = toImagePoint(event);
   const threshold = 16 * (state.image.naturalWidth / canvas.width);
   if (state.quad.length) {
-    state.dragging = state.quad.findIndex(
+    const handle = state.quad.findIndex(
       ([px, py]) => Math.hypot(px - x, py - y) <= threshold
     );
-    state.moved = false;
+    if (handle >= 0) {
+      state.dragging = handle;
+      state.moved = false;
+      return;
+    }
+    if (insidePolygon([x, y], state.quad)) {
+      state.moving = true;
+      state.moveStart = [x, y];
+      state.moveOriginal = state.quad.map((point) => [...point]);
+      state.moved = false;
+    }
     return;
   }
   if (state.pending.length < 4) {
@@ -118,6 +131,22 @@ canvas.addEventListener("pointerdown", (event) => {
 });
 
 canvas.addEventListener("pointermove", (event) => {
+  if (state.moving) {
+    const [x, y] = toImagePoint(event);
+    const original = state.moveOriginal;
+    let dx = x - state.moveStart[0];
+    let dy = y - state.moveStart[1];
+    const minX = Math.min(...original.map(([px]) => px));
+    const maxX = Math.max(...original.map(([px]) => px));
+    const minY = Math.min(...original.map(([, py]) => py));
+    const maxY = Math.max(...original.map(([, py]) => py));
+    dx = Math.max(-minX, Math.min(dx, state.image.naturalWidth - maxX));
+    dy = Math.max(-minY, Math.min(dy, state.image.naturalHeight - maxY));
+    state.quad = original.map(([px, py]) => [px + dx, py + dy]);
+    state.moved = true;
+    drawCanvas();
+    return;
+  }
   if (state.dragging < 0) return;
   state.quad[state.dragging] = toImagePoint(event);
   state.moved = true;
@@ -125,6 +154,12 @@ canvas.addEventListener("pointermove", (event) => {
 });
 
 canvas.addEventListener("pointerup", () => {
+  if (state.moving) {
+    state.moving = false;
+    $("apply-corners").disabled = state.quad.length !== 4;
+    if (state.moved) setStatus("框体已移动，点击“应用四角”重新计算。");
+    return;
+  }
   if (state.dragging >= 0) {
     state.dragging = -1;
     $("apply-corners").disabled = state.quad.length !== 4;
@@ -156,6 +191,16 @@ function showResult(result) {
   $("scan").src = `/api/results/${result.result_id}/scan.png?t=${stamp}`;
   $("pdf-current").disabled = false;
   $("result-card").classList.remove("hidden");
+  const batchItem = state.batchFiles.find(
+    (item) => item.result && item.result.result_id === result.result_id
+  );
+  if (batchItem) {
+    batchItem.result = result;
+    batchItem.status = "完成";
+    batchItem.error = "";
+    syncBatchResults();
+    renderBatch();
+  }
   $("label").textContent = result.label
     ? (result.label === "text" ? "文字" : "公式")
     : "模型未加载";
@@ -200,10 +245,32 @@ function renderBatch() {
       <img src="${item.url}" alt="${escapeHtml(item.file.name)}" />
       <div class="batch-meta">
         <div>${escapeHtml(item.file.name)}</div>
-        <div class="batch-status">${escapeHtml(item.error || item.status)}</div>
+        <div class="batch-status">${escapeHtml(item.error || item.status)}${
+          item.calibrated ? " · 已校准" : ""
+        }</div>
       </div>
       <button type="button" class="batch-remove">移除</button>`;
-    card.querySelector(".batch-remove").addEventListener("click", () => removeBatch(item.id));
+    card.classList.toggle(
+      "active",
+      Boolean(
+        state.result &&
+          item.result &&
+          state.result.result_id === item.result.result_id
+      )
+    );
+    card.addEventListener("click", (event) => {
+      if (event.target.closest(".batch-remove")) return;
+      if (!item.result) {
+        setStatus("这张图片还没有完成分析。");
+        return;
+      }
+      showResult(item.result);
+      setStatus(`已切换到 ${item.file.name}，可拖动四角后应用。`);
+    });
+    card.querySelector(".batch-remove").addEventListener("click", (event) => {
+      event.stopPropagation();
+      removeBatch(item.id);
+    });
     list.appendChild(card);
   });
   const done = state.batchFiles.filter((item) => item.status === "完成").length;
@@ -230,6 +297,7 @@ function addFiles(fileList) {
       status: "待分析",
       result: null,
       error: "",
+      calibrated: false,
     });
   });
   $("sample-select").value = "";
@@ -260,6 +328,7 @@ async function analyzeBatch() {
     item.status = "待分析";
     item.error = "";
     item.result = null;
+    item.calibrated = false;
   });
   state.batchResults = [];
   let completed = 0;
@@ -348,6 +417,17 @@ async function downloadBatchPdf() {
   }
 }
 
+function openImageModal(src, alt) {
+  $("image-modal-img").src = src;
+  $("image-modal-img").alt = alt || "查看大图";
+  $("image-modal").classList.remove("hidden");
+}
+
+function closeImageModal() {
+  $("image-modal").classList.add("hidden");
+  $("image-modal-img").removeAttribute("src");
+}
+
 async function analyze() {
   if (state.batchFiles.length) {
     return analyzeBatch();
@@ -384,6 +464,13 @@ async function applyCorners() {
         body: JSON.stringify({ points }),
       }
     );
+    const item = state.batchFiles.find(
+      (entry) => entry.result && entry.result.result_id === result.result_id
+    );
+    if (item) {
+      item.result = result;
+      item.calibrated = true;
+    }
     showResult(result);
   } catch (error) {
     setStatus(error.message, true);
@@ -854,9 +941,26 @@ function bindUI() {
   $("analyze-btn").addEventListener("click", analyze);
   $("apply-corners").addEventListener("click", applyCorners);
   $("pick-files").addEventListener("click", () => $("file-input").click());
+  $("camera-btn").addEventListener("click", () => $("camera-input").click());
   $("file-input").addEventListener("change", () => {
     addFiles($("file-input").files);
     $("file-input").value = "";
+  });
+  $("camera-input").addEventListener("change", () => {
+    addFiles($("camera-input").files);
+    $("camera-input").value = "";
+  });
+  $("rectified").addEventListener("click", () => {
+    if ($("rectified").hidden) return;
+    openImageModal($("rectified").src, "矫正结果");
+  });
+  $("scan").addEventListener("click", () => {
+    if ($("scan").hidden) return;
+    openImageModal($("scan").src, "扫描件");
+  });
+  $("image-modal-close").addEventListener("click", closeImageModal);
+  $("image-modal").addEventListener("click", (event) => {
+    if (event.target === $("image-modal")) closeImageModal();
   });
   $("clear-batch").addEventListener("click", clearBatch);
   $("pdf-current").addEventListener("click", downloadCurrentPdf);
@@ -915,6 +1019,10 @@ function bindUI() {
     button.addEventListener("click", () => annotate(button.dataset.label));
   });
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !$("image-modal").classList.contains("hidden")) {
+      closeImageModal();
+      return;
+    }
     if ($("annotate-panel").classList.contains("hidden")) return;
     if (event.key === "1") annotate("text");
     if (event.key === "2") annotate("formula");
