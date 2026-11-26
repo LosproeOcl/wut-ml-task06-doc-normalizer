@@ -6,12 +6,12 @@
 
 | 字段 | 类型 | 必填 | 取值与说明 |
 |---|---|---|---|
-| `sample_id` | 字符串 | 是 | 全局唯一，取文件名去掉扩展名 |
+| `sample_id` | 字符串 | 是 | 全局唯一，取文件名去掉扩展名；同名不同扩展名的两张独立照片，后登记者加 `_jpg` 等扩展名后缀消歧（如 `IMG_6110_jpg`），并在 notes 注明 |
 | `file` | 字符串 | 是 | 相对于 `data/raw_samples/` 的路径 |
 | `label` | 枚举 | 是 | 归档标签 `ppt_text`、`ppt_formula`、`paper_text`、`paper_formula`；评估时按配置映射为内容二分类 `text`、`formula` |
 | `doc_page_id` | 字符串 | 是 | 文档页分组键。同一文档页的多角度拍摄必须填写相同值 |
 | `shooter` | 字符串 | 是 | 拍摄者姓名缩写，与留证照片命名一致 |
-| `device` | 字符串 | 是 | 手机型号 |
+| `device` | 字符串 | 是 | 手机型号；无元信息的转发/导出图填 `unknown` |
 | `scene` | 枚举 | 是 | `classroom`、`corridor`、`dorm`、`outdoor` |
 | `angle_deg` | 整数 | 是 | 估计倾斜角，0 至 90 |
 | `lighting` | 枚举 | 是 | `natural`、`ceiling`、`side_lamp`、`backlight` |

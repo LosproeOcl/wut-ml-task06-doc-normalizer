@@ -297,12 +297,12 @@
   ]
  },
  "counts": {
-  "train": 242,
-  "val": 51,
+  "val": 52,
+  "train": 240,
   "test": 53
  },
  "frozen_at": "2026-11-26",
- "manifest_sha256": "45bec0cbe2c590a32dd9a204c9d10c7f20e27fb7f9dc61a6ad5f63b4ed34be5c",
+ "manifest_sha256": "2e7634c842a466bc6a9e0e38dbdbc19d0b7449786be4267461a0ecde5b341650",
  "excluded_samples": 31,
- "note": "冻结时点早于计划M1(11-29)，后续补采只能加入训练集；重建须出split_v2并重跑全部实验"
+ "note": "冻结时点早于计划M1(11-29)，后续补采只能加入训练集；重建须出split_v2并重跑全部实验；2026-11-26 device空值回填unknown后重算清单哈希，分组不变；IMG_6111大小写重复登记去除、IMG_6110.jpg独立照片恢复并以_jpg后缀消歧，按分组归属重算counts"
 }
