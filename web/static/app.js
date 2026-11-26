@@ -28,6 +28,12 @@ const $ = (id) => document.getElementById(id);
 const canvas = $("canvas");
 const ctx = canvas.getContext("2d");
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  })[char]);
+}
+
 async function fetchJSON(url, options = {}) {
   const response = await fetch(url, options);
   const data = await response.json().catch(() => ({}));
@@ -597,7 +603,7 @@ function renderReview() {
       : item.review_status === "redo" ? "已退回" : "未标注";
     card.innerHTML = `
       <div class="review-frame">
-        <img src="/api/samples/${encodeURIComponent(item.sample_id)}/image" alt="${item.sample_id}" loading="lazy">
+        <img src="/api/samples/${encodeURIComponent(item.sample_id)}/image" alt="${escapeHtml(item.sample_id)}" loading="lazy">
         ${points.length === 4 ? `
           <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
             <polygon points="${polygon}"></polygon>
@@ -605,14 +611,14 @@ function renderReview() {
           </svg>` : ""}
       </div>
       <div class="review-meta">
-        <strong>${item.sample_id}</strong>
+        <strong>${escapeHtml(item.sample_id)}</strong>
         <span class="badge ${item.review_status === "redo" ? "redo" : ""}">${statusText}</span>
-        <br>标注人：${item.annotator || "未分配"}｜原标签：${item.original_label || "存疑"}
-        ${item.redo_reason ? `<br>退回原因：${item.redo_reason}` : ""}
+        <br>标注人：${escapeHtml(item.annotator || "未分配")}｜原标签：${escapeHtml(item.original_label || "存疑")}
+        ${item.redo_reason ? `<br>退回原因：${escapeHtml(item.redo_reason)}` : ""}
       </div>
       <div class="review-actions">
         ${item.review_status === "saved"
-          ? `<button type="button" data-redo="${item.sample_id}">发回重标</button>`
+          ? `<button type="button" data-redo="${escapeHtml(item.sample_id)}">发回重标</button>`
           : item.review_status === "redo"
             ? `<span class="hint">等待该成员重新标注</span>`
             : `<span class="hint">尚未提交四角</span>`}
