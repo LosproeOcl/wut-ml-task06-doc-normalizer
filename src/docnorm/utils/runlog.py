@@ -151,6 +151,7 @@ TRACKED_FILES = (
     "data/manifests/external_aux.csv",
     "data/manifests/external_aux_small.csv",
     "data/manifests/scb_screen.csv",
+    "data/manifests/screen_gate.csv",
 )
 
 

@@ -37,10 +37,23 @@ CLASSES = ("text", "formula")
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cnn-run", type=Path, default=ROOT / "runs/exp-cnn-05")
-    parser.add_argument("--screen-run", type=Path, default=ROOT / "runs/screen-detector-01")
+    parser.add_argument(
+        "--screen-run",
+        type=Path,
+        nargs="+",
+        default=[ROOT / "runs/screen-detector-01", ROOT / "runs/screen-detector-02"],
+        help="一个或多个屏幕检测器；按分类置信度选择最佳裁剪",
+    )
     parser.add_argument("--config", type=Path, default=ROOT / "configs/default.yaml")
     parser.add_argument("--out", type=Path, default=ROOT / "runs/screen-fallback-01")
     parser.add_argument("--margin", type=float, default=0.06)
+    parser.add_argument("--gate-run", type=Path, default=ROOT / "runs/screen-gate-01")
+    parser.add_argument("--gate-threshold", type=float, default=0.5)
+    parser.add_argument(
+        "--gate-thresholds",
+        default="0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9",
+        help="逗号分隔的置信门控阈值，用于一次性扫描",
+    )
     return parser.parse_args()
 
 
@@ -86,6 +99,29 @@ class ScreenDetector:
         return tuple(float(value) for value in box)
 
 
+class ScreenGate:
+    def __init__(self, path: Path):
+        payload = torch.load(path, map_location="cpu")
+        from scripts.train_screen_gate import ScreenGate as GateModel
+
+        self.model = GateModel(pretrained=False)
+        self.model.load_state_dict(payload["state_dict"])
+        self.model.eval()
+        self.input_size = int(payload.get("input_size", 160))
+
+    @torch.no_grad()
+    def predict(self, image: np.ndarray) -> float:
+        resized = cv2.resize(
+            image, (self.input_size, self.input_size), interpolation=cv2.INTER_AREA
+        )
+        rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
+        tensor = torch.from_numpy(rgb).permute(2, 0, 1).float() / 255.0
+        mean = torch.tensor((0.485, 0.456, 0.406)).view(3, 1, 1)
+        std = torch.tensor((0.229, 0.224, 0.225)).view(3, 1, 1)
+        tensor = ((tensor - mean) / std).unsqueeze(0)
+        return float(torch.softmax(self.model(tensor), dim=1)[0, 1].item())
+
+
 def crop_box(image: np.ndarray, box, margin: float):
     height, width = image.shape[:2]
     x1, y1, x2, y2 = box
@@ -104,9 +140,16 @@ def crop_box(image: np.ndarray, box, margin: float):
     return image[top:bottom, left:right]
 
 
-def classify(classifier: CnnClassifier, image: np.ndarray) -> str:
+def classify_with_confidence(
+    classifier: CnnClassifier, image: np.ndarray
+) -> tuple[str, float]:
     probabilities = classifier.predict_proba([image])[0]
-    return CLASSES[int(probabilities.argmax())]
+    index = int(probabilities.argmax())
+    return CLASSES[index], float(probabilities[index])
+
+
+def classify(classifier: CnnClassifier, image: np.ndarray) -> str:
+    return classify_with_confidence(classifier, image)[0]
 
 
 def rectify_crop(image: np.ndarray, config: dict) -> np.ndarray:
@@ -148,14 +191,26 @@ def main() -> int:
         args,
         config,
         root=ROOT,
-        notes="屏幕检测兜底评估；自采验证集，外部 SCB 只训练屏幕检测器",
+        notes="屏幕检测 + 置信门控评估；自采验证集，SCB 只训练检测器/门控",
     )
     classifier = CnnClassifier.load(args.cnn_run / "cnn.pt", device="cpu")
-    detector = ScreenDetector(args.screen_run / "screen_detector.pt")
-    true_labels = []
-    baseline_predictions = []
-    fallback_predictions = []
-    changed = []
+    detectors = [
+        (path, ScreenDetector(path / "screen_detector.pt"))
+        for path in args.screen_run
+        if (path / "screen_detector.pt").is_file()
+    ]
+    gate = (
+        ScreenGate(args.gate_run / "screen_gate.pt")
+        if (args.gate_run / "screen_gate.pt").is_file()
+        else None
+    )
+    thresholds = sorted(
+        {
+            float(args.gate_threshold),
+            *[float(value) for value in args.gate_thresholds.split(",") if value.strip()],
+        }
+    )
+    records = []
     for item in items:
         loaded = load_image(
             ROOT / config["data"]["raw_dir"] / item["file"], max_long_edge=1280
@@ -176,51 +231,119 @@ def main() -> int:
             else image
         )
         baseline_pred = classify(classifier, baseline_image)
-        fallback_pred = baseline_pred
-        if quad is None:
-            box = detector.predict(image)
-            crop = crop_box(image, box, args.margin)
-            if crop is not None:
-                fallback_pred = classify(classifier, rectify_crop(crop, config))
-        true_labels.append(item["label"])
-        baseline_predictions.append(baseline_pred)
-        fallback_predictions.append(fallback_pred)
-        if baseline_pred != fallback_pred:
-            changed.append(
-                {
-                    "sample_id": item["sample_id"],
-                    "true": item["label"],
-                    "baseline": baseline_pred,
-                    "fallback": fallback_pred,
-                }
+        crop_pred = baseline_pred
+        gate_prob = None
+        if quad is None and gate is not None:
+            gate_prob = gate.predict(image)
+            candidates = []
+            for _, detector in detectors:
+                box = detector.predict(image)
+                crop = crop_box(image, box, args.margin)
+                if crop is None:
+                    continue
+                label, confidence = classify_with_confidence(
+                    classifier, rectify_crop(crop, config)
+                )
+                candidates.append((confidence, label))
+            if candidates:
+                crop_pred = max(candidates)[1]
+        elif quad is None:
+            # 没有门控时保持旧行为：所有自动失败样本都尝试屏幕裁剪
+            gate_prob = 1.0
+            candidates = []
+            for _, detector in detectors:
+                box = detector.predict(image)
+                crop = crop_box(image, box, args.margin)
+                if crop is None:
+                    continue
+                label, confidence = classify_with_confidence(
+                    classifier, rectify_crop(crop, config)
+                )
+                candidates.append((confidence, label))
+            if candidates:
+                crop_pred = max(candidates)[1]
+        records.append(
+            {
+                "item": item,
+                "quad": quad is not None,
+                "baseline": baseline_pred,
+                "crop": crop_pred,
+                "gate_prob": gate_prob,
+            }
+        )
+
+    true_labels = [record["item"]["label"] for record in records]
+    baseline_predictions = [record["baseline"] for record in records]
+    threshold_results = {}
+    for threshold in thresholds:
+        predictions = []
+        changed = []
+        for record in records:
+            use_crop = (
+                not record["quad"]
+                and record["gate_prob"] is not None
+                and record["gate_prob"] >= threshold
             )
+            prediction = record["crop"] if use_crop else record["baseline"]
+            predictions.append(prediction)
+            if prediction != record["baseline"]:
+                changed.append(
+                    {
+                        "sample_id": record["item"]["sample_id"],
+                        "true": record["item"]["label"],
+                        "baseline": record["baseline"],
+                        "fallback": prediction,
+                        "gate_prob": record["gate_prob"],
+                    }
+                )
+        threshold_results[f"{threshold:.2f}"] = {
+            "metrics": metrics(true_labels, predictions),
+            "changed": changed,
+        }
+    default_key = f"{float(args.gate_threshold):.2f}"
+    fallback_metrics = threshold_results[default_key]["metrics"]
+    changed = threshold_results[default_key]["changed"]
     baseline_metrics = metrics(true_labels, baseline_predictions)
-    fallback_metrics = metrics(true_labels, fallback_predictions)
     result = {
         "exp_id": out_dir.name,
         "cnn_run": args.cnn_run.name,
-        "screen_run": args.screen_run.name,
+        "screen_runs": [path.name for path, _ in detectors],
+        "gate_run": args.gate_run.name if gate is not None else None,
+        "gate_threshold": float(args.gate_threshold),
         "n_val": len(items),
         "baseline": baseline_metrics,
         "fallback": fallback_metrics,
         "changed": changed,
+        "thresholds": threshold_results,
     }
     (out_dir / "metrics.json").write_text(
         json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     with (out_dir / "predictions_val.csv").open("w", encoding="utf-8", newline="") as stream:
         writer = csv.writer(stream)
-        writer.writerow(["sample_id", "true_label", "baseline", "fallback"])
-        for item, baseline, fallback in zip(items, baseline_predictions, fallback_predictions):
-            writer.writerow([item["sample_id"], item["label"], baseline, fallback])
-    print(
-        f"baseline acc={baseline_metrics['accuracy']:.4f} "
-        f"fallback acc={fallback_metrics['accuracy']:.4f} "
-        f"changed={len(changed)}"
+        writer.writerow(["sample_id", "true_label", "auto_quad", "gate_prob", "baseline", "crop"])
+        for record in records:
+            writer.writerow(
+                [
+                    record["item"]["sample_id"],
+                    record["item"]["label"],
+                    record["quad"],
+                    "" if record["gate_prob"] is None else round(float(record["gate_prob"]), 6),
+                    record["baseline"],
+                    record["crop"],
+                ]
+            )
+    print(f"baseline acc={baseline_metrics['accuracy']:.4f}")
+    for key, value in threshold_results.items():
+        print(
+            f"gate>={key} fallback acc={value['metrics']['accuracy']:.4f} "
+            f"f1={value['metrics']['macro_f1']:.4f} changed={len(value['changed'])}"
+        )
+    logger.finish(
+        metrics={"baseline": baseline_metrics, "fallback": fallback_metrics},
+        extra=result,
     )
-    logger.finish(metrics={"baseline": baseline_metrics, "fallback": fallback_metrics}, extra=result)
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

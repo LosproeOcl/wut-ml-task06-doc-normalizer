@@ -78,6 +78,10 @@ def mtime_iso(path: Path) -> str:
 
 
 def family_of(exp_id: str) -> str:
+    if exp_id.startswith("screen-gate"):
+        return "gate"
+    if exp_id.startswith("screen-fallback"):
+        return "screen_eval"
     if exp_id.startswith("screen-detector"):
         return "screen"
     if exp_id.startswith("pretrain"):
@@ -180,6 +184,32 @@ def rows_for_run(run_dir: Path) -> list[dict]:
             )
             return [row]
         return []
+    if family == "gate":
+        row = dict(base)
+        row.update(
+            {
+                "model": "screen_gate",
+                "accuracy": metrics.get("accuracy", ""),
+                "macro_f1": metrics.get("macro_f1", ""),
+            }
+        )
+        return [row]
+    if family == "screen_eval":
+        fallback = metrics.get("fallback") or {}
+        row = dict(base)
+        row.update(
+            {
+                "model": "screen_fallback",
+                "accuracy": fallback.get("accuracy", ""),
+                "macro_f1": fallback.get("macro_f1", ""),
+                "notes": (
+                    f"gate={metrics.get('gate_run')} "
+                    f"threshold={metrics.get('gate_threshold')} "
+                    f"baseline={round(float((metrics.get('baseline') or {}).get('accuracy', 0)), 4)}"
+                ),
+            }
+        )
+        return [row]
     if family == "screen":
         row = dict(base)
         row.update(

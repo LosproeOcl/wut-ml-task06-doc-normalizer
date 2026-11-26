@@ -11,6 +11,7 @@
 | `lstm_comparison.png` | CNN+BiLSTM 的种子方差、3 种子平均、5 折 CV 与验证集选权重的对比 |
 | `external_comparison.png` | 外部预训练 2,400 / 600 张与无外部对照的种子方差对比 |
 | `screen_detector_curves.png` | 屏幕检测器的损失、验证 IoU、学习率与梯度范数曲线 |
+| `screen_gate_curves.png` | 屏幕存在性门控的损失、验证准确率、学习率与梯度范数曲线 |
 
 说明：
 

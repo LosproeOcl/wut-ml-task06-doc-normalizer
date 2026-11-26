@@ -159,3 +159,5 @@ docker run --rm -v "$PWD:/app" -w /app docnorm:cpu-arm64 \
 首轮结果：`screen-detector-01`（800/400，160 输入，12 轮）验证 IoU 0.5232、IoU@0.5 召回 0.60；自采验证 baseline 80.39%，screen fallback 80.39%，修复 `IMG_6206` 但改错 `f3ddcd7b...`，净变化 0。
 
 第二轮：`screen-detector-02`（1,600/600，224 输入，20 轮）验证 IoU 0.6551、IoU@0.5 召回 0.7983；但自采 fallback 降到 78.43%，把纸质公式页 `f3ddcd7b...` 改错。说明仅靠 bbox 回归定位不够，必须在自动四角失败时再加“是否投影幕布”的置信门控，否则会误裁纸质页。当前不进入分类主链路。
+
+第三轮：`screen-gate-01`（SCB screen/other + 自采 train 的 ppt/paper，2,236/1,000，160 输入，5 轮）SCB 验证准确率 91.3%、F1 91.29%。在自动四角失败分支加门控，并使用 `screen-detector-01/02` 双 bbox 按分类置信度选择裁剪：阈值 0.2–0.9 下自采验证均为 **82.35% / 81.32%**，只修复 `IMG_6206`，无新增错误；相比 baseline 80.39% 多对 1 张。门控解决了纸质页误裁问题，但增益仍小，暂作为可选分支。

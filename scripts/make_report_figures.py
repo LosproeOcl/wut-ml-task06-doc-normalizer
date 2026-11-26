@@ -297,6 +297,14 @@ def diagnostics_plot(exp: str, title: str, output: str) -> None:
     plt.close(fig)
 
 
+def screen_gate_curves() -> None:
+    diagnostics_plot(
+        "screen-gate-01",
+        "屏幕存在性门控训练诊断（SCB + 自采 train）",
+        "screen_gate_curves.png",
+    )
+
+
 def screen_detector_curves() -> None:
     exp = "screen-detector-02" if (ROOT / "runs/screen-detector-02/epochs.csv").is_file() else "screen-detector-01"
     diagnostics_plot(
@@ -346,6 +354,7 @@ def main() -> int:
     lstm_comparison()
     external_comparison()
     screen_detector_curves()
+    screen_gate_curves()
     print(f"图表写入 {FIG_DIR}")
     return 0
 
