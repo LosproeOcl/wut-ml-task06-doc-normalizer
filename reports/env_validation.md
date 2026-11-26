@@ -16,7 +16,7 @@
 | 容器架构 | linux/arm64 |
 | 基础镜像 | python:3.11-slim |
 | 镜像标签 | docnorm:cpu-arm64 |
-| 镜像体积 | 2.18 GB |
+| 镜像体积 | 2.23 GB |
 
 ## 2. 构建
 
@@ -47,6 +47,8 @@ docker run --rm docnorm:cpu-arm64 python scripts/env_smoke.py --json
 
 运行平台为 `Linux-6.8.0-aarch64-with-glibc2.41`，依赖缺失列表为空，退出码 0。PyTorch 为中央处理器版本，符合 ADR-0004。
 
+网页依赖另行验证：FastAPI 0.165.0、Uvicorn 0.54.0、python-multipart 可正常导入，随镜像安装。
+
 ## 4. 测试
 
 ```bash
@@ -56,7 +58,7 @@ docker run --rm -v "$PWD/data:/app/data:ro" docnorm:cpu-arm64 \
 
 结果：26 项测试全部通过。其中集成测试校验真实清单、排除表、`split_v2` 与磁盘文件的一致性，确认 344 张合格样本、训练 240、验证 51、测试 53。
 
-镜像重建后追加验证：镜像内单元测试 38 项通过（含矫正模块 13 项）；集成测试需挂载 `data/` 运行。
+镜像重建后追加验证：镜像内单元测试 38 项通过（含矫正模块 13 项）；挂载 `data/` 后全量 39 项通过。
 
 ## 5. 未覆盖项
 
