@@ -279,25 +279,54 @@ def _apply_enhance(array: np.ndarray) -> np.ndarray:
     )
 
 
+def _scan_unsharp(image: np.ndarray, amount: float, sigma: float) -> np.ndarray:
+    blurred = cv2.GaussianBlur(image, (0, 0), sigma)
+    return cv2.addWeighted(image, amount, blurred, -(amount - 1), 0)
+
+
+def _scan_block(gray: np.ndarray, preferred: int) -> int:
+    block = min(preferred, min(gray.shape[:2]))
+    if block % 2 == 0:
+        block -= 1
+    return max(3, block)
+
+
 def _apply_scan(array: np.ndarray) -> np.ndarray:
-    """生成扫描件效果：灰度 + 自适应阈值黑白。"""
+    """生成扫描件：浅色纸面锐化后二值化，深色黑板反相后去噪二值化。
+
+    统一输出白底黑字，避免深色背景被自适应阈值整片漂白（过曝）。
+    """
     gray = (
         cv2.cvtColor(array, cv2.COLOR_BGR2GRAY)
         if array.ndim == 3
         else np.asarray(array)
     )
-    gray = cv2.GaussianBlur(gray, (3, 3), 0)
-    block = min(35, min(gray.shape[:2]))
-    if block % 2 == 0:
-        block -= 1
-    block = max(3, block)
+    if float(gray.mean()) < 120.0:
+        inverted = 255 - gray
+        inverted = cv2.fastNlMeansDenoising(inverted, None, 7, 7, 21)
+        inverted = cv2.bilateralFilter(inverted, 7, 50, 50)
+        sigma = max(7.0, min(gray.shape[:2]) / 20.0)
+        background = cv2.GaussianBlur(inverted, (0, 0), sigma)
+        normalized = cv2.divide(inverted, background, scale=255)
+        sharpened = _scan_unsharp(normalized, 1.7, 1.0)
+        binary = cv2.adaptiveThreshold(
+            sharpened,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY,
+            _scan_block(gray, 61),
+            10,
+        )
+        return cv2.medianBlur(binary, 3)
+
+    sharpened = _scan_unsharp(gray, 1.25, 1.0)
     return cv2.adaptiveThreshold(
-        gray,
+        sharpened,
         255,
         cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
         cv2.THRESH_BINARY,
-        block,
-        15,
+        _scan_block(gray, 35),
+        12,
     )
 
 

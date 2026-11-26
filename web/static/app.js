@@ -151,8 +151,9 @@ function showResult(result) {
   state.pending = [];
   $("rectified").hidden = false;
   $("scan").hidden = false;
-  $("rectified").src = `/api/results/${result.result_id}/rectified.png`;
-  $("scan").src = `/api/results/${result.result_id}/scan.png`;
+  const stamp = Date.now();
+  $("rectified").src = `/api/results/${result.result_id}/rectified.png?t=${stamp}`;
+  $("scan").src = `/api/results/${result.result_id}/scan.png?t=${stamp}`;
   $("pdf-current").disabled = false;
   $("result-card").classList.remove("hidden");
   $("label").textContent = result.label
