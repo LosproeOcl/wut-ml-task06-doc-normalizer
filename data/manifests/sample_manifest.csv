@@ -1,7 +1,7 @@
 ﻿sample_id,file,label,doc_page_id,shooter,device,scene,angle_deg,lighting,resolution,shot_at,notes,privacy_masked,privacy_regions,release_file
 009cd8d0561e6bf25373062755703b3c,04_paper_formula/009cd8d0561e6bf25373062755703b3c.jpg,paper_formula,AF-001,UNK,,classroom,30,ceiling,3605x1574,2026-11-25,黑板几何图，与#1同系列；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 05160fce8d4f650a50e1f0c9f189d268,04_paper_formula/05160fce8d4f650a50e1f0c9f189d268.jpg,paper_formula,AF-002,UNK,,classroom,25,ceiling,1989x1557,2026-11-25,黑板电路光路图；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
-071b6a5172cafc0ed6f36b072bb1c892,99_unlabeled/071b6a5172cafc0ed6f36b072bb1c892.png,,UNLABELED-002,UNK,,outdoor,10,natural,1200x2670,2026-11-25,电子屏人像九宫格，非文档内容，含人脸；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
+071b6a5172cafc0ed6f36b072bb1c892,99_unlabeled/071b6a5172cafc0ed6f36b072bb1c892.png,,UNLABELED-002,UNK,,outdoor,10,natural,1200x2670,2026-11-25,电子屏人像九宫格，非文档内容，含人脸；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领；排除：内容存疑待裁定,false,0,
 0731_1,04_paper_formula/0731_1.jpg,paper_formula,AF-003,UNK,,dorm,15,side_lamp,2419x3225,2023-08-01,打印作业卷含公式；无设备元信息；拍摄日期2023-08-01非本次采集期；shooter按设备代填待认领,false,0,
 0731_2,03_paper_text/0731_2.jpg,paper_text,AT-001,UNK,,dorm,20,side_lamp,2419x3225,2023-08-01,打印行政文件；无设备元信息；拍摄日期2023-08-01非本次采集期；shooter按设备代填待认领,false,0,
 1142babf371682c970a56117a6dcf089,04_paper_formula/1142babf371682c970a56117a6dcf089.jpg,paper_formula,AF-004,UNK,,classroom,30,ceiling,4096x2304,2026-11-25,无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
@@ -39,7 +39,7 @@
 7c2b071ba3102ac4417b7ce8a9fd79c9,04_paper_formula/7c2b071ba3102ac4417b7ce8a9fd79c9.jpg,paper_formula,AF-022,UNK,,classroom,30,ceiling,3576x1420,2026-11-25,双黑板；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 7fddd52a8abe05065598d35616b9f039,04_paper_formula/7fddd52a8abe05065598d35616b9f039.jpg,paper_formula,AF-023,UNK,,dorm,15,side_lamp,1279x1706,2026-11-25,无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 804bb6555c0b445e04a9d7e1f62a86a4,04_paper_formula/804bb6555c0b445e04a9d7e1f62a86a4.jpg,paper_formula,AF-008,UNK,,dorm,20,side_lamp,1706x1280,2026-11-25,跨页；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
-82cbe44e04508aaedc9d7e80626c5d72,04_paper_formula/82cbe44e04508aaedc9d7e80626c5d72.jpg,paper_formula,AF-024,UNK,,classroom,25,natural,1700x719,2026-11-25,白板函数图像；无设备元信息；短边719低于720下限；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
+82cbe44e04508aaedc9d7e80626c5d72,04_paper_formula/82cbe44e04508aaedc9d7e80626c5d72.jpg,paper_formula,AF-024,UNK,,classroom,25,natural,1700x719,2026-11-25,白板函数图像；无设备元信息；短边719低于720下限；哈希文件名，疑似非相机直出；shooter按设备代填待认领；排除：短边低于720规范下限,false,0,
 8336536c93962656eef65a8ae5944ad7,04_paper_formula/8336536c93962656eef65a8ae5944ad7.jpg,paper_formula,AF-005-S07,UNK,,dorm,15,side_lamp,1279x1706,2026-11-25,无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 83bd81f4de1ae062a812b9a9b6dc150a,04_paper_formula/83bd81f4de1ae062a812b9a9b6dc150a.jpg,paper_formula,AF-008,UNK,,dorm,20,side_lamp,1706x1280,2026-11-25,跨页；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 85f47f76771d7af3aeb87134a5d37e81,04_paper_formula/85f47f76771d7af3aeb87134a5d37e81.jpg,paper_formula,AF-025,UNK,,dorm,20,side_lamp,1706x1280,2026-11-25,跨页；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
@@ -108,9 +108,9 @@ IMG_20261126_022137,03_paper_text/IMG_20261126_022137.jpg,paper_text,AT-008-S06,
 IMG_20261126_022440,03_paper_text/IMG_20261126_022440.jpg,paper_text,AT-007-S07,OPP-FX9,OPPO Find X9 Ultra,dorm,15,side_lamp,3072x4096,2026-11-25,中文教材；shooter按设备代填待认领,false,0,
 IMG_20261126_022446,03_paper_text/IMG_20261126_022446.jpg,paper_text,AT-008-S07,OPP-FX9,OPPO Find X9 Ultra,dorm,15,side_lamp,3072x4096,2026-11-25,中文教材；shooter按设备代填待认领,false,0,
 IMG_20261126_022452,03_paper_text/IMG_20261126_022452.jpg,paper_text,AT-002,OPP-FX9,OPPO Find X9 Ultra,dorm,15,side_lamp,3072x4096,2026-11-25,中文教材；shooter按设备代填待认领,false,0,
-IMG_3695,03_paper_text/IMG_3695.JPG,paper_text,AT-035,APL-13M,iPhone 13 mini,dorm,10,side_lamp,4032x3024,2026-03-17,获奖证书，含姓名需打码；拍摄日期2026-03-17非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/IMG_3695.jpg
+IMG_3695,03_paper_text/IMG_3695.JPG,paper_text,AT-035,APL-13M,iPhone 13 mini,dorm,10,side_lamp,4032x3024,2026-03-17,获奖证书，含姓名需打码；拍摄日期2026-03-17非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,1,03_paper_text/IMG_3695.jpg
 IMG_4598,02_ppt_formula/IMG_4598.jpeg,ppt_formula,PF-001,APL-13M,iPhone 13 mini,classroom,10,ceiling,4032x3024,2026-11-17,幕布关系模式符号式；shooter按设备代填待认领,false,0,
-IMG_4736,03_paper_text/IMG_4736.JPG,paper_text,AT-036,APL-IPA,iPhone Air,dorm,15,side_lamp,4284x5712,2026-08-02,打印表单含照片需打码；拍摄日期2026-08-02非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/IMG_4736.jpg
+IMG_4736,03_paper_text/IMG_4736.JPG,paper_text,AT-036,APL-IPA,iPhone Air,dorm,15,side_lamp,4284x5712,2026-08-02,打印表单含照片需打码；拍摄日期2026-08-02非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/IMG_4736.jpg
 IMG_5596,02_ppt_formula/IMG_5596.jpeg,ppt_formula,PF-002,APL-IPA,iPhone Air,classroom,10,ceiling,4032x3024,2026-09-16,幕布Bayes公式；拍摄日期2026-09-16非本次采集期；shooter按设备代填待认领,false,0,
 IMG_5597,01_ppt_text/IMG_5597.jpeg,ppt_text,PT-002,APL-IPA,iPhone Air,classroom,10,ceiling,4032x3024,2026-09-16,幕布Fisher文字；拍摄日期2026-09-16非本次采集期；shooter按设备代填待认领,false,0,
 IMG_5599,01_ppt_text/IMG_5599.JPG,ppt_text,PT-003,APL-IPA,iPhone Air,classroom,10,ceiling,4032x3024,2026-09-16,幕布判别示意；拍摄日期2026-09-16非本次采集期；shooter按设备代填待认领,false,0,
@@ -121,7 +121,7 @@ IMG_5926,04_paper_formula/IMG_5926.JPG,paper_formula,AF-036,APL-IPA,iPhone Air,c
 IMG_6005,01_ppt_text/IMG_6005.JPG,ppt_text,PT-006-S00,APL-IPA,iPhone Air,classroom,15,ceiling,4032x3024,2026-10-23,幕布云计算简介，画面含人像；拍摄日期2026-10-23非本次采集期；shooter按设备代填待认领,false,0,
 IMG_6006,01_ppt_text/IMG_6006.JPG,ppt_text,PT-006-S01,APL-IPA,iPhone Air,classroom,15,ceiling,4032x3024,2026-10-23,幕布About myself，含人像；拍摄日期2026-10-23非本次采集期；shooter按设备代填待认领,false,0,
 IMG_6007,01_ppt_text/IMG_6007.JPG,ppt_text,PT-006-S02,APL-IPA,iPhone Air,classroom,10,ceiling,4032x3024,2026-10-23,幕布课程内容；拍摄日期2026-10-23非本次采集期；shooter按设备代填待认领,false,0,
-IMG_6008,01_ppt_text/IMG_6008.jpeg,ppt_text,PT-007,APL-IPA,iPhone Air,classroom,10,ceiling,4032x3024,2026-10-23,幕布QQ群含二维码；拍摄日期2026-10-23非本次采集期；画面含二维码需打码；shooter按设备代填待认领,true,1,01_ppt_text/IMG_6008.jpg
+IMG_6008,01_ppt_text/IMG_6008.jpeg,ppt_text,PT-007,APL-IPA,iPhone Air,classroom,10,ceiling,4032x3024,2026-10-23,幕布QQ群含二维码；拍摄日期2026-10-23非本次采集期；画面含二维码需打码；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,01_ppt_text/IMG_6008.jpg
 IMG_6009,01_ppt_text/IMG_6009.jpeg,ppt_text,PT-006-S03,APL-IPA,iPhone Air,classroom,10,ceiling,4032x3024,2026-10-23,幕布4V；拍摄日期2026-10-23非本次采集期；shooter按设备代填待认领,false,0,
 IMG_6010,01_ppt_text/IMG_6010.jpeg,ppt_text,PT-008,APL-IPA,iPhone Air,classroom,10,ceiling,4032x3024,2026-10-23,幕布发展演进；拍摄日期2026-10-23非本次采集期；shooter按设备代填待认领,false,0,
 IMG_6011,01_ppt_text/IMG_6011.JPG,ppt_text,PT-009,APL-IPA,iPhone Air,classroom,10,ceiling,4032x3024,2026-10-23,幕布特征；拍摄日期2026-10-23非本次采集期；shooter按设备代填待认领,false,0,
@@ -211,7 +211,7 @@ bb7cecccbd5e85c6d6215913d92caacb,04_paper_formula/bb7cecccbd5e85c6d6215913d92caa
 bb98ff019e0acf8c11659b17da279c54,04_paper_formula/bb98ff019e0acf8c11659b17da279c54.jpg,paper_formula,AF-004,UNK,,classroom,10,ceiling,4096x2304,2026-11-25,黑板电路图；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 bf4639becfd5b18f8447700f7d7fa792,04_paper_formula/bf4639becfd5b18f8447700f7d7fa792.jpg,paper_formula,AF-005-S10,UNK,,dorm,15,side_lamp,1279x1706,2026-11-25,手写公式笔记；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 c162d9576eeac872d4190e2058b034a3,04_paper_formula/c162d9576eeac872d4190e2058b034a3.jpg,paper_formula,AF-022,UNK,,classroom,10,ceiling,3591x1478,2026-11-25,黑板电路图；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
-c26016bd751049442dd3b3d47cbc6352,99_unlabeled/c26016bd751049442dd3b3d47cbc6352.jpg,,UNLABELED-212,UNK,,classroom,5,ceiling,2883x1220,2026-11-25,近似空黑板；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
+c26016bd751049442dd3b3d47cbc6352,99_unlabeled/c26016bd751049442dd3b3d47cbc6352.jpg,,UNLABELED-212,UNK,,classroom,5,ceiling,2883x1220,2026-11-25,近似空黑板；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领；排除：内容存疑待裁定,false,0,
 c5a1b26022c221b87448f17e06203ea3,04_paper_formula/c5a1b26022c221b87448f17e06203ea3.jpg,paper_formula,AF-040,UNK,,dorm,15,side_lamp,1706x1280,2026-11-25,英文物理笔记；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 c6916d16f6db943f93ac369cad105f40,04_paper_formula/c6916d16f6db943f93ac369cad105f40.jpg,paper_formula,AF-038,UNK,,classroom,10,ceiling,3823x1511,2026-11-25,黑板电路图；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 d3884afb7f33975bc21a2326468917af,04_paper_formula/d3884afb7f33975bc21a2326468917af.jpg,paper_formula,AF-002,UNK,,classroom,10,ceiling,1963x1534,2026-11-25,黑板电路图；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
@@ -225,10 +225,10 @@ f3ddcd7b8945647d83321bc48231b3b3,04_paper_formula/f3ddcd7b8945647d83321bc48231b3
 f435de42340b5290e710fd174f0f4408,04_paper_formula/f435de42340b5290e710fd174f0f4408.jpg,paper_formula,AF-044,UNK,,dorm,15,side_lamp,1279x1706,2026-11-25,手写公式笔记；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 f45032e77b9a21a4eb6ffd4cb49624e6,04_paper_formula/f45032e77b9a21a4eb6ffd4cb49624e6.jpg,paper_formula,AF-005-S13,UNK,,dorm,15,side_lamp,1279x1706,2026-11-25,手写公式笔记；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
 fc714b5359b5facf48ead39b733700bb,04_paper_formula/fc714b5359b5facf48ead39b733700bb.jpg,paper_formula,AF-005-S14,UNK,,dorm,15,side_lamp,1279x1706,2026-11-25,手写公式笔记；无设备元信息；哈希文件名，疑似非相机直出；shooter按设备代填待认领,false,0,
-ff551154e2cb7e71d7e30a57ea28f627,03_paper_text/ff551154e2cb7e71d7e30a57ea28f627.jpeg,paper_text,AT-038,UNK,,dorm,15,side_lamp,1280x1707,2023-07-31,盖章公文，含姓名需打码；无设备元信息；拍摄日期2023-07-31非本次采集期；哈希文件名，疑似非相机直出；shooter按设备代填待认领,true,1,03_paper_text/ff551154e2cb7e71d7e30a57ea28f627.jpg
-formula_01,04_paper_formula/formula_01.png,paper_formula,AF-045,UNK,,dorm,10,side_lamp,400x539,2026-11-25,打印公式手写批注；无设备元信息；短边400低于720下限；shooter按设备代填待认领,false,0,
+ff551154e2cb7e71d7e30a57ea28f627,03_paper_text/ff551154e2cb7e71d7e30a57ea28f627.jpeg,paper_text,AT-038,UNK,,dorm,15,side_lamp,1280x1707,2023-07-31,盖章公文，含姓名需打码；无设备元信息；拍摄日期2023-07-31非本次采集期；哈希文件名，疑似非相机直出；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,1,03_paper_text/ff551154e2cb7e71d7e30a57ea28f627.jpg
+formula_01,04_paper_formula/formula_01.png,paper_formula,AF-045,UNK,,dorm,10,side_lamp,400x539,2026-11-25,打印公式手写批注；无设备元信息；短边400低于720下限；shooter按设备代填待认领；排除：短边低于720规范下限,false,0,
 formula_02,04_paper_formula/formula_02.jpg,paper_formula,AF-046,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,打印公式手写批注；无设备元信息；shooter按设备代填待认领,false,0,
-formula_03,04_paper_formula/formula_03.png,paper_formula,AF-047,UNK,,dorm,10,side_lamp,400x539,2026-11-25,手写公式推导；无设备元信息；短边400低于720下限；shooter按设备代填待认领,false,0,
+formula_03,04_paper_formula/formula_03.png,paper_formula,AF-047,UNK,,dorm,10,side_lamp,400x539,2026-11-25,手写公式推导；无设备元信息；短边400低于720下限；shooter按设备代填待认领；排除：短边低于720规范下限,false,0,
 formula_04,03_paper_text/formula_04.jpg,paper_text,AT-039,UNK,,dorm,10,side_lamp,3024x4032,2026-11-25,打印文字含一图表；无设备元信息；shooter按设备代填待认领,false,0,
 formula_05,04_paper_formula/formula_05.jpg,paper_formula,AF-048,UNK,,dorm,10,side_lamp,3024x4032,2026-11-25,打印公式推导；无设备元信息；shooter按设备代填待认领,false,0,
 formula_06,03_paper_text/formula_06.jpg,paper_text,AT-040,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,打印正文含少量公式；无设备元信息；shooter按设备代填待认领,false,0,
@@ -259,7 +259,7 @@ text_02,03_paper_text/text_02.jpg,paper_text,AT-040,UNK,,dorm,10,side_lamp,2160x
 text_03,03_paper_text/text_03.jpg,paper_text,AT-043,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,打印试卷解答页；无设备元信息；shooter按设备代填待认领,false,0,
 text_04,03_paper_text/text_04.jpg,paper_text,AT-044,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,打印复习题；无设备元信息；shooter按设备代填待认领,false,0,
 text_05,03_paper_text/text_05.jpg,paper_text,AT-045,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,打印试卷表格页；无设备元信息；shooter按设备代填待认领,false,0,
-text_06,03_paper_text/text_06.jpg,paper_text,AT-046,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,打印成绩表格，含学号姓名需打码；无设备元信息；shooter按设备代填待认领,true,1,03_paper_text/text_06.jpg
+text_06,03_paper_text/text_06.jpg,paper_text,AT-046,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,打印成绩表格，含学号姓名需打码；无设备元信息；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,1,03_paper_text/text_06.jpg
 text_07,03_paper_text/text_07.jpg,paper_text,AT-047,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,英文讲义；无设备元信息；shooter按设备代填待认领,false,0,
 text_08,03_paper_text/text_08.jpg,paper_text,AT-048,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,打印表格页；无设备元信息；shooter按设备代填待认领,false,0,
 text_09,03_paper_text/text_09.jpg,paper_text,AT-049-S02,UNK,,dorm,10,side_lamp,2160x3840,2026-11-25,打印划线文本；无设备元信息；shooter按设备代填待认领,false,0,
@@ -288,33 +288,33 @@ text_paper_lda-end_roll90_indoor_01,03_paper_text/text_paper_lda-end_roll90_indo
 text_paper_lda-p1_tilt20_indoor_01,04_paper_formula/text_paper_lda-p1_tilt20_indoor_01.jpg,paper_formula,AF-060,RED-T5,REDMI Turbo 5,dorm,10,side_lamp,3072x4096,2026-11-25,LDA论文含Bayes公式；shooter按设备代填待认领,false,0,
 图片2,04_paper_formula/图片2.jpg,paper_formula,AF-061,UNK,,dorm,15,side_lamp,1080x1920,2023-08-01,数学分析B卷含公式；无设备元信息；拍摄日期2023-08-01非本次采集期；疑似转发或导出图；shooter按设备代填待认领,false,0,
 图片3,03_paper_text/图片3.jpg,paper_text,AT-061,UNK,,dorm,15,side_lamp,1080x1920,2023-08-01,数智学院试卷文字页；无设备元信息；拍摄日期2023-08-01非本次采集期；疑似转发或导出图；shooter按设备代填待认领,false,0,
-微信图片_20230801110021,03_paper_text/微信图片_20230801110021.jpg,paper_text,AT-062,UNK,,dorm,15,side_lamp,4032x3024,2023-08-01,增值税发票，含个人信息需打码；无设备元信息；拍摄日期2023-08-01非本次采集期；疑似转发或导出图；shooter按设备代填待认领,true,1,03_paper_text/微信图片_20230801110021.jpg
-微信图片_20230801110021_1,03_paper_text/微信图片_20230801110021_1.jpg,paper_text,AT-063,UNK,,dorm,10,side_lamp,3024x4032,2023-08-01,委托书含身份证号手机号需打码；无设备元信息；拍摄日期2023-08-01非本次采集期；疑似转发或导出图；shooter按设备代填待认领,true,1,03_paper_text/微信图片_20230801110021_1.jpg
-湖北银行  瑞和家美 300万 2022.6.15,03_paper_text/湖北银行  瑞和家美 300万 2022.6.15.jpg,paper_text,AT-064,UNK,,outdoor,15,natural,866x1920,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行  瑞和家美 300万 2022.6.15.jpg
-湖北银行  鼎创 300万 2021.12.8,03_paper_text/湖北银行  鼎创 300万 2021.12.8.jpg,paper_text,AT-065-S00,UNK,,outdoor,15,natural,1920x881,2023-07-31,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-31非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行  鼎创 300万 2021.12.8.jpg
-湖北银行 瑞和家美  500万 2022.6 (1),03_paper_text/湖北银行 瑞和家美  500万 2022.6 (1).jpg,paper_text,AT-065-S00,UNK,,outdoor,15,natural,851x1882,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 瑞和家美  500万 2022.6 (1).jpg
-湖北银行 瑞和家美  500万 2022.6 (2),03_paper_text/湖北银行 瑞和家美  500万 2022.6 (2).jpg,paper_text,AT-065-S00,UNK,,outdoor,15,natural,791x1807,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 瑞和家美  500万 2022.6 (2).jpg
-湖北银行 瑞和家美  500万 2022.6 (3),03_paper_text/湖北银行 瑞和家美  500万 2022.6 (3).jpg,paper_text,AT-065-S03,UNK,,outdoor,15,natural,848x1826,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 瑞和家美  500万 2022.6 (3).jpg
-湖北银行 瑞和家美  500万 2022.6 (4),03_paper_text/湖北银行 瑞和家美  500万 2022.6 (4).jpg,paper_text,AT-065-S00,UNK,,outdoor,15,natural,812x1811,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 瑞和家美  500万 2022.6 (4).jpg
-湖北银行 鼎创  400万  2022.1.19,03_paper_text/湖北银行 鼎创  400万  2022.1.19.jpg,paper_text,AT-066,UNK,,outdoor,15,natural,1276x1702,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎创  400万  2022.1.19.jpg
-湖北银行 鼎创  500万  2022.1.26  2,03_paper_text/湖北银行 鼎创  500万  2022.1.26  2.jpg,paper_text,AT-067,UNK,,outdoor,15,natural,1276x1702,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎创  500万  2022.1.26  2.jpg
-湖北银行 鼎创  500万  2022.1.26 1,03_paper_text/湖北银行 鼎创  500万  2022.1.26 1.jpg,paper_text,AT-068,UNK,,outdoor,15,natural,1276x1702,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎创  500万  2022.1.26 1.jpg
-湖北银行 鼎创  500万  2022.1.27,03_paper_text/湖北银行 鼎创  500万  2022.1.27.jpg,paper_text,AT-069,UNK,,outdoor,15,natural,980x1837,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎创  500万  2022.1.27.jpg
-湖北银行 鼎创 200万  20221.1.28,03_paper_text/湖北银行 鼎创 200万  20221.1.28.jpg,paper_text,AT-070,UNK,,outdoor,15,natural,833x1743,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎创 200万  20221.1.28.jpg
-湖北银行 鼎创 300万 2021.1214,03_paper_text/湖北银行 鼎创 300万 2021.1214.JPG,paper_text,AT-071,UNK,,outdoor,15,natural,4032x1667,2023-07-31,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-31非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎创 300万 2021.1214.jpg
-湖北银行 鼎创 400万 2021.12.15,03_paper_text/湖北银行 鼎创 400万 2021.12.15.JPG,paper_text,AT-071,UNK,,outdoor,15,natural,4032x1836,2023-07-31,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-31非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎创 400万 2021.12.15.jpg
-湖北银行 鼎创恒达 350万 2022.8.19,03_paper_text/湖北银行 鼎创恒达 350万 2022.8.19.jpg,paper_text,AT-065-S05,UNK,,outdoor,15,natural,819x1814,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎创恒达 350万 2022.8.19.jpg
-湖北银行 鼎天成 130万 2022.1.11,03_paper_text/湖北银行 鼎天成 130万 2022.1.11.jpg,paper_text,AT-072,UNK,,outdoor,10,natural,1080x1920,2023-07-13,成绩单含姓名学号需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎天成 130万 2022.1.11.jpg
-湖北银行 鼎天成 1700万 2022.1.5,03_paper_text/湖北银行 鼎天成 1700万 2022.1.5.jpg,paper_text,AT-065-S06,UNK,,outdoor,10,natural,1080x1920,2023-07-13,成绩单含姓名学号需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎天成 1700万 2022.1.5.jpg
-湖北银行 鼎天成 260万  2022.1.13,03_paper_text/湖北银行 鼎天成 260万  2022.1.13.jpg,paper_text,AT-072,UNK,,outdoor,10,natural,1080x1920,2023-07-13,成绩单含姓名学号需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎天成 260万  2022.1.13.jpg
-湖北银行 鼎天成 300万  2022.1.12,03_paper_text/湖北银行 鼎天成 300万  2022.1.12.jpg,paper_text,AT-073,UNK,,outdoor,10,natural,1080x1920,2023-07-13,成绩单含姓名学号需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领,true,1,03_paper_text/湖北银行 鼎天成 300万  2022.1.12.jpg
+微信图片_20230801110021,03_paper_text/微信图片_20230801110021.jpg,paper_text,AT-062,UNK,,dorm,15,side_lamp,4032x3024,2023-08-01,增值税发票，含个人信息需打码；无设备元信息；拍摄日期2023-08-01非本次采集期；疑似转发或导出图；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,1,03_paper_text/微信图片_20230801110021.jpg
+微信图片_20230801110021_1,03_paper_text/微信图片_20230801110021_1.jpg,paper_text,AT-063,UNK,,dorm,10,side_lamp,3024x4032,2023-08-01,委托书含身份证号手机号需打码；无设备元信息；拍摄日期2023-08-01非本次采集期；疑似转发或导出图；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,1,03_paper_text/微信图片_20230801110021_1.jpg
+湖北银行  瑞和家美 300万 2022.6.15,03_paper_text/湖北银行  瑞和家美 300万 2022.6.15.jpg,paper_text,AT-064,UNK,,outdoor,15,natural,866x1920,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行  瑞和家美 300万 2022.6.15.jpg
+湖北银行  鼎创 300万 2021.12.8,03_paper_text/湖北银行  鼎创 300万 2021.12.8.jpg,paper_text,AT-065-S00,UNK,,outdoor,15,natural,1920x881,2023-07-31,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-31非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行  鼎创 300万 2021.12.8.jpg
+湖北银行 瑞和家美  500万 2022.6 (1),03_paper_text/湖北银行 瑞和家美  500万 2022.6 (1).jpg,paper_text,AT-065-S00,UNK,,outdoor,15,natural,851x1882,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 瑞和家美  500万 2022.6 (1).jpg
+湖北银行 瑞和家美  500万 2022.6 (2),03_paper_text/湖北银行 瑞和家美  500万 2022.6 (2).jpg,paper_text,AT-065-S00,UNK,,outdoor,15,natural,791x1807,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 瑞和家美  500万 2022.6 (2).jpg
+湖北银行 瑞和家美  500万 2022.6 (3),03_paper_text/湖北银行 瑞和家美  500万 2022.6 (3).jpg,paper_text,AT-065-S03,UNK,,outdoor,15,natural,848x1826,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 瑞和家美  500万 2022.6 (3).jpg
+湖北银行 瑞和家美  500万 2022.6 (4),03_paper_text/湖北银行 瑞和家美  500万 2022.6 (4).jpg,paper_text,AT-065-S00,UNK,,outdoor,15,natural,812x1811,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 瑞和家美  500万 2022.6 (4).jpg
+湖北银行 鼎创  400万  2022.1.19,03_paper_text/湖北银行 鼎创  400万  2022.1.19.jpg,paper_text,AT-066,UNK,,outdoor,15,natural,1276x1702,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 鼎创  400万  2022.1.19.jpg
+湖北银行 鼎创  500万  2022.1.26  2,03_paper_text/湖北银行 鼎创  500万  2022.1.26  2.jpg,paper_text,AT-067,UNK,,outdoor,15,natural,1276x1702,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 鼎创  500万  2022.1.26  2.jpg
+湖北银行 鼎创  500万  2022.1.26 1,03_paper_text/湖北银行 鼎创  500万  2022.1.26 1.jpg,paper_text,AT-068,UNK,,outdoor,15,natural,1276x1702,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 鼎创  500万  2022.1.26 1.jpg
+湖北银行 鼎创  500万  2022.1.27,03_paper_text/湖北银行 鼎创  500万  2022.1.27.jpg,paper_text,AT-069,UNK,,outdoor,15,natural,980x1837,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 鼎创  500万  2022.1.27.jpg
+湖北银行 鼎创 200万  20221.1.28,03_paper_text/湖北银行 鼎创 200万  20221.1.28.jpg,paper_text,AT-070,UNK,,outdoor,15,natural,833x1743,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 鼎创 200万  20221.1.28.jpg
+湖北银行 鼎创 300万 2021.1214,03_paper_text/湖北银行 鼎创 300万 2021.1214.JPG,paper_text,AT-071,UNK,,outdoor,15,natural,4032x1667,2023-07-31,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-31非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 鼎创 300万 2021.1214.jpg
+湖北银行 鼎创 400万 2021.12.15,03_paper_text/湖北银行 鼎创 400万 2021.12.15.JPG,paper_text,AT-071,UNK,,outdoor,15,natural,4032x1836,2023-07-31,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-31非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 鼎创 400万 2021.12.15.jpg
+湖北银行 鼎创恒达 350万 2022.8.19,03_paper_text/湖北银行 鼎创恒达 350万 2022.8.19.jpg,paper_text,AT-065-S05,UNK,,outdoor,15,natural,819x1814,2023-07-13,银行流水单含个人信息需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,2,03_paper_text/湖北银行 鼎创恒达 350万 2022.8.19.jpg
+湖北银行 鼎天成 130万 2022.1.11,03_paper_text/湖北银行 鼎天成 130万 2022.1.11.jpg,paper_text,AT-072,UNK,,outdoor,10,natural,1080x1920,2023-07-13,成绩单含姓名学号需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,1,03_paper_text/湖北银行 鼎天成 130万 2022.1.11.jpg
+湖北银行 鼎天成 1700万 2022.1.5,03_paper_text/湖北银行 鼎天成 1700万 2022.1.5.jpg,paper_text,AT-065-S06,UNK,,outdoor,10,natural,1080x1920,2023-07-13,成绩单含姓名学号需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,1,03_paper_text/湖北银行 鼎天成 1700万 2022.1.5.jpg
+湖北银行 鼎天成 260万  2022.1.13,03_paper_text/湖北银行 鼎天成 260万  2022.1.13.jpg,paper_text,AT-072,UNK,,outdoor,10,natural,1080x1920,2023-07-13,成绩单含姓名学号需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,1,03_paper_text/湖北银行 鼎天成 260万  2022.1.13.jpg
+湖北银行 鼎天成 300万  2022.1.12,03_paper_text/湖北银行 鼎天成 300万  2022.1.12.jpg,paper_text,AT-073,UNK,,outdoor,10,natural,1080x1920,2023-07-13,成绩单含姓名学号需打码；无设备元信息；拍摄日期2023-07-13非本次采集期；shooter按设备代填待认领；D-01排除：含个人信息，不入训练评估、不外发,true,1,03_paper_text/湖北银行 鼎天成 300万  2022.1.12.jpg
 车位转让协议反面,04_paper_formula/车位转让协议反面.jpg,paper_formula,AF-049,UNK,,dorm,20,side_lamp,1080x1920,2023-07-28,概率统计试卷含公式与印章；无设备元信息；拍摄日期2023-07-28非本次采集期；shooter按设备代填待认领,false,0,
 车位转让协议正面,04_paper_formula/车位转让协议正面.jpg,paper_formula,AF-049,UNK,,dorm,15,side_lamp,1080x1920,2023-07-28,概率期末试卷A含公式；无设备元信息；拍摄日期2023-07-28非本次采集期；shooter按设备代填待认领,false,0,
 IMG_0154,02_ppt_formula/IMG_0154.jpg,ppt_formula,PF-N001,UNK,,classroom,15,ceiling,4032x3024,,shooter按设备代填待认领,false,0,
 IMG_0155,02_ppt_formula/IMG_0155.jpg,ppt_formula,PF-N002,UNK,,classroom,15,ceiling,4032x3024,,shooter按设备代填待认领,false,0,
 IMG_0689,02_ppt_formula/IMG_0689.JPG,ppt_formula,PF-N003,UNK,,classroom,30,ceiling,4032x3024,,shooter按设备代填待认领,false,0,
 IMG_0690,02_ppt_formula/IMG_0690.JPG,ppt_formula,PF-N004,UNK,,classroom,30,ceiling,4032x3024,,shooter按设备代填待认领,false,0,
-IMG_0692,99_unlabeled/IMG_0692.JPG,99_unlabeled,UNLABELED-N004,UNK,,classroom,30,ceiling,4032x3024,,人物遮挡屏幕大半内容不可判，待裁定；shooter按设备代填待认领,false,0,
+IMG_0692,99_unlabeled/IMG_0692.JPG,99_unlabeled,UNLABELED-N004,UNK,,classroom,30,ceiling,4032x3024,,人物遮挡屏幕大半内容不可判，待裁定；shooter按设备代填待认领；排除：内容存疑待裁定,false,0,
 IMG_0786,02_ppt_formula/IMG_0786.JPG,ppt_formula,PF-N005,UNK,,classroom,10,ceiling,4032x3024,,shooter按设备代填待认领,false,0,
 IMG_0963,02_ppt_formula/IMG_0963.JPG,ppt_formula,PF-N005,UNK,,classroom,10,ceiling,4032x3024,,shooter按设备代填待认领,false,0,
 IMG_0964,02_ppt_formula/IMG_0964.JPG,ppt_formula,PF-N005,UNK,,classroom,10,ceiling,4032x3024,,shooter按设备代填待认领,false,0,
