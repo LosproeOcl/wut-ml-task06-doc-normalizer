@@ -52,7 +52,7 @@ classify:
     horizontal_flip: false  # 公式页翻转会破坏符号语义
 
 privacy:
-  enabled: false            # D-01：打码开发暂缓，敏感样本按排除表处理
+  enabled: false            # D-01：自动打码能力取消开发（自设扩展功能），数据清洗已完成
   face_detector: yunet      # yunet | haar
   qr_detector: opencv       # opencv，备选 zxing
   yunet_model: models/face_detection_yunet_2023mar.onnx
