@@ -532,6 +532,7 @@ function bindUI() {
       Object.entries(panels).forEach(([key, id]) => {
         $(id).classList.toggle("hidden", key !== target);
       });
+      $("person-bar").classList.toggle("hidden", target === "analyze");
       if (target === "annotate") loadAnnotations();
       if (target === "corners") loadCorners();
     });
