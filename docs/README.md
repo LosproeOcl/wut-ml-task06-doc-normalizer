@@ -55,6 +55,13 @@
 | [`reports/web_integration.md`](../reports/web_integration.md) | 网页双分支接入、验证集路由评估与 6 张评估图 |
 | [`CHANGELOG.md`](../CHANGELOG.md) | 功能、实验与文档变更记录 |
 
+## 过程记录
+
+| 目录 | 内容 |
+|---|---|
+| [`record-img/`](record-img/README.md) | 网页交互与人工标注过程截图（已脱敏，仅历史留档） |
+| [`assets/`](assets/README.md) | 实地采数留证照片与示意图 |
+
 ## 文档编写约定
 
 本仓库文档遵循以下约定，以降低歧义并便于交叉引用。
