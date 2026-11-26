@@ -39,6 +39,7 @@ def test_health_and_samples():
     assert len(payload["items"]) == 3
 
 
+@pytest.mark.requires_dataset
 def test_sample_image_endpoint():
     # 破坏方式：样本标识未校验会暴露任意路径
     sample = client.get("/api/samples?limit=1").json()["items"][0]
@@ -131,6 +132,7 @@ def test_invalid_result_id_rejected():
     assert response.status_code in {404, 405}
 
 
+@pytest.mark.requires_dataset
 def test_corner_annotation_persists_only_for_train(tmp_path, monkeypatch):
     # 破坏方式：四角覆盖写入验证集会污染冻结评估；未接线则拖拽工具无效
     path = tmp_path / "manual_corners.csv"
@@ -160,6 +162,7 @@ def test_corner_annotation_persists_only_for_train(tmp_path, monkeypatch):
     assert rejected.status_code == 403
 
 
+@pytest.mark.requires_dataset
 def test_assignee_filter_and_write_enforcement(tmp_path, monkeypatch):
     # 破坏方式：不按人筛选会让所有人面对全部样本；不校验会让任务分配失效
     monkeypatch.setenv("DOCNORM_CORNER_PATH", str(tmp_path / "manual_corners.csv"))
@@ -183,6 +186,7 @@ def test_assignee_filter_and_write_enforcement(tmp_path, monkeypatch):
     assert rejected.status_code == 403
 
 
+@pytest.mark.requires_dataset
 def test_review_send_back_and_resubmit(tmp_path, monkeypatch):
     # 破坏方式：退回后样本不进入重标队列，或不清理退回标记
     monkeypatch.setenv("DOCNORM_CORNER_PATH", str(tmp_path / "manual_corners.csv"))

@@ -74,6 +74,7 @@ branch: paper-cnn-ensemble-N | ppt-cnn-exp-cnn-05 | classic-svm
 - 结果只写临时目录，1 小时过期，不进入数据集与版本控制。
 - 前端使用原生 JavaScript 与 Canvas，不引入 Node 构建链与外部 CDN。
 - 模型文件在 `runs/`，部署时需挂载仓库目录；缺失时回退 SVM，`branch` 显示 `classic-svm`。
+- 完整 `tests/unit/test_web.py` 需要本地 `data/raw_samples` 图像；CI 使用 `-m "not requires_dataset"` 跳过 4 个数据依赖用例，本地有数据时运行全量。
 
 ## 启动方式
 

@@ -77,4 +77,4 @@ jobs:
 
       - name: Run web contract tests
         run: |
-          pytest tests/unit/test_web.py -q
+          pytest tests/unit/test_web.py -q -m "not requires_dataset"
