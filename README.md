@@ -30,6 +30,7 @@
 | PPT/纸质稿载体门控 | 外部验证 100%，自采验证 51/51 | 候选分支，未接入主链路，`reports/carrier_routing.md` |
 | 纸质稿专用模型 | 30 张纸质验证 70.00% | 与现有 CNN 持平，未接入，`reports/carrier_routing.md` |
 | 外部预训练零样本 | 340 张真实数据 54.41% | 等于全判 text，不能直接使用，`reports/pretrained_zero_shot.md` |
+| 外部文本对照 | 平衡权重 3 种子 80.00%–86.67%，均值 83.33%；两组无权重种子 42 均为 66.67% | 增益来自类别权重，不能归因于数据来源，`reports/external_control.md` |
 
 完整变更见 [`CHANGELOG.md`](CHANGELOG.md)，全部运行索引见 `reports/run_index.csv`。
 

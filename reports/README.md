@@ -13,6 +13,7 @@ reports/
 ├── carrier_routing.md          PPT/纸质稿载体门控与纸质稿专用模型
 ├── pretrained_zero_shot.md     外部预训练权重零样本评估
 ├── pretrained_zero_shot.json   零样本评估机器可读结果
+├── external_control.md         外部文本对照（SmartDoc + Tobacco Scientific）
 ├── baseline_classic.md         传统基线
 ├── cnn_validation.md           CNN 验证与错例
 ├── rectify_detection.md        四角检出评估
@@ -33,6 +34,7 @@ reports/
 | `screen_detection.md` | SCB 幕布检测、屏幕存在性门控与 fallback | `runs/screen-detector-*`、`runs/screen-gate-*` |
 | `carrier_routing.md` | 载体门控与纸质稿专用模型 | `runs/carrier-gate-01`、`runs/paper-cnn-01` |
 | `pretrained_zero_shot.md` | 外部预训练权重在 340 张真实数据上的零样本评估 | `reports/pretrained_zero_shot.json` |
+| `external_control.md` | 外部文本对照：仅 SmartDoc + Tobacco Scientific | `runs/paper-cnn-extctl-*` |
 | `run_index.csv` | 全部运行的一行摘要，供报告引用 | `scripts/index_runs.py` |
 
 ## 图表规范

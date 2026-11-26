@@ -50,6 +50,7 @@
 | [`reports/screen_detection.md`](../reports/screen_detection.md) | 投影幕布检测与 fallback 评估 |
 | [`reports/carrier_routing.md`](../reports/carrier_routing.md) | PPT/纸质稿载体门控与纸质稿专用模型 |
 | [`reports/pretrained_zero_shot.md`](../reports/pretrained_zero_shot.md) | 外部预训练权重在 340 张真实数据上的零样本评估 |
+| [`reports/external_control.md`](../reports/external_control.md) | 外部文本对照：仅 SmartDoc + Tobacco Scientific |
 | [`CHANGELOG.md`](../CHANGELOG.md) | 功能、实验与文档变更记录 |
 
 ## 文档编写约定

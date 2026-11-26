@@ -84,6 +84,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input-size", type=int, default=224)
     parser.add_argument("--patience", type=int, default=2)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--class-weight-mode",
+        choices=("balanced", "none"),
+        default="balanced",
+        help="balanced：按训练集类别频次加权；none：不加权，用于消融类别权重影响",
+    )
     return parser.parse_args()
 
 
@@ -134,7 +140,11 @@ def main() -> int:
         num_workers=0,
     )
     counts = np.bincount([CLASSES.index(row["label"]) for row in train_rows], minlength=2)
-    class_weights = (counts.sum() / (2.0 * np.maximum(counts, 1))).tolist()
+    class_weights = (
+        (counts.sum() / (2.0 * np.maximum(counts, 1))).tolist()
+        if args.class_weight_mode == "balanced"
+        else None
+    )
     classifier = CnnClassifier(
         backbone=str(config["classify"]["backbone"]),
         pretrained=True,

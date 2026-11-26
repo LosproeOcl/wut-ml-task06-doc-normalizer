@@ -149,7 +149,7 @@ docker run --rm -v "$PWD:/app" -w /app docnorm:cpu-arm64 \
 1. **纸质稿内容辅助训练**：`paper_content.csv` 混合自采 paper 与外部 A4，`paper-cnn-01` 在 30 张自采纸质验证上 70.00% / 宏 F1 69.70%，与现有 CNN 持平，未接入主链路。
 2. **载体门控**：`carrier_gate.csv` 混合 SCB 屏幕、自采 PPT/paper 与外部 A4，`carrier-gate-01` 外部验证 1,000 张与自采验证 51 张均全对；作为候选分支，未接入主链路。
 
-同时把 `pretrain-external-01` 与 `pretrain-external-small` 直接用在自采 340 张真实数据上：两者均为 54.41%，等于全判 text 的多数类基线，formula 召回 0% / 2.58%。结论：外部预训练权重不能直接部署；外部公式数据若要继续参与，应做域适配（合成整页、patch 级检测）或补充自采公式页。详见 `reports/carrier_routing.md`、`reports/pretrained_zero_shot.md` 与 ADR-0016。
+同时把 `pretrain-external-01` 与 `pretrain-external-small` 直接用在自采 340 张真实数据上：两者均为 54.41%，等于全判 text 的多数类基线，formula 召回 0% / 2.58%。结论：外部预训练权重不能直接部署；外部公式数据若要继续参与，应做域适配（合成整页、patch 级检测）或补充自采公式页。另做外部文本对照：外部数据只保留 SmartDoc 500 张与 Tobacco Scientific 261 张，不使用 IAM/IM2LaTeX；平衡类别权重下 `paper-cnn-extctl` 三个种子在 30 张纸质验证上为 80.00%–86.67%，均值 83.33%。但关闭类别权重后，该组与全部外部数据组的种子 42 均为 66.67%，说明增益来自公式类权重，不能归因于这两类外部数据本身。详见 `reports/external_control.md`、`reports/carrier_routing.md`、`reports/pretrained_zero_shot.md` 与 ADR-0016。
 
 ## 9. 投影幕布检测分支
 
