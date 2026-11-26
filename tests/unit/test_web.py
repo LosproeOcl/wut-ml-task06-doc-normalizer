@@ -30,6 +30,7 @@ def test_health_and_samples():
     health = client.get("/api/health")
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
+    assert "routing" in health.json()
 
     samples = client.get("/api/samples?limit=3")
     assert samples.status_code == 200
@@ -57,6 +58,7 @@ def test_analyze_upload_returns_stages():
     result = response.json()
     assert result["result_id"]
     assert result["status"] in {"ok", "rectify_failed"}
+    assert "carrier" in result and "branch" in result
     for stage in ("original", "quad", "rectified", "enhanced", "scan"):
         assert client.get(f"/api/results/{result['result_id']}/{stage}").status_code == 200
         assert client.get(f"/api/results/{result['result_id']}/{stage}.png").status_code == 200

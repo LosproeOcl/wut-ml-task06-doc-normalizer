@@ -14,6 +14,12 @@
 | `screen_gate_curves.png` | 屏幕存在性门控的损失、验证准确率、学习率与梯度范数曲线 |
 | `carrier_gate_curves.png` | PPT/幕布 vs A4 纸质稿场景门控（carrier-gate-01）的训练诊断，对应 F12 |
 | `paper_model_curves.png` | 纸质稿专用内容模型（paper-cnn-01）的训练诊断，对应 F13 |
+| `eval_pipeline_comparison.png` | 单模型、纸质集成与双分支路由的准确率/宏 F1 对比，对应 F14 |
+| `eval_seed_stability.png` | 全部外部数据 vs SmartDoc + Scientific 的三种子稳定性，对应 F15 |
+| `eval_weight_ablation.png` | 平衡权重 / 无权重消融，对应 F16 |
+| `eval_confusion_matrices.png` | 单模型与纸质集成的混淆矩阵，对应 F17 |
+| `eval_recall_comparison.png` | text / formula 分召回对比，对应 F18 |
+| `eval_probability_shift.png` | 逐样本 P(formula) 迁移散点，对应 F19 |
 
 说明：
 
@@ -22,3 +28,4 @@
 3. 测试集未参与任何训练、调参或图表选择。
 4. 外部预训练对照 `exp-cnn-ext-01`（2,400 张）与 `exp-cnn-ext-02`（600 张）只用于初始化，不进入自采验证/测试；主实验仍使用自采数据，来源见 `data/manifests/external_aux*.csv`。
 5. CNN+BiLSTM 的 84.3% 是单次种子结果；换种子与 5 折集成都回到 80.4% 以下，图中只作探索记录。
+6. `eval_*` 图同时输出 PNG（300 dpi）与 SVG；生成脚本为 `scripts/make_eval_figures.py`，数据来自 `runs/*/metrics.json`、`reports/eval_paper/*.csv` 与 `reports/routed_pipeline.json`。

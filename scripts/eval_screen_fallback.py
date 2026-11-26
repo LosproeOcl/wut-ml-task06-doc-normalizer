@@ -24,6 +24,7 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT))
 
 from docnorm.classify.cnn import CnnClassifier  # noqa: E402
+from docnorm.classify.gate import ScreenGate  # noqa: E402
 from docnorm.data.loader import load_image  # noqa: E402
 from docnorm.data.manifest import load_manifest  # noqa: E402
 from docnorm.data.split import assign_samples, load_split  # noqa: E402
@@ -97,29 +98,6 @@ class ScreenDetector:
         tensor = ((tensor - mean) / std).unsqueeze(0)
         box = self.model(tensor)[0].cpu().numpy().tolist()
         return tuple(float(value) for value in box)
-
-
-class ScreenGate:
-    def __init__(self, path: Path):
-        payload = torch.load(path, map_location="cpu")
-        from scripts.train_screen_gate import ScreenGate as GateModel
-
-        self.model = GateModel(pretrained=False)
-        self.model.load_state_dict(payload["state_dict"])
-        self.model.eval()
-        self.input_size = int(payload.get("input_size", 160))
-
-    @torch.no_grad()
-    def predict(self, image: np.ndarray) -> float:
-        resized = cv2.resize(
-            image, (self.input_size, self.input_size), interpolation=cv2.INTER_AREA
-        )
-        rgb = cv2.cvtColor(resized, cv2.COLOR_BGR2RGB)
-        tensor = torch.from_numpy(rgb).permute(2, 0, 1).float() / 255.0
-        mean = torch.tensor((0.485, 0.456, 0.406)).view(3, 1, 1)
-        std = torch.tensor((0.229, 0.224, 0.225)).view(3, 1, 1)
-        tensor = ((tensor - mean) / std).unsqueeze(0)
-        return float(torch.softmax(self.model(tensor), dim=1)[0, 1].item())
 
 
 def crop_box(image: np.ndarray, box, margin: float):
@@ -200,7 +178,7 @@ def main() -> int:
         if (path / "screen_detector.pt").is_file()
     ]
     gate = (
-        ScreenGate(args.gate_run / "screen_gate.pt")
+        ScreenGate.from_checkpoint(args.gate_run / "screen_gate.pt")
         if (args.gate_run / "screen_gate.pt").is_file()
         else None
     )

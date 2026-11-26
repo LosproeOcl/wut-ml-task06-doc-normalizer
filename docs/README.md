@@ -40,6 +40,7 @@
 | [0014](adr/0014-标注检查与退回重标.md) | 新增标注检查页，四角可退回原成员重标并保留审计记录 | 已接受 |
 | [0015](adr/0015-人工四角仅作失败回退.md) | 训练拉正默认使用自动检测，人工四角仅在自动失败时回退 | 已接受 |
 | [0016](adr/0016-外部公式数据辅助训练与载体门控.md) | 外部公式数据只用于辅助训练；载体门控为候选分支，预训练权重不直接部署 | 已接受（实验性） |
+| [0017](adr/0017-网页双分支接入.md) | 网页接入载体门控与双分支分类，模型缺失回退 SVM | 已接受 |
 
 ## 相关报告
 
@@ -51,6 +52,7 @@
 | [`reports/carrier_routing.md`](../reports/carrier_routing.md) | PPT/纸质稿载体门控与纸质稿专用模型 |
 | [`reports/pretrained_zero_shot.md`](../reports/pretrained_zero_shot.md) | 外部预训练权重在 340 张真实数据上的零样本评估 |
 | [`reports/external_control.md`](../reports/external_control.md) | 外部文本对照：仅 SmartDoc + Tobacco Scientific |
+| [`reports/web_integration.md`](../reports/web_integration.md) | 网页双分支接入、验证集路由评估与 6 张评估图 |
 | [`CHANGELOG.md`](../CHANGELOG.md) | 功能、实验与文档变更记录 |
 
 ## 文档编写约定

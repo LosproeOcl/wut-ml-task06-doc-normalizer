@@ -15,10 +15,13 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import torch
 import yaml
 from PIL import Image
 
 from docnorm.classify.classic import ClassicClassifier
+from docnorm.classify.cnn import CLASSES as CNN_CLASSES, CnnClassifier
+from docnorm.classify.gate import ScreenGate
 from docnorm.data.annotations import (
     ManualCornerStore,
     ManualLabelStore,
@@ -38,6 +41,16 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = yaml.safe_load((ROOT / "configs/default.yaml").read_text(encoding="utf-8"))
 RESULT_DIR = ROOT / "web/results"
 MODEL_ENV = "DOCNORM_CLASSIC_MODEL"
+CARRIER_GATE_ENV = "DOCNORM_CARRIER_GATE"
+PAPER_MODELS_ENV = "DOCNORM_PAPER_MODELS"
+PPT_MODEL_ENV = "DOCNORM_PPT_MODEL"
+DEFAULT_CARRIER_GATE = ROOT / "runs/carrier-gate-01/screen_gate.pt"
+DEFAULT_PAPER_MODELS = (
+    ROOT / "runs/paper-cnn-extctl-01/paper_cnn.pt",
+    ROOT / "runs/paper-cnn-extctl-43/paper_cnn.pt",
+    ROOT / "runs/paper-cnn-extctl-44/paper_cnn.pt",
+)
+DEFAULT_PPT_MODEL = ROOT / "runs/exp-cnn-05/cnn.pt"
 RESULT_ID_PATTERN = re.compile(r"^[0-9a-f]{32}$")
 STAGES = ("original", "quad", "rectified", "enhanced", "scan")
 
@@ -220,7 +233,46 @@ def _model_path() -> Path | None:
     return candidates[-1] if candidates else None
 
 
+def _carrier_gate_path() -> Path | None:
+    override = os.environ.get(CARRIER_GATE_ENV)
+    path = Path(override) if override else DEFAULT_CARRIER_GATE
+    return path if path.is_file() else None
+
+
+def _paper_model_paths() -> list[Path]:
+    override = os.environ.get(PAPER_MODELS_ENV)
+    if override:
+        return [Path(item) for item in override.split(os.pathsep) if item]
+    paths = [path for path in DEFAULT_PAPER_MODELS if path.is_file()]
+    if paths:
+        return paths
+    fallback = ROOT / "runs/paper-cnn-01/paper_cnn.pt"
+    return [fallback] if fallback.is_file() else []
+
+
+def _ppt_model_path() -> Path | None:
+    override = os.environ.get(PPT_MODEL_ENV)
+    path = Path(override) if override else DEFAULT_PPT_MODEL
+    return path if path.is_file() else None
+
+
+def model_status() -> dict:
+    """返回双分支模型可用性，供 /api/health 与页面提示使用。"""
+    carrier = _carrier_gate_path()
+    paper = _paper_model_paths()
+    ppt = _ppt_model_path()
+    return {
+        "carrier_gate": str(carrier) if carrier else None,
+        "paper_models": [str(path) for path in paper],
+        "ppt_model": str(ppt) if ppt else None,
+        "routing_ready": bool(carrier and paper and ppt),
+    }
+
+
 _MODEL: ClassicClassifier | None = None
+_CARRIER_GATE: ScreenGate | None = None
+_PAPER_MODELS: list[CnnClassifier] | None = None
+_PPT_MODEL: CnnClassifier | None = None
 
 
 def _classifier() -> ClassicClassifier | None:
@@ -234,16 +286,110 @@ def _classifier() -> ClassicClassifier | None:
     return _MODEL
 
 
-def _classify(array: np.ndarray) -> tuple[str | None, dict[str, float] | None]:
+def _carrier_gate() -> ScreenGate | None:
+    global _CARRIER_GATE
+    if _CARRIER_GATE is not None:
+        return _CARRIER_GATE
+    path = _carrier_gate_path()
+    if path is None:
+        return None
+    _CARRIER_GATE = ScreenGate.from_checkpoint(path)
+    return _CARRIER_GATE
+
+
+def _paper_models() -> list[CnnClassifier]:
+    global _PAPER_MODELS
+    if _PAPER_MODELS is not None:
+        return _PAPER_MODELS
+    models: list[CnnClassifier] = []
+    for path in _paper_model_paths():
+        try:
+            models.append(CnnClassifier.load(path, device="cpu"))
+        except (OSError, RuntimeError, ValueError):
+            continue
+    _PAPER_MODELS = models
+    return models
+
+
+def _ppt_model() -> CnnClassifier | None:
+    global _PPT_MODEL
+    if _PPT_MODEL is not None:
+        return _PPT_MODEL
+    path = _ppt_model_path()
+    if path is None:
+        return None
+    _PPT_MODEL = CnnClassifier.load(path, device="cpu")
+    return _PPT_MODEL
+
+
+def _classic_scores(array: np.ndarray) -> tuple[str, dict[str, float]] | None:
     model = _classifier()
     if model is None:
-        return None, None
+        return None
     features = extract_features(array).reshape(1, -1)
     probabilities = model.predict_proba(features)[0]
     classes = list(model.classes_)
     scores = {name: float(probabilities[classes.index(name)]) for name in classes}
-    label = max(scores, key=scores.get)
-    return label, scores
+    return max(scores, key=scores.get), scores
+
+
+@torch.no_grad()
+def _cnn_scores(
+    models: list[CnnClassifier], array: np.ndarray
+) -> tuple[str, dict[str, float]]:
+    total = torch.zeros(1, len(CNN_CLASSES))
+    for model in models:
+        tensor = model._prepare(array).unsqueeze(0)
+        total += torch.softmax(model.model(tensor), dim=1)
+    probabilities = (total / len(models))[0].cpu().numpy()
+    scores = {
+        name: float(probabilities[index]) for index, name in enumerate(CNN_CLASSES)
+    }
+    return max(scores, key=scores.get), scores
+
+
+def _classify(
+    original: np.ndarray, array: np.ndarray
+) -> tuple[str | None, dict[str, float] | None, dict]:
+    """载体门控 → 纸质稿集成 / PPT CNN → SVM 兜底。"""
+    carrier = None
+    carrier_probabilities = None
+    branch = "classic-svm"
+    gate = _carrier_gate()
+    if gate is not None:
+        gate_probabilities = gate.predict_proba(original)
+        carrier = "ppt" if gate_probabilities[1] >= 0.5 else "paper"
+        carrier_probabilities = {
+            "paper": float(gate_probabilities[0]),
+            "ppt": float(gate_probabilities[1]),
+        }
+
+    routed = None
+    if carrier == "paper":
+        models = _paper_models()
+        if models:
+            routed = _cnn_scores(models, array)
+            branch = f"paper-cnn-ensemble-{len(models)}"
+    elif carrier == "ppt":
+        model = _ppt_model()
+        if model is not None:
+            routed = _cnn_scores([model], array)
+            branch = "ppt-cnn-exp-cnn-05"
+
+    if routed is None:
+        routed = _classic_scores(array)
+    if routed is None:
+        return None, None, {
+            "carrier": carrier or "unknown",
+            "carrier_probabilities": carrier_probabilities,
+            "branch": branch,
+        }
+    label, scores = routed
+    return label, scores, {
+        "carrier": carrier or "unknown",
+        "carrier_probabilities": carrier_probabilities,
+        "branch": branch,
+    }
 
 
 def _apply_rectify(array: np.ndarray) -> tuple[np.ndarray, DocumentQuad | None, str]:
@@ -380,6 +526,7 @@ def _save_result(
     status: str,
     label: str | None,
     probabilities: dict[str, float] | None,
+    routing: dict | None,
     runtime_ms: float,
     rectify: bool,
     enhance: bool,
@@ -399,6 +546,9 @@ def _save_result(
         "quad": quad.points.tolist() if quad else None,
         "label": label,
         "probabilities": probabilities,
+        "carrier": (routing or {}).get("carrier", "unknown"),
+        "carrier_probabilities": (routing or {}).get("carrier_probabilities"),
+        "branch": (routing or {}).get("branch", "classic-svm"),
         "runtime_ms": round(runtime_ms, 2),
         "rectify": rectify,
         "enhance": enhance,
@@ -435,7 +585,7 @@ def analyze_array(
         rectified, quad, status = original, None, "ok"
     enhanced = _apply_enhance(rectified) if enhance else rectified
     scan = _apply_scan(rectified)
-    label, probabilities = _classify(enhanced)
+    label, probabilities, routing = _classify(original, enhanced)
     runtime = (time.perf_counter() - started) * 1000
     return _save_result(
         result_id=uuid.uuid4().hex,
@@ -447,6 +597,7 @@ def analyze_array(
         status=status,
         label=label,
         probabilities=probabilities,
+        routing=routing,
         runtime_ms=runtime,
         rectify=rectify,
         enhance=enhance,
@@ -505,7 +656,7 @@ def reprocess(result_id: str, points: list[tuple[float, float]]) -> dict:
     )
     enhanced = _apply_enhance(rectified) if metadata["enhance"] else rectified
     scan = _apply_scan(rectified)
-    label, probabilities = _classify(enhanced)
+    label, probabilities, routing = _classify(original, enhanced)
     runtime = (time.perf_counter() - started) * 1000
     return _save_result(
         result_id=result_id,
@@ -517,6 +668,7 @@ def reprocess(result_id: str, points: list[tuple[float, float]]) -> dict:
         status="ok",
         label=label,
         probabilities=probabilities,
+        routing=routing,
         runtime_ms=runtime,
         rectify=True,
         enhance=bool(metadata["enhance"]),

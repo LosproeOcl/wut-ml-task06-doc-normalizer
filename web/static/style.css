@@ -346,6 +346,28 @@ figcaption {
   color: var(--link);
 }
 
+.routing {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  background: var(--soft);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.badge strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
 .hint {
   color: var(--muted);
   font-size: 12px;

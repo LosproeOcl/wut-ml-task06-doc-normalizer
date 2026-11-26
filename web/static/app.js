@@ -180,6 +180,37 @@ function probabilityBars(probabilities) {
   });
 }
 
+function branchLabel(branch) {
+  if (!branch) return "未知";
+  if (branch.startsWith("paper-cnn-ensemble")) {
+    const count = branch.split("-").pop();
+    return `纸质稿 CNN 集成（${count} 模型）`;
+  }
+  if (branch === "ppt-cnn-exp-cnn-05") return "PPT CNN";
+  if (branch === "classic-svm") return "传统基线兜底";
+  return branch;
+}
+
+function renderRouting(result) {
+  const box = $("routing");
+  box.innerHTML = "";
+  const carrierNames = { ppt: "PPT/幕布", paper: "A4 纸质稿" };
+  const carrier = result.carrier || "unknown";
+  const carrierName = carrierNames[carrier] || "未判定";
+  const probabilities = result.carrier_probabilities || {};
+  const confidence = probabilities[carrier];
+  const carrierBadge = document.createElement("span");
+  carrierBadge.className = "badge";
+  carrierBadge.innerHTML = `载体 <strong>${escapeHtml(carrierName)}</strong>${
+    typeof confidence === "number" ? ` ${(confidence * 100).toFixed(1)}%` : ""
+  }`;
+  const branchBadge = document.createElement("span");
+  branchBadge.className = "badge";
+  branchBadge.innerHTML = `分支 <strong>${escapeHtml(branchLabel(result.branch))}</strong>`;
+  box.appendChild(carrierBadge);
+  box.appendChild(branchBadge);
+}
+
 function showResult(result) {
   state.result = result;
   state.quad = result.quad ? result.quad.map((point) => [...point]) : [];
@@ -204,6 +235,7 @@ function showResult(result) {
   $("label").textContent = result.label
     ? (result.label === "text" ? "文字" : "公式")
     : "模型未加载";
+  renderRouting(result);
   probabilityBars(result.probabilities);
   $("meta").textContent =
     `状态：${result.status}｜方式：${result.method}｜耗时：${result.runtime_ms} ms`;
@@ -562,9 +594,11 @@ async function applyCorners() {
 async function loadHealth() {
   try {
     const health = await fetchJSON("/api/health");
-    $("health").textContent = health.model_ready
-      ? "分类模型已加载"
-      : "未找到分类模型，仅展示预处理";
+    $("health").textContent = health.routing?.routing_ready
+      ? "双分支模型已加载"
+      : health.model_ready
+        ? "分类模型已加载（使用兜底分支）"
+        : "未找到分类模型，仅展示预处理";
   } catch (_) {
     $("health").textContent = "服务状态未知";
   }

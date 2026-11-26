@@ -33,10 +33,12 @@ def index():
 @app.get("/api/health")
 def health():
     model = services._model_path()
+    routing = services.model_status()
     return {
         "status": "ok",
         "classic_model": str(model) if model else None,
-        "model_ready": model is not None,
+        "routing": routing,
+        "model_ready": model is not None or routing["routing_ready"],
         "annotation": services.annotation_stats(),
         "corners": services.corner_stats(),
         "review": services.review_stats(),

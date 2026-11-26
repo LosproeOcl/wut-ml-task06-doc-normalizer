@@ -1,0 +1,28 @@
+{
+  "split": "val",
+  "n": 51,
+  "accuracy": 0.8823529411764706,
+  "macro_f1": 0.8800940438871474,
+  "confusion_matrix": [
+    [
+      26,
+      2
+    ],
+    [
+      4,
+      19
+    ]
+  ],
+  "per_carrier_accuracy": {
+    "ppt": 0.9523809523809523,
+    "paper": 0.8333333333333334
+  },
+  "per_class_recall": {
+    "text": 0.9285714285714286,
+    "formula": 0.8260869565217391
+  },
+  "branches": {
+    "paper-cnn-ensemble-3": 30,
+    "ppt-cnn-exp-cnn-05": 21
+  }
+}

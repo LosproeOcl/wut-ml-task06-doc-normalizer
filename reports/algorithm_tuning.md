@@ -151,6 +151,10 @@ docker run --rm -v "$PWD:/app" -w /app docnorm:cpu-arm64 \
 
 同时把 `pretrain-external-01` 与 `pretrain-external-small` 直接用在自采 340 张真实数据上：两者均为 54.41%，等于全判 text 的多数类基线，formula 召回 0% / 2.58%。结论：外部预训练权重不能直接部署；外部公式数据若要继续参与，应做域适配（合成整页、patch 级检测）或补充自采公式页。另做外部文本对照：外部数据只保留 SmartDoc 500 张与 Tobacco Scientific 261 张，不使用 IAM/IM2LaTeX；平衡类别权重下 `paper-cnn-extctl` 三个种子在 30 张纸质验证上为 80.00%–86.67%，均值 83.33%。但关闭类别权重后，该组与全部外部数据组的种子 42 均为 66.67%，说明增益来自公式类权重，不能归因于这两类外部数据本身。详见 `reports/external_control.md`、`reports/carrier_routing.md`、`reports/pretrained_zero_shot.md` 与 ADR-0016。
 
+### 8.3 网页双分支路由
+
+网页主链路已接入载体门控与双分支分类：paper → 纸质稿 CNN 集成，ppt → PPT CNN，模型缺失回退 SVM。自采验证集 51 张逐页评估为 **88.24% / 宏 F1 88.01%**（PPT 95.24%，纸质 83.33%），比单模型 CNN 80.39% 多对 4 张；测试集尚未评估。详见 `reports/web_integration.md` 与 ADR-0017。
+
 ## 9. 投影幕布检测分支
 
 针对“外部内容数据缺少 PPT 幕布”的问题，改为先定位幕布再分类。公开数据调研结论：

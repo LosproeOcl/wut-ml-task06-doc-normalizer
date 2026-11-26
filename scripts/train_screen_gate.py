@@ -23,17 +23,13 @@ import torch.nn as nn
 import yaml
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from torch.utils.data import DataLoader, Dataset
-from torchvision import models
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from docnorm.classify.gate import CLASSES, MEAN, STD, ScreenGate  # noqa: E402
 from docnorm.data.loader import load_image  # noqa: E402
 from docnorm.utils.runlog import RunLogger  # noqa: E402
-
-MEAN = (0.485, 0.456, 0.406)
-STD = (0.229, 0.224, 0.225)
-CLASSES = ("other", "screen")
 
 
 class GateDataset(Dataset):
@@ -62,26 +58,6 @@ class GateDataset(Dataset):
         std = torch.tensor(STD).view(3, 1, 1)
         tensor = (tensor - mean) / std
         return tensor, torch.tensor(CLASSES.index(row["label"]), dtype=torch.long)
-
-
-class ScreenGate(nn.Module):
-    def __init__(self, pretrained: bool = True):
-        super().__init__()
-        weights = models.MobileNet_V3_Small_Weights.IMAGENET1K_V1 if pretrained else None
-        base = models.mobilenet_v3_small(weights=weights)
-        self.features = base.features
-        self.avgpool = base.avgpool
-        self.head = nn.Sequential(
-            nn.Linear(576, 256),
-            nn.Hardswish(),
-            nn.Dropout(0.2),
-            nn.Linear(256, 2),
-        )
-
-    def forward(self, images):
-        features = self.features(images)
-        pooled = self.avgpool(features)
-        return self.head(torch.flatten(pooled, 1))
 
 
 def evaluate(model, loader):
