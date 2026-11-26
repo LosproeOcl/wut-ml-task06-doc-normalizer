@@ -198,7 +198,7 @@ function showResult(result) {
     batchItem.result = result;
     batchItem.status = "完成";
     batchItem.error = "";
-    syncBatchResults();
+    syncBatchSelection();
     renderBatch();
   }
   $("label").textContent = result.label
@@ -223,11 +223,27 @@ function showResult(result) {
   }
 }
 
-function syncBatchResults() {
+function selectedResults() {
+  return state.batchFiles
+    .filter((item) => item.selected && item.result)
+    .map((item) => item.result);
+}
+
+function syncBatchSelection() {
   state.batchResults = state.batchFiles
     .filter((item) => item.result)
     .map((item) => item.result);
-  $("pdf-batch").disabled = state.batchResults.length === 0;
+  const selected = selectedResults();
+  $("pdf-all").disabled = state.batchResults.length === 0;
+  $("pdf-selected").disabled = selected.length === 0;
+  $("batch-selected").textContent = `已选 ${selected.length} 张`;
+  const max = Math.max(state.batchFiles.length, 1);
+  for (const id of ["pdf-range-start", "pdf-range-end"]) {
+    const input = $(id);
+    input.max = String(max);
+    if (Number(input.value) > max) input.value = String(max);
+    if (Number(input.value) < 1) input.value = "1";
+  }
 }
 
 function renderBatch() {
@@ -242,6 +258,10 @@ function renderBatch() {
       item.status === "完成" ? " done" : item.status === "失败" ? " failed" : ""
     }`;
     card.innerHTML = `
+      <label class="batch-pick">
+        <input type="checkbox" class="batch-check" ${item.selected ? "checked" : ""} />
+        选中
+      </label>
       <img src="${item.url}" alt="${escapeHtml(item.file.name)}" />
       <div class="batch-meta">
         <div>${escapeHtml(item.file.name)}</div>
@@ -258,8 +278,13 @@ function renderBatch() {
           state.result.result_id === item.result.result_id
       )
     );
+    card.querySelector(".batch-check").addEventListener("change", (event) => {
+      event.stopPropagation();
+      item.selected = event.target.checked;
+      syncBatchSelection();
+    });
     card.addEventListener("click", (event) => {
-      if (event.target.closest(".batch-remove")) return;
+      if (event.target.closest(".batch-remove, .batch-pick")) return;
       if (!item.result) {
         setStatus("这张图片还没有完成分析。");
         return;
@@ -275,7 +300,7 @@ function renderBatch() {
   });
   const done = state.batchFiles.filter((item) => item.status === "完成").length;
   $("batch-stats").textContent = `队列 ${state.batchFiles.length} 张，已完成 ${done} 张`;
-  syncBatchResults();
+  syncBatchSelection();
 }
 
 async function makeBatchThumbnail(file) {
@@ -322,9 +347,9 @@ async function addFiles(fileList) {
       result: null,
       error: "",
       calibrated: false,
+      selected: false,
     });
   }
-  $("sample-select").value = "";
   renderBatch();
   setStatus(`已加入 ${accepted.length} 张图片。`);
 }
@@ -342,8 +367,42 @@ function clearBatch() {
   });
   state.batchFiles = [];
   state.batchResults = [];
-  $("file-input").value = "";
-  $("pdf-batch").disabled = true;
+  for (const id of ["file-input", "album-input", "camera-input"]) {
+    $(id).value = "";
+  }
+  $("pdf-range-start").value = "1";
+  $("pdf-range-end").value = "1";
+  renderBatch();
+}
+
+function selectRange() {
+  const start = Math.max(1, Number($("pdf-range-start").value) || 1);
+  const end = Math.min(
+    state.batchFiles.length,
+    Number($("pdf-range-end").value) || start
+  );
+  if (end < start) {
+    setStatus("区间结束位置不能小于开始位置。", true);
+    return;
+  }
+  state.batchFiles.forEach((item, index) => {
+    item.selected = index + 1 >= start && index + 1 <= end;
+  });
+  renderBatch();
+  setStatus(`已选中第 ${start} 到 ${end} 张。`);
+}
+
+function selectAll() {
+  state.batchFiles.forEach((item) => {
+    item.selected = Boolean(item.result);
+  });
+  renderBatch();
+}
+
+function clearSelection() {
+  state.batchFiles.forEach((item) => {
+    item.selected = false;
+  });
   renderBatch();
 }
 
@@ -421,26 +480,37 @@ async function downloadCurrentPdf() {
   }
 }
 
-async function downloadBatchPdf() {
-  if (!state.batchResults.length) return;
+async function downloadResultsPdf(results, filename) {
+  if (!results.length) {
+    setStatus("没有可导出的已完成结果。", true);
+    return;
+  }
   try {
-    setStatus("生成批量 PDF…");
+    setStatus("生成 PDF…");
     await downloadBlob(
       "/api/pdf",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          result_ids: state.batchResults.map((result) => result.result_id),
+          result_ids: results.map((result) => result.result_id),
           mode: $("pdf-mode").value,
         }),
       },
-      "document-batch.pdf"
+      filename
     );
-    setStatus("批量 PDF 已生成。");
+    setStatus(`PDF 已生成（${results.length} 页）。`);
   } catch (error) {
     setStatus(error.message, true);
   }
+}
+
+async function downloadSelectedPdf() {
+  return downloadResultsPdf(selectedResults(), "document-selected.pdf");
+}
+
+async function downloadAllPdf() {
+  return downloadResultsPdf(state.batchResults, "document-all.pdf");
 }
 
 function openImageModal(src, alt) {
@@ -455,25 +525,11 @@ function closeImageModal() {
 }
 
 async function analyze() {
-  if (state.batchFiles.length) {
-    return analyzeBatch();
+  if (!state.batchFiles.length) {
+    setStatus("请先拍照、从相册选择或从文件选择图片。", true);
+    return;
   }
-  const button = $("analyze-btn");
-  button.disabled = true;
-  setStatus("处理中…");
-  try {
-    const sample = $("sample-select").value;
-    if (!sample) throw new Error("请拖入图片、选择图片或从样本库选择");
-    const form = new FormData();
-    form.append("sample_id", sample);
-    form.append("rectify", $("rectify").checked ? "true" : "false");
-    const result = await fetchJSON("/api/analyze", { method: "POST", body: form });
-    showResult(result);
-  } catch (error) {
-    setStatus(error.message, true);
-  } finally {
-    button.disabled = false;
-  }
+  return analyzeBatch();
 }
 
 async function applyCorners() {
@@ -498,21 +554,6 @@ async function applyCorners() {
       item.calibrated = true;
     }
     showResult(result);
-  } catch (error) {
-    setStatus(error.message, true);
-  }
-}
-
-async function loadSamples() {
-  try {
-    const data = await fetchJSON("/api/samples?limit=100");
-    const select = $("sample-select");
-    data.items.forEach((item) => {
-      const option = document.createElement("option");
-      option.value = item.sample_id;
-      option.textContent = `${item.sample_id}（${item.split}，${item.label || "存疑"}）`;
-      select.appendChild(option);
-    });
   } catch (error) {
     setStatus(error.message, true);
   }
@@ -967,10 +1008,15 @@ function bindUI() {
   $("analyze-btn").addEventListener("click", analyze);
   $("apply-corners").addEventListener("click", applyCorners);
   $("pick-files").addEventListener("click", () => $("file-input").click());
+  $("pick-album").addEventListener("click", () => $("album-input").click());
   $("camera-btn").addEventListener("click", () => $("camera-input").click());
   $("file-input").addEventListener("change", () => {
     addFiles($("file-input").files);
     $("file-input").value = "";
+  });
+  $("album-input").addEventListener("change", () => {
+    addFiles($("album-input").files);
+    $("album-input").value = "";
   });
   $("camera-input").addEventListener("change", () => {
     addFiles($("camera-input").files);
@@ -990,10 +1036,11 @@ function bindUI() {
   });
   $("clear-batch").addEventListener("click", clearBatch);
   $("pdf-current").addEventListener("click", downloadCurrentPdf);
-  $("pdf-batch").addEventListener("click", downloadBatchPdf);
-  $("sample-select").addEventListener("change", () => {
-    if ($("sample-select").value) clearBatch();
-  });
+  $("pdf-selected").addEventListener("click", downloadSelectedPdf);
+  $("pdf-all").addEventListener("click", downloadAllPdf);
+  $("pdf-select-range").addEventListener("click", selectRange);
+  $("pdf-select-all").addEventListener("click", selectAll);
+  $("pdf-select-none").addEventListener("click", clearSelection);
   const dropZone = $("drop-zone");
   ["dragenter", "dragover"].forEach((name) => {
     dropZone.addEventListener(name, (event) => {
@@ -1056,7 +1103,32 @@ function bindUI() {
   window.addEventListener("resize", drawCanvas);
 }
 
+async function setupDeviceButtons() {
+  const mobile =
+    window.matchMedia("(pointer: coarse)").matches ||
+    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (!mobile) {
+    $("pick-album").disabled = true;
+    $("pick-album").title = "电脑端请使用“从文件选择”";
+  }
+  let hasCamera = mobile;
+  try {
+    if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      if (devices.length) {
+        hasCamera = devices.some((device) => device.kind === "videoinput");
+      }
+    }
+  } catch (_) {
+    hasCamera = mobile;
+  }
+  if (!hasCamera) {
+    $("camera-btn").disabled = true;
+    $("camera-btn").title = "未检测到摄像头";
+  }
+}
+
 bindUI();
-loadSamples();
+setupDeviceButtons();
 loadHealth();
 loadAnnotators().then(() => loadAnnotations());

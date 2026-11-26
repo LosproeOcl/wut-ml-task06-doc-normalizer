@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>斜拍文档规范化</title>
   <link rel="icon" href="/static/favicon.svg" />
-  <link rel="stylesheet" href="/static/style.css" />
+  <link rel="stylesheet" href="/static/style.css?v=20261127d" />
 </head>
 <body>
   <header class="site-header">
@@ -33,30 +33,41 @@
       </p>
 
       <div class="toolbar">
-        <select id="sample-select" aria-label="选择样本">
-          <option value="">从样本库选择</option>
-        </select>
-        <label><input id="rectify" type="checkbox" checked /> 拉正</label>
-        <button id="analyze-btn" class="primary">分析</button>
+        <button id="camera-btn" type="button">拍照上传</button>
+        <button id="pick-album" type="button">从相册选择</button>
+        <button id="pick-files" type="button">从文件选择</button>
         <span id="health" class="hint"></span>
       </div>
 
+      <input id="camera-input" type="file" accept="image/*" capture="environment" multiple hidden />
+      <input id="album-input" type="file" accept="image/*" multiple hidden />
+      <input id="file-input" type="file" accept="image/*" multiple hidden />
+
       <div id="drop-zone" class="drop-zone">
-        <input id="file-input" type="file" accept="image/*" multiple hidden />
-        <input id="camera-input" type="file" accept="image/*" capture="environment" multiple hidden />
-        <p><strong>拖拽图片到这里</strong>，或
-          <button type="button" id="camera-btn">拍照</button>
-          <button type="button" id="pick-files">从相册选择</button>
-        </p>
-        <p class="hint">支持多张，单张最大 15 MB；拍照可重复点击连续添加，批量会按顺序处理。</p>
+        <p class="hint">也可以把图片拖到这里。支持多张，单张最大 15 MB；拍照可重复点击连续添加。</p>
       </div>
 
       <div id="batch-actions" class="toolbar hidden">
         <span id="batch-stats" class="hint"></span>
-        <span class="hint">点击队列中的图片可切换校准</span>
-        <button id="clear-batch">清空队列</button>
+        <label class="hint">第
+          <input id="pdf-range-start" type="number" min="1" value="1" />
+          到
+          <input id="pdf-range-end" type="number" min="1" value="1" />
+          张
+        </label>
+        <button id="pdf-select-range" type="button">选中区间</button>
+        <button id="pdf-select-all" type="button">全选</button>
+        <button id="pdf-select-none" type="button">清空选择</button>
+        <span id="batch-selected" class="hint"></span>
+        <button id="clear-batch" type="button">清空队列</button>
       </div>
       <div id="batch-list" class="batch-list hidden"></div>
+
+      <div class="toolbar">
+        <label><input id="rectify" type="checkbox" checked /> 拉正</label>
+        <button id="analyze-btn" class="primary">分析队列</button>
+        <span id="status" class="hint"></span>
+      </div>
 
       <div class="stages">
         <figure>
@@ -81,9 +92,9 @@
           <option value="rectified">矫正图</option>
           <option value="original">原图</option>
         </select>
-        <button id="pdf-current" disabled>下载当前 PDF</button>
-        <button id="pdf-batch" disabled>批量 PDF</button>
-        <span id="status" class="hint"></span>
+        <button id="pdf-current" disabled>导出当前单张</button>
+        <button id="pdf-selected" disabled>导出选中</button>
+        <button id="pdf-all" disabled>导出全部</button>
       </div>
 
       <div id="result-card" class="card hidden">
@@ -173,6 +184,6 @@
     武汉理工大学《机器学习》课程实践 · 第六组 · 本机演示
   </footer>
 
-  <script type="module" src="/static/app.js"></script>
+  <script type="module" src="/static/app.js?v=20261127d"></script>
 </body>
 </html>
