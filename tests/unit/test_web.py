@@ -167,3 +167,32 @@ def test_assignee_filter_and_write_enforcement(tmp_path, monkeypatch):
         json={"sample_id": item["sample_id"], "points": points, "annotator": second},
     )
     assert rejected.status_code == 403
+
+
+def test_review_send_back_and_resubmit(tmp_path, monkeypatch):
+    # 破坏方式：退回后样本不进入重标队列，或不清理退回标记
+    monkeypatch.setenv("DOCNORM_CORNER_PATH", str(tmp_path / "manual_corners.csv"))
+    monkeypatch.setenv("DOCNORM_REDO_PATH", str(tmp_path / "redo_corners.csv"))
+    item = client.get("/api/corners?limit=1").json()["items"][0]
+    points = [[20, 20], [200, 20], [200, 160], [20, 160]]
+    saved = client.post(
+        "/api/corners",
+        json={"sample_id": item["sample_id"], "points": points, "annotator": "test"},
+    )
+    assert saved.status_code == 200
+
+    rejected = client.post(
+        f"/api/review/corners/{item['sample_id']}/redo",
+        json={"reason": "测试退回"},
+    )
+    assert rejected.status_code == 200
+    listed = client.get("/api/review/corners", params={"status": "redo"}).json()
+    assert any(entry["sample_id"] == item["sample_id"] for entry in listed["items"])
+
+    resubmitted = client.post(
+        "/api/corners",
+        json={"sample_id": item["sample_id"], "points": points, "annotator": "test"},
+    )
+    assert resubmitted.status_code == 200
+    again = client.get("/api/review/corners", params={"status": "redo"}).json()
+    assert all(entry["sample_id"] != item["sample_id"] for entry in again["items"])

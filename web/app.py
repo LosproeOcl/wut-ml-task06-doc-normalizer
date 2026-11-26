@@ -39,6 +39,7 @@ def health():
         "model_ready": model is not None,
         "annotation": services.annotation_stats(),
         "corners": services.corner_stats(),
+        "review": services.review_stats(),
         "annotators": services.annotators(),
     }
 
@@ -139,6 +140,23 @@ def annotate_corners(payload: schemas.CornerAnnotationRequest):
     return services.save_corners(
         payload.sample_id, payload.points, annotator=payload.annotator
     )
+
+
+@app.get("/api/review/corners")
+def review_corners(
+    assignee: str | None = Query(default=None),
+    status: str | None = Query(default=None),
+    limit: int = Query(default=12, ge=1, le=60),
+    offset: int = Query(default=0, ge=0),
+):
+    return services.review_corners(
+        assignee=assignee, status=status, limit=limit, offset=offset
+    )
+
+
+@app.post("/api/review/corners/{sample_id}/redo")
+def redo_corner(sample_id: str, payload: schemas.RedoRequest):
+    return services.send_back_corner(sample_id, payload.reason)
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@
       <a href="#" class="tab active" data-tab="analyze">单图分析</a>
       <a href="#" class="tab" data-tab="annotate">训练集标签</a>
       <a href="#" class="tab" data-tab="corners">训练集四角</a>
+      <a href="#" class="tab" data-tab="review">标注检查</a>
     </nav>
     <div class="person-bar hidden" id="person-bar">
       <label for="person-select">标注人</label>
@@ -104,6 +105,7 @@
           <p>样本：<code id="corner-id"></code></p>
           <p>清单标签：<span id="corner-label"></span></p>
           <p>初始来源：<span id="corner-source"></span></p>
+          <p id="corner-reason" class="hint hidden"></p>
           <p class="hint">拖动圆点调整；无初始四角时在图上依次点击四个顶点。</p>
           <div class="buttons">
             <button id="corner-confirm" class="primary" disabled>确认四角</button>
@@ -112,6 +114,29 @@
           <p id="corner-stats" class="hint"></p>
           <p id="corner-empty" class="hint hidden">当前没有待标注样本。</p>
         </div>
+      </div>
+    </section>
+
+    <section id="review-panel" class="hidden">
+      <p class="hint">
+        查看全部成员的已保存四角，确认不合规可发回；退回后进入该成员待标注队列，原坐标保留在审计文件中。
+      </p>
+      <div class="toolbar">
+        <select id="review-assignee"><option value="">全部成员</option></select>
+        <select id="review-status">
+          <option value="">全部状态</option>
+          <option value="saved">已保存</option>
+          <option value="redo">已退回</option>
+          <option value="unannotated">未标注</option>
+        </select>
+        <button id="review-reload">刷新</button>
+        <span id="review-stats" class="hint"></span>
+      </div>
+      <div id="review-grid" class="review-grid"></div>
+      <div class="toolbar">
+        <button id="review-prev">上一页</button>
+        <span id="review-page" class="hint"></span>
+        <button id="review-next">下一页</button>
       </div>
     </section>
   </main>

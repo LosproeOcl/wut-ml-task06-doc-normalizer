@@ -18,3 +18,8 @@ class CornerAnnotationRequest(BaseModel):
     sample_id: str = Field(min_length=1)
     points: list[tuple[float, float]] = Field(min_length=4, max_length=4)
     annotator: str = Field(default="web", max_length=40)
+
+
+class RedoRequest(BaseModel):
+    reason: str = Field(default="审查退回：四角范围不符合整页口径", max_length=200)
+

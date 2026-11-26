@@ -70,6 +70,34 @@ def _assignments() -> dict[str, str]:
         }
 
 
+def _redo_index() -> dict[str, dict]:
+    path = _redo_path()
+    if not path.is_file():
+        return {}
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        return {
+            row["sample_id"]: row
+            for row in csv.DictReader(stream)
+            if row.get("sample_id") and row.get("status", "pending") == "pending"
+        }
+
+
+def _clear_redo(sample_id: str) -> None:
+    path = _redo_path()
+    if not path.is_file():
+        return
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    fields = list(rows[0].keys()) if rows else [
+        "sample_id", "assignee", "previous_points", "reason", "requested_at", "status"
+    ]
+    rows = [row for row in rows if row["sample_id"] != sample_id]
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
 def _members() -> list[str]:
     values = _assignments().values()
     ordered: list[str] = []
@@ -469,6 +497,7 @@ def save_annotation(sample_id: str, label: str, annotator: str = "web") -> dict:
 def corner_stats(assignee: str | None = None) -> dict:
     index = _sample_index()
     assignment = _assignments()
+    redo = _redo_index()
     train = [
         item for item in index.values()
         if item["split"] == "train" and (not assignee or assignment.get(item["sample_id"]) == assignee)
@@ -477,6 +506,7 @@ def corner_stats(assignee: str | None = None) -> dict:
     return {
         "train_total": len(train),
         "annotated": sum(1 for item in train if item["sample_id"] in saved),
+        "redo": sum(1 for item in train if item["sample_id"] in redo),
     }
 
 
@@ -506,6 +536,7 @@ def corner_candidates(
     index = _sample_index()
     saved = _corner_store().load()
     assignment = _assignments()
+    redo = _redo_index()
     items = []
     for sample in index.values():
         if sample["split"] != "train":
@@ -513,24 +544,28 @@ def corner_candidates(
         if assignee and assignment.get(sample["sample_id"]) != assignee:
             continue
         annotated = sample["sample_id"] in saved
-        if only_unannotated and annotated:
+        if only_unannotated and annotated and sample["sample_id"] not in redo:
             continue
         width, height = (int(value) for value in sample["resolution"].split("x"))
-        points = saved.get(sample["sample_id"])
+        points = None if sample["sample_id"] in redo else saved.get(sample["sample_id"])
         source = "manual" if points else "none"
+        if sample["sample_id"] in redo:
+            source = "redo"
         if points is not None:
             points = clamp_points(points, width, height)
         else:
             auto = _auto_points(sample["sample_id"])
             if auto is not None:
                 points = [list(point) for point in auto]
-                source = "auto"
+                source = "auto" if sample["sample_id"] not in redo else "redo"
         items.append(
             {
                 **sample,
                 "points": points,
                 "source": source,
                 "annotated": annotated,
+                "redo": sample["sample_id"] in redo,
+                "redo_reason": redo.get(sample["sample_id"], {}).get("reason", ""),
                 "assignee": assignment.get(sample["sample_id"], ""),
             }
         )
@@ -574,6 +609,7 @@ def save_corners(
     except (RectifyError, ValueError) as exc:
         raise WebError(f"四角非法: {exc}") from exc
     _corner_store().set(sample_id, quad.points.tolist(), annotator=annotator)
+    _clear_redo(sample_id)
     return corner_stats(_member_scope(annotator))
 
 
@@ -584,3 +620,123 @@ def float_points(points: object) -> list[list[float]]:
         return [[float(point[0]), float(point[1])] for point in points]
     except (TypeError, ValueError, IndexError) as exc:
         raise WebError("四角坐标格式非法") from exc
+
+
+def _redo_path() -> Path:
+    return Path(os.environ.get(
+        "DOCNORM_REDO_PATH", ROOT / "data/annotations/redo_corners.csv"
+    ))
+
+
+def _read_redo_rows() -> list[dict]:
+    path = _redo_path()
+    if not path.is_file():
+        return []
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        return list(csv.DictReader(stream))
+
+
+def _write_redo_rows(rows: list[dict]) -> None:
+    path = _redo_path()
+    fields = [
+        "sample_id", "assignee", "previous_points", "reason", "requested_at", "status"
+    ]
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def review_stats(assignee: str | None = None) -> dict:
+    index = _sample_index()
+    assignment = _assignments()
+    records = _corner_store().records()
+    redo = _redo_index()
+    train = [
+        item for item in index.values()
+        if item["split"] == "train" and (not assignee or assignment.get(item["sample_id"]) == assignee)
+    ]
+    return {
+        "total": len(train),
+        "saved": sum(1 for item in train if item["sample_id"] in records),
+        "redo": sum(1 for item in train if item["sample_id"] in redo),
+        "unannotated": sum(
+            1 for item in train
+            if item["sample_id"] not in records and item["sample_id"] not in redo
+        ),
+    }
+
+
+def review_corners(
+    *,
+    assignee: str | None = None,
+    status: str | None = None,
+    limit: int = 12,
+    offset: int = 0,
+) -> dict:
+    index = _sample_index()
+    assignment = _assignments()
+    records = _corner_store().records()
+    redo = _redo_index()
+    items = []
+    for sample in index.values():
+        if sample["split"] != "train":
+            continue
+        if assignee and assignment.get(sample["sample_id"]) != assignee:
+            continue
+        record = records.get(sample["sample_id"])
+        redo_row = redo.get(sample["sample_id"])
+        if record:
+            state = "saved"
+            points = record["points"]
+            annotator = record["annotator"]
+        elif redo_row:
+            state = "redo"
+            points = json.loads(redo_row["previous_points"])
+            annotator = assignment.get(sample["sample_id"], "")
+        else:
+            state = "unannotated"
+            points = None
+            annotator = assignment.get(sample["sample_id"], "")
+        if status and status != "all" and state != status:
+            continue
+        items.append(
+            {
+                **sample,
+                "points": points,
+                "annotator": annotator,
+                "review_status": state,
+                "redo": state == "redo",
+                "redo_reason": redo_row["reason"] if redo_row else "",
+            }
+        )
+    items.sort(key=lambda item: (item["review_status"] != "redo", item["sample_id"]))
+    return {
+        "total": len(items),
+        "stats": review_stats(assignee),
+        "items": items[offset: offset + limit],
+    }
+
+
+def send_back_corner(sample_id: str, reason: str) -> dict:
+    sample = get_sample(sample_id)
+    if sample["split"] != "train":
+        raise WebError("只允许退回训练集样本", status=403)
+    records = _corner_store().records()
+    if sample_id not in records:
+        if sample_id in _redo_index():
+            raise WebError("样本已在退回队列", status=409)
+        raise WebError("样本没有已保存四角", status=404)
+    row = {
+        "sample_id": sample_id,
+        "assignee": _assignments().get(sample_id, ""),
+        "previous_points": json.dumps(records[sample_id]["points"], separators=(",", ":")),
+        "reason": reason,
+        "requested_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "status": "pending",
+    }
+    rows = [item for item in _read_redo_rows() if item["sample_id"] != sample_id]
+    rows.append(row)
+    _write_redo_rows(rows)
+    _corner_store().remove(sample_id)
+    return review_stats(_assignments().get(sample_id))

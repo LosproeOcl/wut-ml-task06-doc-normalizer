@@ -26,6 +26,21 @@ web/
 6. 训练集标签校正：逐张选择文字或公式，写入独立标注文件，显示进度。
 7. 训练集四角：自动建议四角，拖动控制点后确认保存，训练时优先使用。
 8. 顶部标注人下拉框：按分配筛选个人队列，显示已分配、已保存四角与已校正标签数量。
+9. 标注检查：按成员与状态查看全部四角记录，叠加轮廓逐条发回重标；退回原因回到成员队列，见 ADR-0014。
+
+## 主要接口
+
+| 方法 | 路径 | 用途 |
+|---|---|---|
+| `GET` | `/api/annotators` | 成员、分配数与完成数 |
+| `GET` | `/api/annotations` | 训练集标签队列（`assignee` 可选） |
+| `POST` | `/api/annotations` | 保存标签校正 |
+| `GET` | `/api/corners` | 训练集四角队列（`assignee` 可选） |
+| `POST` | `/api/corners` | 保存四角，成功后清除退回记录 |
+| `GET` | `/api/review/corners` | 全部记录，按 `assignee` / `status` 筛选并分页 |
+| `POST` | `/api/review/corners/{sample_id}/redo` | 发回重标，原坐标写入审计文件 |
+
+标注文件默认在 `data/annotations/`；测试可用 `DOCNORM_ANNOTATION_PATH`、`DOCNORM_CORNER_PATH`、`DOCNORM_REDO_PATH` 指向临时文件。
 
 ## 约束
 

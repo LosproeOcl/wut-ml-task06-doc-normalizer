@@ -28,10 +28,10 @@ class ManualLabelStore:
     def __init__(self, path: Path | None = None) -> None:
         self.path = Path(path) if path is not None else default_annotation_path()
 
-    def load(self) -> dict[str, str]:
+    def _load_records(self) -> dict[str, dict[str, str]]:
         if not self.path.is_file():
             return {}
-        labels: dict[str, str] = {}
+        records: dict[str, dict[str, str]] = {}
         with self.path.open(encoding="utf-8-sig", newline="") as stream:
             for row in csv.DictReader(stream):
                 sample_id = (row.get("sample_id") or "").strip()
@@ -40,27 +40,62 @@ class ManualLabelStore:
                     continue
                 if label not in LABELS:
                     raise AnnotationError(f"标注标签非法: {row}")
-                labels[sample_id] = label
-        return labels
+                records[sample_id] = {
+                    "label": label,
+                    "annotator": (row.get("annotator") or "unknown").strip(),
+                    "updated_at": (row.get("updated_at") or "").strip(),
+                }
+        return records
 
-    def save(self, labels: dict[str, str], annotator: str = "unknown") -> None:
+    def _write_records(self, records: dict[str, dict[str, str]]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
         temporary = self.path.with_suffix(".tmp")
         with temporary.open("w", encoding="utf-8", newline="") as stream:
             writer = csv.writer(stream)
             writer.writerow(FIELDS)
-            for sample_id in sorted(labels):
-                writer.writerow([sample_id, labels[sample_id], annotator, timestamp])
+            for sample_id in sorted(records):
+                record = records[sample_id]
+                writer.writerow(
+                    [
+                        sample_id,
+                        record["label"],
+                        record["annotator"],
+                        record["updated_at"],
+                    ]
+                )
         temporary.replace(self.path)
+
+    def load(self) -> dict[str, str]:
+        return {sid: record["label"] for sid, record in self._load_records().items()}
+
+    def save(self, labels: dict[str, str], annotator: str = "unknown") -> None:
+        """批量写入标签；已有记录保留原标注人和时间。"""
+        records = self._load_records()
+        timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        for sample_id, label in labels.items():
+            if label not in LABELS:
+                raise AnnotationError(f"标签必须为 {LABELS} 之一: {label}")
+            if sample_id in records:
+                records[sample_id]["label"] = label
+            else:
+                records[sample_id] = {
+                    "label": label,
+                    "annotator": annotator,
+                    "updated_at": timestamp,
+                }
+        self._write_records(records)
 
     def set(self, sample_id: str, label: str, annotator: str = "unknown") -> dict[str, str]:
         if label not in LABELS:
             raise AnnotationError(f"标签必须为 {LABELS} 之一: {label}")
-        labels = self.load()
-        labels[sample_id] = label
-        self.save(labels, annotator=annotator)
-        return labels
+        records = self._load_records()
+        records[sample_id] = {
+            "label": label,
+            "annotator": annotator,
+            "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        }
+        self._write_records(records)
+        return {sid: record["label"] for sid, record in records.items()}
 
 
 CORNER_FIELDS = ("sample_id", "points", "annotator", "updated_at")
@@ -132,12 +167,12 @@ class ManualCornerStore:
             raise AnnotationError("四角面积过小")
         return array
 
-    def load(self) -> dict[str, list[list[float]]]:
+    def _load_records(self) -> dict[str, dict[str, object]]:
         if not self.path.is_file():
             return {}
         import json
 
-        corners: dict[str, list[list[float]]] = {}
+        records: dict[str, dict[str, object]] = {}
         with self.path.open(encoding="utf-8-sig", newline="") as stream:
             for row in csv.DictReader(stream):
                 sample_id = (row.get("sample_id") or "").strip()
@@ -147,36 +182,82 @@ class ManualCornerStore:
                     points = json.loads(row.get("points") or "[]")
                 except ValueError as exc:
                     raise AnnotationError(f"四角 JSON 非法: {row}") from exc
-                corners[sample_id] = self._validate(points)
-        return corners
+                records[sample_id] = {
+                    "points": self._validate(points),
+                    "annotator": (row.get("annotator") or "unknown").strip(),
+                    "updated_at": (row.get("updated_at") or "").strip(),
+                }
+        return records
 
-    def save(
-        self, corners: dict[str, list[list[float]]], annotator: str = "unknown"
-    ) -> None:
+    def _write_records(self, records: dict[str, dict[str, object]]) -> None:
         import json
 
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
         temporary = self.path.with_suffix(".tmp")
         with temporary.open("w", encoding="utf-8", newline="") as stream:
             writer = csv.writer(stream)
             writer.writerow(CORNER_FIELDS)
-            for sample_id in sorted(corners):
+            for sample_id in sorted(records):
+                record = records[sample_id]
                 writer.writerow(
                     [
                         sample_id,
-                        json.dumps(self._validate(corners[sample_id]), separators=(",", ":")),
-                        annotator,
-                        timestamp,
+                        json.dumps(
+                            self._validate(record["points"]),
+                            separators=(",", ":"),
+                        ),
+                        record["annotator"],
+                        record["updated_at"],
                     ]
                 )
         temporary.replace(self.path)
 
+    def load(self) -> dict[str, list[list[float]]]:
+        return {
+            sid: record["points"]  # type: ignore[return-value]
+            for sid, record in self._load_records().items()
+        }
+
+    def records(self) -> dict[str, dict[str, object]]:
+        """返回包含坐标、标注人和更新时间的记录。"""
+        return self._load_records()
+
+    def remove(self, sample_id: str) -> bool:
+        records = self._load_records()
+        if sample_id not in records:
+            return False
+        del records[sample_id]
+        self._write_records(records)
+        return True
+
+    def save(
+        self, corners: dict[str, list[list[float]]], annotator: str = "unknown"
+    ) -> None:
+        """批量写入四角；已有记录保留原标注人和时间。"""
+        records = self._load_records()
+        timestamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+        for sample_id, points in corners.items():
+            if sample_id in records:
+                records[sample_id]["points"] = self._validate(points)
+            else:
+                records[sample_id] = {
+                    "points": self._validate(points),
+                    "annotator": annotator,
+                    "updated_at": timestamp,
+                }
+        self._write_records(records)
+
     def set(
         self, sample_id: str, points: object, annotator: str = "unknown"
     ) -> dict[str, list[list[float]]]:
-        corners = self.load()
-        corners[sample_id] = self._validate(points)
-        self.save(corners, annotator=annotator)
-        return corners
-
+        records = self._load_records()
+        records[sample_id] = {
+            "points": self._validate(points),
+            "annotator": annotator,
+            "updated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        }
+        self._write_records(records)
+        return {
+            sid: record["points"]  # type: ignore[return-value]
+            for sid, record in records.items()
+        }

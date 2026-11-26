@@ -17,7 +17,12 @@ const state = {
   cornerMoveStart: null,
   cornerMoveOriginal: null,
   person: "",
+  reviewItems: [],
+  reviewOffset: 0,
+  reviewTotal: 0,
 };
+
+const REVIEW_PAGE_SIZE = 12;
 
 const $ = (id) => document.getElementById(id);
 const canvas = $("canvas");
@@ -241,8 +246,18 @@ async function loadAnnotators() {
       option.textContent = `${member.name}（分配 ${member.assigned}）`;
       select.appendChild(option);
     });
-    const saved = localStorage.getItem("t06-person");
     const names = data.members.map((member) => member.name);
+    const reviewSelect = $("review-assignee");
+    const previousReview = reviewSelect.value;
+    reviewSelect.innerHTML = '<option value="">全部成员</option>';
+    data.members.forEach((member) => {
+      const option = document.createElement("option");
+      option.value = member.name;
+      option.textContent = `${member.name}（已保存 ${member.corners}）`;
+      reviewSelect.appendChild(option);
+    });
+    reviewSelect.value = names.includes(previousReview) ? previousReview : "";
+    const saved = localStorage.getItem("t06-person");
     state.person = saved && names.includes(saved) ? saved : (names[0] || "");
     select.value = state.person;
     state.annotatorData = data.members;
@@ -336,6 +351,7 @@ function renderCorner(stats) {
     $("corner-id").textContent = "";
     $("corner-label").textContent = "";
     $("corner-source").textContent = "";
+    $("corner-reason").classList.add("hidden");
     $("corner-confirm").disabled = true;
     return;
   }
@@ -343,7 +359,13 @@ function renderCorner(stats) {
   $("corner-id").textContent = item.sample_id;
   $("corner-label").textContent = item.original_label || "存疑";
   $("corner-source").textContent =
-    item.source === "auto" ? "自动检测建议" : item.source === "manual" ? "已保存" : "未检出";
+    item.source === "auto" ? "自动检测建议"
+    : item.source === "manual" ? "已保存"
+    : item.source === "redo" ? "审查退回，需重新标注"
+    : "未检出";
+  const reasonNode = $("corner-reason");
+  reasonNode.textContent = item.redo_reason ? `退回原因：${item.redo_reason}` : "";
+  reasonNode.classList.toggle("hidden", !item.redo_reason);
   state.cornerQuad = item.points
     ? item.points.map(([x, y]) => {
         const [width, height] = item.resolution.split("x").map(Number);
@@ -517,6 +539,115 @@ async function confirmCorner() {
   }
 }
 
+function reviewQuery() {
+  const params = new URLSearchParams({
+    limit: String(REVIEW_PAGE_SIZE),
+    offset: String(state.reviewOffset),
+  });
+  const assignee = $("review-assignee").value;
+  const status = $("review-status").value;
+  if (assignee) params.set("assignee", assignee);
+  if (status) params.set("status", status);
+  return params.toString();
+}
+
+async function loadReview(reset = true) {
+  if (reset) state.reviewOffset = 0;
+  try {
+    $("review-stats").textContent = "载入标注记录…";
+    const data = await fetchJSON(`/api/review/corners?${reviewQuery()}`);
+    state.reviewItems = data.items;
+    state.reviewTotal = data.total;
+    if (data.stats) {
+      $("review-stats").textContent =
+        `已保存 ${data.stats.saved} · 已退回 ${data.stats.redo} · 未标注 ${data.stats.unannotated}`;
+    }
+    renderReview();
+  } catch (error) {
+    $("review-stats").textContent = error.message;
+  }
+}
+
+function renderReview() {
+  const grid = $("review-grid");
+  grid.innerHTML = "";
+  if (!state.reviewItems.length) {
+    const empty = document.createElement("p");
+    empty.className = "hint";
+    empty.textContent = "当前筛选条件下没有样本。";
+    grid.appendChild(empty);
+    $("review-page").textContent = "";
+    $("review-prev").disabled = true;
+    $("review-next").disabled = true;
+    return;
+  }
+  state.reviewItems.forEach((item) => {
+    const [width, height] = item.resolution.split("x").map(Number);
+    const card = document.createElement("div");
+    card.className = "review-card";
+    const points = item.points || [];
+    const polygon = points.map(([x, y]) => `${x},${y}`).join(" ");
+    const handleRadius = Math.max(width, height) * 0.008;
+    const handles = points
+      .map(([x, y], index) =>
+        `<circle cx="${x}" cy="${y}" r="${handleRadius}" class="handle" data-index="${index + 1}"></circle>`)
+      .join("");
+    const statusText =
+      item.review_status === "saved" ? "已保存"
+      : item.review_status === "redo" ? "已退回" : "未标注";
+    card.innerHTML = `
+      <div class="review-frame">
+        <img src="/api/samples/${encodeURIComponent(item.sample_id)}/image" alt="${item.sample_id}" loading="lazy">
+        ${points.length === 4 ? `
+          <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">
+            <polygon points="${polygon}"></polygon>
+            ${handles}
+          </svg>` : ""}
+      </div>
+      <div class="review-meta">
+        <strong>${item.sample_id}</strong>
+        <span class="badge ${item.review_status === "redo" ? "redo" : ""}">${statusText}</span>
+        <br>标注人：${item.annotator || "未分配"}｜原标签：${item.original_label || "存疑"}
+        ${item.redo_reason ? `<br>退回原因：${item.redo_reason}` : ""}
+      </div>
+      <div class="review-actions">
+        ${item.review_status === "saved"
+          ? `<button type="button" data-redo="${item.sample_id}">发回重标</button>`
+          : item.review_status === "redo"
+            ? `<span class="hint">等待该成员重新标注</span>`
+            : `<span class="hint">尚未提交四角</span>`}
+      </div>`;
+    grid.appendChild(card);
+  });
+  grid.querySelectorAll("[data-redo]").forEach((button) => {
+    button.addEventListener("click", () => sendBackCorner(button.dataset.redo, button));
+  });
+
+  const start = state.reviewOffset + 1;
+  const end = state.reviewOffset + state.reviewItems.length;
+  $("review-page").textContent = `${start}–${end} / ${state.reviewTotal}`;
+  $("review-prev").disabled = state.reviewOffset <= 0;
+  $("review-next").disabled = state.reviewOffset + REVIEW_PAGE_SIZE >= state.reviewTotal;
+}
+
+async function sendBackCorner(sampleId, button) {
+  const input = window.prompt("退回原因（留空使用默认说明）", "");
+  if (input === null) return;
+  const reason = input.trim() || "审查退回：四角范围不符合整页口径";
+  button.disabled = true;
+  try {
+    await fetchJSON(`/api/review/corners/${encodeURIComponent(sampleId)}/redo`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
+    });
+    loadReview(false);
+  } catch (error) {
+    $("review-stats").textContent = error.message;
+    button.disabled = false;
+  }
+}
+
 function bindUI() {
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.addEventListener("click", (event) => {
@@ -528,13 +659,15 @@ function bindUI() {
         analyze: "analyze-panel",
         annotate: "annotate-panel",
         corners: "corner-panel",
+        review: "review-panel",
       };
       Object.entries(panels).forEach(([key, id]) => {
         $(id).classList.toggle("hidden", key !== target);
       });
-      $("person-bar").classList.toggle("hidden", target === "analyze");
+      $("person-bar").classList.toggle("hidden", target === "analyze" || target === "review");
       if (target === "annotate") loadAnnotations();
       if (target === "corners") loadCorners();
+      if (target === "review") loadReview(true);
     });
   });
   $("analyze-btn").addEventListener("click", analyze);
@@ -558,6 +691,17 @@ function bindUI() {
   $("corner-skip").addEventListener("click", () => {
     state.cornerIndex += 1;
     renderCorner(null);
+  });
+  $("review-reload").addEventListener("click", () => loadReview(true));
+  $("review-assignee").addEventListener("change", () => loadReview(true));
+  $("review-status").addEventListener("change", () => loadReview(true));
+  $("review-prev").addEventListener("click", () => {
+    state.reviewOffset = Math.max(0, state.reviewOffset - REVIEW_PAGE_SIZE);
+    loadReview(false);
+  });
+  $("review-next").addEventListener("click", () => {
+    state.reviewOffset += REVIEW_PAGE_SIZE;
+    loadReview(false);
   });
   document.querySelectorAll("[data-label]").forEach((button) => {
     button.addEventListener("click", () => annotate(button.dataset.label));

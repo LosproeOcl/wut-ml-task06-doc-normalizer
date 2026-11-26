@@ -12,6 +12,8 @@
 
 训练集标注任务分配写入 `assignees.csv`，字段为 `sample_id,assignee,label,doc_page_id`，由 `scripts/assign_annotations.py` 生成。前端按标注人筛选队列，服务端拒绝非本人写入，见 ADR-0013。已有四角记录统一归属余青阳，其余样本按总计数均分，当前为 5 人 30 张、3 人 29 张。
 
+标注检查退回写入 `redo_corners.csv`，字段为 `sample_id,assignee,previous_points,reason,requested_at,status`。退回时从 `manual_corners.csv` 删除该样本并把原坐标留在审计文件中，样本重新进入该成员待标注队列；成员重新保存四角后该行被清除，见 ADR-0014。该文件不参与训练。
+
 ## 可选文件
 
 若后续需要记录模型参考角点，可建立 `corners_reference.json`，并明确标注来源为模型预测，不得称为人工真值。
