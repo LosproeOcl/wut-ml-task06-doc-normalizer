@@ -77,6 +77,8 @@ def mtime_iso(path: Path) -> str:
 
 
 def family_of(exp_id: str) -> str:
+    if exp_id.startswith("pretrain"):
+        return "pretrain"
     if exp_id.startswith("ensemble"):
         return "ensemble"
     if exp_id.startswith("cv-lstm"):
@@ -175,6 +177,17 @@ def rows_for_run(run_dir: Path) -> list[dict]:
             )
             return [row]
         return []
+    if family == "pretrain":
+        row = dict(base)
+        row.update(
+            {
+                "model": "pretrain",
+                "accuracy": metrics.get("external_val_accuracy", ""),
+                "macro_f1": "",
+                "backbone": metrics.get("backbone", "mobilenet_v3_small"),
+            }
+        )
+        return [row]
     if family == "ensemble":
         summary = metrics.get("summary") or {}
         best = summary.get("best_weight") or summary.get("best_route") or {}

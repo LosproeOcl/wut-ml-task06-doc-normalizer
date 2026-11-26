@@ -6,11 +6,13 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import matplotlib
 
 matplotlib.use("Agg")
+import matplotlib.font_manager as fm
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -18,19 +20,42 @@ ROOT = Path(__file__).resolve().parents[1]
 FIG_DIR = ROOT / "reports/figures"
 FIG_DIR.mkdir(parents=True, exist_ok=True)
 
+
+def setup_cjk_font() -> str | None:
+    candidates = [
+        os.environ.get("CJK_FONT", ""),
+        "/fonts/cjk.ttc",
+        str(ROOT / "assets/fonts/NotoSansCJKsc-Regular.otf"),
+    ]
+    for candidate in candidates:
+        path = Path(candidate)
+        if not candidate or not path.is_file():
+            continue
+        fm.fontManager.addfont(str(path))
+        name = fm.FontProperties(fname=str(path)).get_name()
+        plt.rcParams["font.sans-serif"] = [name, "DejaVu Sans"]
+        plt.rcParams["axes.unicode_minus"] = False
+        return name
+    print("警告：未找到中文字体，图上中文可能显示为方块")
+    return None
+
+
+setup_cjk_font()
+
 MODELS = [
-    ("SVM (auto)", "exp-20261126-08", "svm", "#4c72b0"),
-    ("Random Forest (auto)", "exp-20261126-08", "rf", "#4c72b0"),
-    ("CNN (auto)", "exp-cnn-04", None, "#dd8452"),
-    ("CNN (manual always)", "exp-cnn-03", None, "#dd8452"),
-    ("CNN (manual fallback)", "exp-cnn-05", None, "#dd8452"),
-    ("CNN 320 / mild", "exp-cnn-06", None, "#dd8452"),
+    ("SVM（自动检测）", "exp-20261126-08", "svm", "#4c72b0"),
+    ("随机森林（自动检测）", "exp-20261126-08", "rf", "#4c72b0"),
+    ("CNN（自动检测）", "exp-cnn-04", None, "#dd8452"),
+    ("CNN（人工四角全量）", "exp-cnn-03", None, "#dd8452"),
+    ("CNN（人工四角失败回退）", "exp-cnn-05", None, "#dd8452"),
+    ("CNN 320 输入（弱增强）", "exp-cnn-06", None, "#dd8452"),
     ("CNN EfficientNet-B0", "exp-cnn-07", None, "#dd8452"),
-    ("CNN MobileNetV3-L", "exp-cnn-08", None, "#dd8452"),
-    ("CNN MobileNetV3-L tuned", "exp-cnn-09", None, "#dd8452"),
-    ("Fusion (classic + CNN)", "fusion-exp-01", "fusion_svm", "#8172b2"),
-    ("CNN + BiLSTM (best seed)", "exp-lstm-01", None, "#c44e52"),
-    ("GA feature selection + SVM", "ga-feature-01", None, "#8172b2"),
+    ("CNN MobileNetV3-Large", "exp-cnn-08", None, "#dd8452"),
+    ("CNN MobileNetV3-Large 正则化", "exp-cnn-09", None, "#dd8452"),
+    ("融合（传统特征 + CNN）", "fusion-exp-01", "fusion_svm", "#8172b2"),
+    ("CNN + BiLSTM（最佳种子）", "exp-lstm-01", None, "#c44e52"),
+    ("CNN（外部预训练）", "exp-cnn-ext-01", None, "#55a868"),
+    ("遗传算法特征选择 + SVM", "ga-feature-01", None, "#8172b2"),
 ]
 
 
@@ -62,13 +87,13 @@ def model_comparison() -> None:
     y = np.arange(len(rows))
     fig, ax = plt.subplots(figsize=(9, 5.6))
     height = 0.38
-    ax.barh(y - height / 2, accuracy, height, label="Accuracy", color="#4c72b0")
-    ax.barh(y + height / 2, f1, height, label="Macro F1", color="#55a868")
+    ax.barh(y - height / 2, accuracy, height, label="准确率", color="#4c72b0")
+    ax.barh(y + height / 2, f1, height, label="宏平均 F1", color="#55a868")
     ax.set_yticks(y, labels)
     ax.invert_yaxis()
     ax.set_xlim(0, 100)
-    ax.set_xlabel("Validation score (%)")
-    ax.set_title("Model comparison on split_v3 validation (n=51)")
+    ax.set_xlabel("验证集得分（%）")
+    ax.set_title("split_v3 验证集模型对比（n=51）")
     for index, value in enumerate(accuracy):
         ax.text(value + 0.8, index - height / 2, f"{value:.1f}", va="center", fontsize=8)
     for index, value in enumerate(f1):
@@ -81,7 +106,7 @@ def model_comparison() -> None:
 
 
 def corner_policy_comparison() -> None:
-    policies = ["none", "fallback", "always"]
+    policies = ["不使用", "失败回退", "全部使用"]
     classic_exp = ["exp-20261126-08", "exp-20261126-07", "exp-20261126-05"]
     cnn_exp = ["exp-cnn-04", "exp-cnn-05", "exp-cnn-03"]
     classic = [read_metrics(exp, "svm") for exp in classic_exp]
@@ -95,8 +120,8 @@ def corner_policy_comparison() -> None:
     ax.bar(x + width / 2, [v[0] * 100 for v in cnn], width, label="MobileNetV3-Small", color="#dd8452")
     ax.set_xticks(x, policies)
     ax.set_ylim(0, 100)
-    ax.set_ylabel("Accuracy (%)")
-    ax.set_title("Manual-corner training policy (split_v3 validation)")
+    ax.set_ylabel("准确率（%）")
+    ax.set_title("人工四角训练策略（split_v3 验证集）")
     for index, value in enumerate(classic):
         ax.text(index - width / 2, value[0] * 100 + 1, f"{value[0]*100:.1f}", ha="center", fontsize=8)
     for index, value in enumerate(cnn):
@@ -110,10 +135,10 @@ def corner_policy_comparison() -> None:
 
 def confusion_panels() -> None:
     panels = [
-        ("SVM (auto, none)", "exp-20261126-08", "svm"),
-        ("CNN (manual fallback)", "exp-cnn-05", None),
-        ("Fusion (classic + CNN)", "fusion-exp-01", "fusion_svm"),
-        ("CNN + BiLSTM (seed 42)", "exp-lstm-01", None),
+        ("SVM（自动检测）", "exp-20261126-08", "svm"),
+        ("CNN（人工四角失败回退）", "exp-cnn-05", None),
+        ("融合（传统特征 + CNN）", "fusion-exp-01", "fusion_svm"),
+        ("CNN + BiLSTM（种子 42）", "exp-lstm-01", None),
     ]
     fig, axes = plt.subplots(1, 4, figsize=(14, 3.8))
     for ax, (title, exp, model) in zip(axes, panels):
@@ -127,10 +152,10 @@ def confusion_panels() -> None:
         else:
             matrix = np.array(data["models"][model]["confusion_matrix"])
         ax.imshow(matrix, cmap="Blues")
-        ax.set_xticks([0, 1], ["text", "formula"])
-        ax.set_yticks([0, 1], ["text", "formula"])
-        ax.set_xlabel("Predicted")
-        ax.set_ylabel("True")
+        ax.set_xticks([0, 1], ["文字", "公式"])
+        ax.set_yticks([0, 1], ["文字", "公式"])
+        ax.set_xlabel("预测")
+        ax.set_ylabel("真实")
         ax.set_title(title)
         for row in range(2):
             for col in range(2):
@@ -143,12 +168,12 @@ def confusion_panels() -> None:
 
 def training_curves() -> None:
     runs = [
-        ("exp-cnn-04", "auto"),
-        ("exp-cnn-05", "fallback"),
-        ("exp-cnn-06", "320 mild"),
+        ("exp-cnn-04", "自动检测"),
+        ("exp-cnn-05", "失败回退"),
+        ("exp-cnn-06", "320 弱增强"),
         ("exp-cnn-07", "EfficientNet-B0"),
-        ("exp-cnn-08", "MobileNetV3-L"),
-        ("exp-cnn-09", "MobileNetV3-L tuned"),
+        ("exp-cnn-08", "MobileNetV3-Large"),
+        ("exp-cnn-09", "MobileNetV3-Large 正则化"),
         ("exp-lstm-01", "CNN + BiLSTM"),
     ]
     available = [item for item in runs if (ROOT / "runs" / item[0] / "metrics.json").is_file()]
@@ -161,12 +186,12 @@ def training_curves() -> None:
         epochs = np.arange(1, len(history["val_accuracy"]) + 1)
         axes[0].plot(epochs, np.array(history["val_accuracy"]) * 100, marker="o", markersize=3, label=label)
         axes[1].plot(epochs, history["val_loss"], marker="o", markersize=3, label=label)
-    axes[0].set_xlabel("Epoch")
-    axes[0].set_ylabel("Validation accuracy (%)")
-    axes[0].set_title("Validation accuracy")
-    axes[1].set_xlabel("Epoch")
-    axes[1].set_ylabel("Validation loss")
-    axes[1].set_title("Validation loss")
+    axes[0].set_xlabel("轮次")
+    axes[0].set_ylabel("验证准确率（%）")
+    axes[0].set_title("验证准确率")
+    axes[1].set_xlabel("轮次")
+    axes[1].set_ylabel("验证损失")
+    axes[1].set_title("验证损失")
     for ax in axes:
         ax.grid(alpha=0.25)
         ax.legend(fontsize=8)
@@ -179,11 +204,11 @@ def lstm_comparison() -> None:
     entries = []
     cnn = read_metrics("exp-cnn-05", None)
     if cnn:
-        entries.append(("CNN baseline", cnn[0] * 100, "#4c72b0", False))
+        entries.append(("CNN 基线", cnn[0] * 100, "#4c72b0", False))
     for exp, label in (
-        ("exp-lstm-01", "LSTM seed 42"),
-        ("exp-lstm-02", "LSTM seed 43"),
-        ("exp-lstm-03", "LSTM seed 44"),
+        ("exp-lstm-01", "LSTM 种子 42"),
+        ("exp-lstm-02", "LSTM 种子 43"),
+        ("exp-lstm-03", "LSTM 种子 44"),
     ):
         value = read_metrics(exp, None)
         if value:
@@ -194,19 +219,19 @@ def lstm_comparison() -> None:
         summary = data.get("summary", {})
         best = summary.get("best_weight") or {}
         if best:
-            entries.append(("3-seed avg + CNN", best["accuracy"] * 100, "#c44e52", False))
+            entries.append(("3 种子平均 + CNN", best["accuracy"] * 100, "#c44e52", False))
     path = ROOT / "runs/cv-lstm-01/metrics.json"
     if path.is_file():
         data = json.loads(path.read_text(encoding="utf-8"))
         metrics = data.get("metrics", {})
         if metrics:
-            entries.append(("LSTM 5-fold CV", metrics["accuracy"] * 100, "#8172b2", False))
+            entries.append(("LSTM 5 折 CV", metrics["accuracy"] * 100, "#8172b2", False))
     path = ROOT / "runs/ensemble-cnn-lstm/metrics.json"
     if path.is_file():
         data = json.loads(path.read_text(encoding="utf-8"))
         best = data.get("summary", {}).get("best_weight") or {}
         if best:
-            entries.append(("Ensemble (val-selected)", best["accuracy"] * 100, "#c44e52", True))
+            entries.append(("集成（验证集选权重）", best["accuracy"] * 100, "#c44e52", True))
     if not entries:
         return
     labels = [entry[0] for entry in entries]
@@ -220,11 +245,11 @@ def lstm_comparison() -> None:
         ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1,
                 f"{bar.get_height():.1f}", ha="center", fontsize=8)
     ax.set_ylim(0, 100)
-    ax.set_ylabel("Validation accuracy (%)")
-    ax.set_title("CNN + BiLSTM seed variance (n=51)")
-    ax.tick_params(axis="x", labelrotation=15)
+    ax.set_ylabel("验证准确率（%）")
+    ax.set_title("CNN + BiLSTM 种子方差（n=51）")
+    ax.tick_params(axis="x", labelrotation=18, labelsize=9)
     ax.grid(axis="y", alpha=0.25)
-    fig.tight_layout()
+    fig.tight_layout(rect=(0, 0.10, 1, 1))
     fig.savefig(FIG_DIR / "lstm_comparison.png", dpi=200)
     plt.close(fig)
 

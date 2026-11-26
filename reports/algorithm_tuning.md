@@ -113,3 +113,18 @@ docker run --rm -v "$PWD:/app" -w /app docnorm:cpu-arm64 \
   env PYTHONPATH=/app/src python scripts/fusion_eval.py \
   --cnn-run runs/exp-cnn-05 --out runs/fusion-exp-01
 ```
+
+## 8. 外部辅助预训练（已披露）
+
+课程要求未禁止外部数据，因此增加一组“仅预训练”的对照实验。外部数据不进入自采清单、验证集或测试集，来源与许可见 `data/manifests/external_aux.csv` 与 `docs/13-外部数据使用说明.md`。
+
+| 项目 | 内容 |
+|---|---|
+| 外部数据 | IM2LATEX-100K 1,200 张公式；Tobacco-3482 900 张、IAM 180 张、SmartDoc 120 张文字类 |
+| 预训练 | MobileNetV3-Small，160 输入，2 轮，外部验证 93.3% |
+| 自采微调 | `exp-cnn-ext-01`，224 输入，15 轮，fallback 人工四角 |
+| 自采验证 | 76.5% / 74.2%，低于自采从零微调的 80.4% / 79.0% |
+
+结论：外部预训练在本数据上没有收益。外部公式渲染图与教室幕布/纸质公式的域差距较大，Tobacco/IAM 的弱文字标签也会把特征带偏；微调后初始验证损失高达 2.59，13 轮才恢复。该结果作为负面对照保留，最终方案不采用外部预训练。
+
+外部实验同样生成完整日志：`runs/pretrain-external-01/` 与 `runs/exp-cnn-ext-01/` 下均有 `run.json`、`train.log`、`epochs.csv`。

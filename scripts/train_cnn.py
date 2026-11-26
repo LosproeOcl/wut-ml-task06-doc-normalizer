@@ -214,6 +214,12 @@ def main() -> int:
         default=None,
         help="原图长边；默认取 1280 与 input_size×5 的较大值",
     )
+    parser.add_argument(
+        "--init-checkpoint",
+        type=Path,
+        default=None,
+        help="外部预训练或上一阶段权重，加载后继续微调",
+    )
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -328,6 +334,19 @@ def main() -> int:
         input_size=args.input_size,
         random_state=args.seed,
     )
+    if args.init_checkpoint:
+        checkpoint_path = (
+            args.init_checkpoint
+            if args.init_checkpoint.is_absolute()
+            else ROOT / args.init_checkpoint
+        )
+        payload = torch.load(checkpoint_path, map_location="cpu")
+        state = payload.get("state_dict", payload) if isinstance(payload, dict) else payload
+        missing, unexpected = classifier.model.load_state_dict(state, strict=False)
+        print(
+            f"加载初始化权重 {checkpoint_path}，"
+            f"missing={len(missing)} unexpected={len(unexpected)}"
+        )
     started = time.perf_counter()
     history = classifier.fit(
         train_loader,
@@ -402,6 +421,7 @@ def main() -> int:
         "n_manual_corners": len(corners),
         "backbone": str(config["classify"]["backbone"]),
         "input_size": args.input_size,
+        "init_checkpoint": str(args.init_checkpoint) if args.init_checkpoint else None,
         "augment": args.augment,
         "load_size": load_size,
         "seed": args.seed,
