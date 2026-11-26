@@ -1,7 +1,7 @@
 """人工标签存储的单元测试。"""
 import pytest
 
-from docnorm.data.annotations import AnnotationError, ManualCornerStore, ManualLabelStore
+from docnorm.data.annotations import AnnotationError, ManualCornerStore, ManualLabelStore, scale_points
 
 
 def test_missing_file_returns_empty(tmp_path):
@@ -39,3 +39,8 @@ def test_corner_store_roundtrip_and_validation(tmp_path):
             [[0, 0], [10, 0], [20, 0], [30, 0]],
             annotator="tester",
         )
+
+
+def test_scale_points_maps_original_to_resized():
+    scaled = scale_points([[100, 200], [200, 400]], (400, 800), (400, 200))
+    assert scaled == [[50.0, 100.0], [100.0, 200.0]]

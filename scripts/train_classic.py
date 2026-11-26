@@ -30,7 +30,7 @@ from docnorm.classify.classic import ClassicClassifier  # noqa: E402
 from docnorm.data.loader import load_image  # noqa: E402
 from docnorm.data.manifest import load_manifest  # noqa: E402
 from docnorm.data.split import assign_samples, check_manifest_hash, load_split  # noqa: E402
-from docnorm.data.annotations import ManualCornerStore, ManualLabelStore  # noqa: E402
+from docnorm.data.annotations import ManualCornerStore, ManualLabelStore, scale_points  # noqa: E402
 from docnorm.rectify.geometry import DocumentQuad, RectifyError  # noqa: E402
 from docnorm.enhance.clahe import enhance_document  # noqa: E402
 from docnorm.features.classic import FEATURE_DIM, extract_features  # noqa: E402
@@ -71,16 +71,22 @@ def build_features(
         label = overrides.get(sample.sample_id, sample.content_label)
         if label is None:
             continue
-        image = load_image(
+        loaded = load_image(
             ROOT / config["data"]["raw_dir"] / sample.file,
             max_long_edge=image_size,
-        ).image
+        )
+        image = loaded.image
 
         if use_rectify:
             quad = None
             points = corners.get(sample.sample_id)
             if points is not None:
                 try:
+                    points = scale_points(
+                        points,
+                        loaded.original_size,
+                        image.shape,
+                    )
                     quad = DocumentQuad(np.asarray(points, dtype=np.float32))
                 except (RectifyError, ValueError):
                     quad = None

@@ -34,7 +34,7 @@ from docnorm.classify.cnn import CLASSES, CnnClassifier  # noqa: E402
 from docnorm.data.loader import load_image  # noqa: E402
 from docnorm.data.manifest import load_manifest  # noqa: E402
 from docnorm.data.split import assign_samples, check_manifest_hash, load_split  # noqa: E402
-from docnorm.data.annotations import ManualCornerStore, ManualLabelStore  # noqa: E402
+from docnorm.data.annotations import ManualCornerStore, ManualLabelStore, scale_points  # noqa: E402
 from docnorm.rectify.geometry import DocumentQuad, RectifyError  # noqa: E402
 from docnorm.enhance.clahe import enhance_document  # noqa: E402
 from docnorm.rectify.detector import detect_document  # noqa: E402
@@ -67,15 +67,17 @@ class DocumentDataset(Dataset):
 
     def __getitem__(self, index: int):
         item = self.items[index]
-        image = load_image(
+        loaded = load_image(
             ROOT / self.config["data"]["raw_dir"] / item["file"],
             max_long_edge=int(self.config["data"]["image_size"]),
-        ).image
+        )
+        image = loaded.image
         if self.rectify:
             quad = None
             points = self.corner_overrides.get(item["sample_id"])
             if points is not None:
                 try:
+                    points = scale_points(points, loaded.original_size, image.shape)
                     quad = DocumentQuad(np.asarray(points, dtype=np.float32))
                 except (RectifyError, ValueError):
                     quad = None

@@ -3,7 +3,7 @@
 
 data:
   manifest: data/manifests/sample_manifest.csv
-  split: data/splits/split_v2.json
+  split: data/splits/split_v3.json
   raw_dir: data/raw_samples
   image_size: 1280          # 输入图像长边像素数
   classes:                  # 归档标签（四格），评估标签由 classify.label_map 映射

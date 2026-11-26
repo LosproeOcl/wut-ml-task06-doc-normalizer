@@ -46,8 +46,9 @@ T06_P03_pptFormula_classroom_017,02_ppt_formula/T06_P03_pptFormula_classroom_017
 | `unlabeled` | 内容存疑，无法判定类别 |
 | `low_resolution` | 短边低于 720 像素 |
 | `missing_file` | 清单已登记但文件缺失 |
+| `non_course_document` | 非课堂文档或含个人信息，需排除 |
 
-排除表当前 32 行。数据加载、划分与评估必须以该表为准，不得仅凭清单判断样本可用性。
+排除表当前 36 行。数据加载、划分与评估必须以该表为准，不得仅凭清单判断样本可用性。
 
 ## 检查方式
 

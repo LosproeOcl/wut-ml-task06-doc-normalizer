@@ -11,7 +11,7 @@ from docnorm.data.split import assign_samples, check_manifest_hash, load_split
 ROOT = Path(__file__).resolve().parents[2]
 MANIFEST = ROOT / "data/manifests/sample_manifest.csv"
 EXCLUSIONS = ROOT / "data/manifests/exclusions.csv"
-SPLIT = ROOT / "data/splits/split_v2.json"
+SPLIT = ROOT / "data/splits/split_v3.json"
 RAW = ROOT / "data/raw_samples"
 
 
@@ -19,8 +19,8 @@ def test_frozen_dataset_contract():
     samples = load_manifest(MANIFEST, exclusions_path=EXCLUSIONS)
     split = load_split(SPLIT)
 
-    assert len(samples) == 344
-    assert split.counts == {"train": 240, "val": 51, "test": 53}
+    assert len(samples) == 340
+    assert split.counts == {"train": 236, "val": 51, "test": 53}
     assert check_manifest_hash(split, MANIFEST)
     assert find_missing_files(samples, RAW) == []
 

@@ -66,6 +66,19 @@ class ManualLabelStore:
 CORNER_FIELDS = ("sample_id", "points", "annotator", "updated_at")
 
 
+def scale_points(
+    points: list[list[float]],
+    original_size: tuple[int, int],
+    image_shape: tuple[int, ...],
+) -> list[list[float]]:
+    """把原图像素坐标映射到缩放后的图像坐标。"""
+    original_width, original_height = original_size
+    target_height, target_width = image_shape[:2]
+    scale_x = target_width / original_width
+    scale_y = target_height / original_height
+    return [[float(x) * scale_x, float(y) * scale_y] for x, y in points]
+
+
 class ManualCornerStore:
     """训练集四角覆盖，坐标为原图像素，顺序为左上、右上、右下、左下。"""
 
