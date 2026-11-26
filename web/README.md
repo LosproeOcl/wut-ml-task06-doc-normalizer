@@ -19,7 +19,7 @@ web/
 ## 功能范围
 
 1. 上传图片或从本地样本库选择。
-2. 展示原图、四角标注、矫正图、增强图。
+2. 展示原图、四角标注、矫正图、扫描件（自适应黑白）。CLAHE 增强保留在离线评估与兼容接口中，不再作为页面并列预览。
 3. 四角拖拽后重新计算。
 4. 矫正开关、增强开关与模型选择。
 5. 显示类别概率、处理耗时与检测方式。
@@ -27,6 +27,8 @@ web/
 7. 训练集四角：自动建议四角，拖动控制点后确认保存；训练时自动检测失败才回退使用，见 ADR-0015。
 8. 顶部标注人下拉框：按分配筛选个人队列，显示已分配、已保存四角与已校正标签数量。
 9. 标注检查：按成员与状态查看全部四角记录，叠加轮廓逐条发回重标；退回原因回到成员队列，见 ADR-0014。
+10. 批量上传：支持拖拽/多选、队列缩略图、逐张分析与失败状态。
+11. PDF 导出：单页或批量多页，可选扫描件、矫正图或原图。
 
 ## 主要接口
 
@@ -39,6 +41,8 @@ web/
 | `POST` | `/api/corners` | 保存四角，成功后清除退回记录 |
 | `GET` | `/api/review/corners` | 全部记录，按 `assignee` / `status` 筛选并分页 |
 | `POST` | `/api/review/corners/{sample_id}/redo` | 发回重标，原坐标写入审计文件 |
+| `GET` | `/api/pdf/{result_id}` | 单页 PDF，`mode=scan|rectified|original` |
+| `POST` | `/api/pdf` | 多页 PDF，提交 `result_ids` 与 `mode` |
 
 标注文件默认在 `data/annotations/`；测试可用 `DOCNORM_ANNOTATION_PATH`、`DOCNORM_CORNER_PATH`、`DOCNORM_REDO_PATH` 指向临时文件。
 

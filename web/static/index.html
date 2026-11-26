@@ -10,7 +10,7 @@
 <body>
   <header class="site-header">
     <h1 class="site-title"><a href="/">斜拍文档规范化</a></h1>
-    <p class="site-description">定位 · 拉正 · 增强 · 内容分类</p>
+    <p class="site-description">定位 · 拉正 · 扫描件 · 内容分类</p>
     <nav class="site-nav">
       <a href="#" class="tab active" data-tab="analyze">单图分析</a>
       <a href="#" class="tab" data-tab="annotate">训练集标签</a>
@@ -36,12 +36,22 @@
         <select id="sample-select" aria-label="选择样本">
           <option value="">从样本库选择</option>
         </select>
-        <input id="file-input" type="file" accept="image/*" />
         <label><input id="rectify" type="checkbox" checked /> 拉正</label>
-        <label><input id="enhance" type="checkbox" /> 增强</label>
         <button id="analyze-btn" class="primary">分析</button>
         <span id="health" class="hint"></span>
       </div>
+
+      <div id="drop-zone" class="drop-zone">
+        <input id="file-input" type="file" accept="image/*" multiple hidden />
+        <p><strong>拖拽图片到这里</strong>，或 <button type="button" id="pick-files">选择图片</button></p>
+        <p class="hint">支持多张，单张最大 15 MB；批量会按顺序处理。</p>
+      </div>
+
+      <div id="batch-actions" class="toolbar hidden">
+        <span id="batch-stats" class="hint"></span>
+        <button id="clear-batch">清空队列</button>
+      </div>
+      <div id="batch-list" class="batch-list hidden"></div>
 
       <div class="stages">
         <figure>
@@ -53,13 +63,21 @@
           <figcaption>矫正结果</figcaption>
         </figure>
         <figure>
-          <img id="enhanced" alt="增强图" hidden />
-          <figcaption>增强结果</figcaption>
+          <img id="scan" alt="扫描件" hidden />
+          <figcaption>扫描件（自适应黑白）</figcaption>
         </figure>
       </div>
 
       <div class="toolbar">
         <button id="apply-corners" disabled>应用四角</button>
+        <label for="pdf-mode" class="hint">PDF 模式</label>
+        <select id="pdf-mode">
+          <option value="scan">扫描件</option>
+          <option value="rectified">矫正图</option>
+          <option value="original">原图</option>
+        </select>
+        <button id="pdf-current" disabled>下载当前 PDF</button>
+        <button id="pdf-batch" disabled>批量 PDF</button>
         <span id="status" class="hint"></span>
       </div>
 

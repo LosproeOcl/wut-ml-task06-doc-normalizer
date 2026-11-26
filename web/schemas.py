@@ -1,6 +1,8 @@
 """网页层请求模型。"""
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -23,3 +25,8 @@ class CornerAnnotationRequest(BaseModel):
 class RedoRequest(BaseModel):
     reason: str = Field(default="审查退回：四角范围不符合整页口径", max_length=200)
 
+
+
+class PdfRequest(BaseModel):
+    result_ids: list[str] = Field(min_length=1, max_length=50)
+    mode: Literal["scan", "rectified", "original"] = "scan"

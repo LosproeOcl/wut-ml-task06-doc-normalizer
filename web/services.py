@@ -10,11 +10,13 @@ import time
 import uuid
 from datetime import datetime, timezone
 from functools import lru_cache
+from io import BytesIO
 from pathlib import Path
 
 import cv2
 import numpy as np
 import yaml
+from PIL import Image
 
 from docnorm.classify.classic import ClassicClassifier
 from docnorm.data.annotations import (
@@ -37,7 +39,7 @@ CONFIG = yaml.safe_load((ROOT / "configs/default.yaml").read_text(encoding="utf-
 RESULT_DIR = ROOT / "web/results"
 MODEL_ENV = "DOCNORM_CLASSIC_MODEL"
 RESULT_ID_PATTERN = re.compile(r"^[0-9a-f]{32}$")
-STAGES = ("original", "quad", "rectified", "enhanced")
+STAGES = ("original", "quad", "rectified", "enhanced", "scan")
 
 
 class WebError(ValueError):
@@ -277,6 +279,28 @@ def _apply_enhance(array: np.ndarray) -> np.ndarray:
     )
 
 
+def _apply_scan(array: np.ndarray) -> np.ndarray:
+    """生成扫描件效果：灰度 + 自适应阈值黑白。"""
+    gray = (
+        cv2.cvtColor(array, cv2.COLOR_BGR2GRAY)
+        if array.ndim == 3
+        else np.asarray(array)
+    )
+    gray = cv2.GaussianBlur(gray, (3, 3), 0)
+    block = min(35, min(gray.shape[:2]))
+    if block % 2 == 0:
+        block -= 1
+    block = max(3, block)
+    return cv2.adaptiveThreshold(
+        gray,
+        255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY,
+        block,
+        15,
+    )
+
+
 def _draw_quad(original: np.ndarray, quad: DocumentQuad | None) -> np.ndarray:
     canvas = original.copy()
     if quad is not None:
@@ -303,6 +327,7 @@ def _save_result(
     quad: DocumentQuad | None,
     rectified: np.ndarray,
     enhanced: np.ndarray,
+    scan: np.ndarray,
     status: str,
     label: str | None,
     probabilities: dict[str, float] | None,
@@ -317,6 +342,7 @@ def _save_result(
     cv2.imwrite(str(directory / "quad.png"), _draw_quad(original, quad))
     cv2.imwrite(str(directory / "rectified.png"), rectified)
     cv2.imwrite(str(directory / "enhanced.png"), enhanced)
+    cv2.imwrite(str(directory / "scan.png"), scan)
     metadata = {
         "result_id": result_id,
         "status": status,
@@ -327,6 +353,7 @@ def _save_result(
         "runtime_ms": round(runtime_ms, 2),
         "rectify": rectify,
         "enhance": enhance,
+        "scan": True,
         "source": source,
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "width": int(original.shape[1]),
@@ -355,6 +382,7 @@ def analyze_array(
     else:
         rectified, quad, status = original, None, "ok"
     enhanced = _apply_enhance(rectified) if enhance else rectified
+    scan = _apply_scan(rectified)
     label, probabilities = _classify(enhanced)
     runtime = (time.perf_counter() - started) * 1000
     return _save_result(
@@ -363,6 +391,7 @@ def analyze_array(
         quad=quad,
         rectified=rectified,
         enhanced=enhanced,
+        scan=scan,
         status=status,
         label=label,
         probabilities=probabilities,
@@ -423,6 +452,7 @@ def reprocess(result_id: str, points: list[tuple[float, float]]) -> dict:
         output_long_edge=int(CONFIG["rectify"]["output_long_edge"]),
     )
     enhanced = _apply_enhance(rectified) if metadata["enhance"] else rectified
+    scan = _apply_scan(rectified)
     label, probabilities = _classify(enhanced)
     runtime = (time.perf_counter() - started) * 1000
     return _save_result(
@@ -431,6 +461,7 @@ def reprocess(result_id: str, points: list[tuple[float, float]]) -> dict:
         quad=quad,
         rectified=rectified,
         enhanced=enhanced,
+        scan=scan,
         status="ok",
         label=label,
         probabilities=probabilities,
@@ -439,6 +470,34 @@ def reprocess(result_id: str, points: list[tuple[float, float]]) -> dict:
         enhance=bool(metadata["enhance"]),
         source=metadata.get("source", "upload"),
     )
+
+
+def build_pdf(result_ids: list[str], mode: str = "scan") -> BytesIO:
+    """把多个结果页导出为 PDF；mode 取 scan/rectified/original。"""
+    if mode not in {"scan", "rectified", "original"}:
+        raise WebError("PDF 模式非法", status=400)
+    if not result_ids:
+        raise WebError("至少需要一个结果", status=400)
+    if len(result_ids) > 50:
+        raise WebError("单次最多导出 50 页", status=400)
+    pages: list[Image.Image] = []
+    for result_id in result_ids:
+        directory = _result_dir(result_id)
+        path = directory / f"{mode}.png"
+        if not path.is_file():
+            raise WebError(f"结果页缺失: {result_id}/{mode}", status=404)
+        with Image.open(path) as image:
+            pages.append(image.convert("RGB"))
+    buffer = BytesIO()
+    pages[0].save(
+        buffer,
+        format="PDF",
+        save_all=True,
+        append_images=pages[1:],
+        resolution=150,
+    )
+    buffer.seek(0)
+    return buffer
 
 
 def prune_results(ttl_seconds: int | None = None) -> int:

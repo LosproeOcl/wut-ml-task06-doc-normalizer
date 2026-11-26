@@ -6,7 +6,7 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, UnidentifiedImageError
 
@@ -88,6 +88,29 @@ async def analyze(
 @app.post("/api/analyze/{result_id}/corners")
 def update_corners(result_id: str, payload: schemas.CornersRequest):
     return services.reprocess(result_id, payload.points)
+
+
+@app.get("/api/pdf/{result_id}")
+def result_pdf(
+    result_id: str,
+    mode: str = Query(default="scan", pattern="^(scan|rectified|original)$"),
+):
+    buffer = services.build_pdf([result_id], mode)
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="document.pdf"'},
+    )
+
+
+@app.post("/api/pdf")
+def export_pdf(payload: schemas.PdfRequest):
+    buffer = services.build_pdf(payload.result_ids, payload.mode)
+    return StreamingResponse(
+        buffer,
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="document.pdf"'},
+    )
 
 
 @app.get("/api/results/{result_id}/{stage}")

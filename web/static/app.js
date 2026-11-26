@@ -20,6 +20,8 @@ const state = {
   reviewItems: [],
   reviewOffset: 0,
   reviewTotal: 0,
+  batchFiles: [],
+  batchResults: [],
 };
 
 const REVIEW_PAGE_SIZE = 12;
@@ -148,9 +150,10 @@ function showResult(result) {
   state.quad = result.quad ? result.quad.map((point) => [...point]) : [];
   state.pending = [];
   $("rectified").hidden = false;
-  $("enhanced").hidden = false;
+  $("scan").hidden = false;
   $("rectified").src = `/api/results/${result.result_id}/rectified.png`;
-  $("enhanced").src = `/api/results/${result.result_id}/enhanced.png`;
+  $("scan").src = `/api/results/${result.result_id}/scan.png`;
+  $("pdf-current").disabled = false;
   $("result-card").classList.remove("hidden");
   $("label").textContent = result.label
     ? (result.label === "text" ? "文字" : "公式")
@@ -174,18 +177,189 @@ function showResult(result) {
   }
 }
 
+function syncBatchResults() {
+  state.batchResults = state.batchFiles
+    .filter((item) => item.result)
+    .map((item) => item.result);
+  $("pdf-batch").disabled = state.batchResults.length === 0;
+}
+
+function renderBatch() {
+  const list = $("batch-list");
+  const hasItems = state.batchFiles.length > 0;
+  list.classList.toggle("hidden", !hasItems);
+  $("batch-actions").classList.toggle("hidden", !hasItems);
+  list.innerHTML = "";
+  state.batchFiles.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = `batch-item${
+      item.status === "完成" ? " done" : item.status === "失败" ? " failed" : ""
+    }`;
+    card.innerHTML = `
+      <img src="${item.url}" alt="${escapeHtml(item.file.name)}" />
+      <div class="batch-meta">
+        <div>${escapeHtml(item.file.name)}</div>
+        <div class="batch-status">${escapeHtml(item.error || item.status)}</div>
+      </div>
+      <button type="button" class="batch-remove">移除</button>`;
+    card.querySelector(".batch-remove").addEventListener("click", () => removeBatch(item.id));
+    list.appendChild(card);
+  });
+  const done = state.batchFiles.filter((item) => item.status === "完成").length;
+  $("batch-stats").textContent = `队列 ${state.batchFiles.length} 张，已完成 ${done} 张`;
+  syncBatchResults();
+}
+
+function addFiles(fileList) {
+  const files = [...fileList].filter((file) => file.type.startsWith("image/"));
+  if (!files.length) {
+    setStatus("请选择图片文件。", true);
+    return;
+  }
+  const room = 20 - state.batchFiles.length;
+  if (room <= 0) {
+    setStatus("单次最多 20 张。", true);
+    return;
+  }
+  files.slice(0, room).forEach((file) => {
+    state.batchFiles.push({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      file,
+      url: URL.createObjectURL(file),
+      status: "待分析",
+      result: null,
+      error: "",
+    });
+  });
+  $("sample-select").value = "";
+  renderBatch();
+  setStatus(`已加入 ${Math.min(files.length, room)} 张图片。`);
+}
+
+function removeBatch(id) {
+  const item = state.batchFiles.find((entry) => entry.id === id);
+  if (item) URL.revokeObjectURL(item.url);
+  state.batchFiles = state.batchFiles.filter((entry) => entry.id !== id);
+  renderBatch();
+}
+
+function clearBatch() {
+  state.batchFiles.forEach((item) => URL.revokeObjectURL(item.url));
+  state.batchFiles = [];
+  state.batchResults = [];
+  $("file-input").value = "";
+  $("pdf-batch").disabled = true;
+  renderBatch();
+}
+
+async function analyzeBatch() {
+  const button = $("analyze-btn");
+  button.disabled = true;
+  state.batchFiles.forEach((item) => {
+    item.status = "待分析";
+    item.error = "";
+    item.result = null;
+  });
+  state.batchResults = [];
+  let completed = 0;
+  try {
+    for (const item of state.batchFiles) {
+      item.status = "处理中";
+      renderBatch();
+      setStatus(`批量处理中 ${completed + 1}/${state.batchFiles.length}：${item.file.name}`);
+      try {
+        const form = new FormData();
+        form.append("file", item.file);
+        form.append("rectify", $("rectify").checked ? "true" : "false");
+        const result = await fetchJSON("/api/analyze", { method: "POST", body: form });
+        item.result = result;
+        item.status = "完成";
+        showResult(result);
+        completed += 1;
+      } catch (error) {
+        item.status = "失败";
+        item.error = error.message;
+      }
+      renderBatch();
+    }
+    if (completed) {
+      setStatus(`批量完成：${completed}/${state.batchFiles.length} 张。`, completed !== state.batchFiles.length);
+    } else {
+      setStatus("批量处理失败。", true);
+    }
+  } finally {
+    button.disabled = false;
+    renderBatch();
+  }
+}
+
+async function downloadBlob(url, options, filename) {
+  const response = await fetch(url, options);
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.detail || `请求失败：${response.status}`);
+  }
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = objectUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+}
+
+async function downloadCurrentPdf() {
+  if (!state.result) return;
+  try {
+    setStatus("生成 PDF…");
+    await downloadBlob(
+      `/api/pdf/${state.result.result_id}?mode=${$("pdf-mode").value}`,
+      {},
+      "document.pdf"
+    );
+    setStatus("PDF 已生成。");
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+}
+
+async function downloadBatchPdf() {
+  if (!state.batchResults.length) return;
+  try {
+    setStatus("生成批量 PDF…");
+    await downloadBlob(
+      "/api/pdf",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          result_ids: state.batchResults.map((result) => result.result_id),
+          mode: $("pdf-mode").value,
+        }),
+      },
+      "document-batch.pdf"
+    );
+    setStatus("批量 PDF 已生成。");
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+}
+
 async function analyze() {
+  if (state.batchFiles.length) {
+    return analyzeBatch();
+  }
   const button = $("analyze-btn");
   button.disabled = true;
   setStatus("处理中…");
   try {
+    const sample = $("sample-select").value;
+    if (!sample) throw new Error("请拖入图片、选择图片或从样本库选择");
     const form = new FormData();
-    const file = $("file-input").files[0];
-    if (file) form.append("file", file);
-    else if ($("sample-select").value) form.append("sample_id", $("sample-select").value);
-    else throw new Error("请上传图片或选择样本");
+    form.append("sample_id", sample);
     form.append("rectify", $("rectify").checked ? "true" : "false");
-    form.append("enhance", $("enhance").checked ? "true" : "false");
     const result = await fetchJSON("/api/analyze", { method: "POST", body: form });
     showResult(result);
   } catch (error) {
@@ -678,8 +852,35 @@ function bindUI() {
   });
   $("analyze-btn").addEventListener("click", analyze);
   $("apply-corners").addEventListener("click", applyCorners);
-  $("file-input").addEventListener("change", () => { $("sample-select").value = ""; });
-  $("sample-select").addEventListener("change", () => { $("file-input").value = ""; });
+  $("pick-files").addEventListener("click", () => $("file-input").click());
+  $("file-input").addEventListener("change", () => {
+    addFiles($("file-input").files);
+    $("file-input").value = "";
+  });
+  $("clear-batch").addEventListener("click", clearBatch);
+  $("pdf-current").addEventListener("click", downloadCurrentPdf);
+  $("pdf-batch").addEventListener("click", downloadBatchPdf);
+  $("sample-select").addEventListener("change", () => {
+    if ($("sample-select").value) clearBatch();
+  });
+  const dropZone = $("drop-zone");
+  ["dragenter", "dragover"].forEach((name) => {
+    dropZone.addEventListener(name, (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      dropZone.classList.add("over");
+    });
+  });
+  ["dragleave", "drop"].forEach((name) => {
+    dropZone.addEventListener(name, (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      dropZone.classList.remove("over");
+    });
+  });
+  dropZone.addEventListener("drop", (event) => {
+    addFiles(event.dataTransfer.files);
+  });
   $("person-select").addEventListener("change", () => {
     state.person = $("person-select").value;
     localStorage.setItem("t06-person", state.person);

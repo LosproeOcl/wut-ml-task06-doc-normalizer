@@ -57,9 +57,21 @@ def test_analyze_upload_returns_stages():
     result = response.json()
     assert result["result_id"]
     assert result["status"] in {"ok", "rectify_failed"}
-    for stage in ("original", "quad", "rectified", "enhanced"):
+    for stage in ("original", "quad", "rectified", "enhanced", "scan"):
         assert client.get(f"/api/results/{result['result_id']}/{stage}").status_code == 200
         assert client.get(f"/api/results/{result['result_id']}/{stage}.png").status_code == 200
+
+    pdf = client.get(f"/api/pdf/{result['result_id']}?mode=scan")
+    assert pdf.status_code == 200
+    assert pdf.headers["content-type"].startswith("application/pdf")
+    assert pdf.content.startswith(b"%PDF")
+
+    multi = client.post(
+        "/api/pdf",
+        json={"result_ids": [result["result_id"], result["result_id"]], "mode": "scan"},
+    )
+    assert multi.status_code == 200
+    assert multi.content.startswith(b"%PDF")
 
 
 def test_corner_update_accepts_manual_points():
