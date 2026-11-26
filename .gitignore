@@ -42,6 +42,9 @@ data/raw_samples/**/*.HEIC
 data/raw_samples/**/*.webp
 data/raw_samples/**/*.bmp
 
+# 公开数据集（仅供管线调试与合成增广，不得进入自采样本与评估集）
+data/raw_samples/external-assets/
+
 # 标注图像
 data/annotations/**/*.jpg
 data/annotations/**/*.png
