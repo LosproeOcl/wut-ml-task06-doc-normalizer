@@ -189,9 +189,29 @@ def _result_dir(result_id: str) -> Path:
 
 
 def _model_path() -> Path | None:
+    """优先选当前划分上验证准确率最高的 SVM，避免重启后误用较差实验。"""
     override = os.environ.get(MODEL_ENV)
     if override and Path(override).is_file():
         return Path(override)
+    split_name = Path(CONFIG["data"]["split"]).name
+    ranked: list[tuple[float, float, Path]] = []
+    for path in (ROOT / "runs").glob("exp-*/svm.joblib"):
+        metrics_path = path.parent / "metrics.json"
+        if not metrics_path.is_file():
+            continue
+        try:
+            metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if metrics.get("split") != split_name:
+            continue
+        svm_metrics = (metrics.get("models") or {}).get("svm") or {}
+        accuracy = svm_metrics.get("accuracy")
+        if accuracy is None:
+            continue
+        ranked.append((float(accuracy), path.stat().st_mtime, path))
+    if ranked:
+        return max(ranked)[2]
     candidates = sorted(
         (ROOT / "runs").glob("exp-*/svm.joblib"), key=lambda p: p.stat().st_mtime
     )
