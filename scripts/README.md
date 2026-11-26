@@ -7,9 +7,7 @@
 | 脚本 | 用途 | 阶段 |
 |---|---|---|
 | `env_smoke.py` | 检查 Python、依赖版本与运行设备 | M0 |
-| `check_manifest.py` | 校验样本清单字段、唯一性与类别分布 | M1 |
-| `make_split.py` | 按分组键生成划分文件并计算清单哈希 | M1 |
-| `check_dataset.py` | 核对清单记录与实际文件是否一致 | M1、M4 |
+| `rebuild_split.py` | 基于既有冻结划分重建新版本，不改变分组归属 | M1 |
 | `download_weights.py` | 下载 MobileNetV3 权重并校验哈希 | M1 至 M2 |
 | `export_report_assets.py` | 汇总图表与指标至报告目录 | M4 |
 
@@ -24,6 +22,10 @@
 | `train_screen_gate.py` | 训练屏幕存在性/载体门控（同一结构，换清单） |
 | `index_runs.py` | 汇总 `runs/` 为 `reports/run_index.csv` |
 | `make_report_figures.py` | 生成诊断图与对比图 |
+| `check_manifest.py` | 只读校验清单字段、唯一性、分组与类别分布；支持 `--json` |
+| `check_dataset.py` | 只读核对清单与磁盘文件一致性；未登记文件只报警告 |
+
+`check_manifest.py` 与 `check_dataset.py` 基于 PR #1 的校验思路、按当前数据契约重写；贡献记录见 `CONTRIBUTORS.md`。
 
 ## 编写约定
 

@@ -25,8 +25,9 @@
 - 运行索引增加 `gate` 与 `paper` 家族；新增 `carrier_gate_curves.png`、`paper_model_curves.png` 两张诊断图。
 - 相关提交：`8227066`、`dcdf4aa`。
 
-### 文档
+### 文档与协作
 
+- 处理 PR #1：未直接合并旧分支；选择性重写 `check_manifest.py`、`check_dataset.py` 两个只读校验脚本，原作者张毅卓（@qingwu0731）以 Co-authored-by 记录到 `CONTRIBUTORS.md`。
 - 新增本变更记录。
 - 更新 README、文档索引、需求、架构、评估、风险、部署、实验日志、外部数据、屏幕检测与报告索引。
 - 新增 ADR-0016：外部公式数据辅助训练与载体门控的实验边界。

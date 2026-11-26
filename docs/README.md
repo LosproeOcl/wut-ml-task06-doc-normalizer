@@ -55,6 +55,10 @@
 | [`reports/web_integration.md`](../reports/web_integration.md) | 网页双分支接入、验证集路由评估与 6 张评估图 |
 | [`CHANGELOG.md`](../CHANGELOG.md) | 功能、实验与文档变更记录 |
 
+## 贡献记录
+
+外部贡献、PR 处理与选择性采纳记录见 [`CONTRIBUTORS.md`](../CONTRIBUTORS.md)。PR #1 的清单校验思路已重写为 `scripts/check_manifest.py` 与 `scripts/check_dataset.py`。
+
 ## 过程记录
 
 | 目录 | 内容 |
