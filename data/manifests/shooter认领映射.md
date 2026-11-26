@@ -4,7 +4,7 @@
 
 | 缩写 | 姓名 | 归属依据 | 样本数 |
 |---|---|---|---|
-| yyq | 余青阳 | iPhone Air（88）与 iPhone 13 mini（2）拍摄 | 91 |
+| yqy | 余青阳 | iPhone Air（88）与 iPhone 13 mini（2）拍摄 | 91 |
 | zyz | 张毅卓 | HUAWEI Mate 80 拍摄 | 30 |
 | rwd | 任万东 | OPPO Find X9 Ultra、REDMI Turbo 5 及无设备元信息样本按来源轮转分配 | 43 |
 | wkq | 王康琦 | 同上 | 43 |

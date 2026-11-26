@@ -23,5 +23,5 @@
 在文档中以相对路径引用，例如：
 
 ```markdown
-![采数现场](assets/onsite_yyq.jpg)
+![采数现场](assets/onsite_yqy.jpg)
 ```

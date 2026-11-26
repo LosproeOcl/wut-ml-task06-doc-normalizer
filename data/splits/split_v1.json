@@ -302,7 +302,7 @@
   "test": 53
  },
  "frozen_at": "2026-11-26",
- "manifest_sha256": "485dd75b81dc6c676c3632daa4042fbf8e224a86d3526c916f737540927639db",
+ "manifest_sha256": "dff1c2e8e75e0e4b3769b4a3eddaae19ea434520bc131ae53467a170c163555e",
  "excluded_samples": 31,
  "note": "冻结时点早于计划M1(11-29)，后续补采只能加入训练集；重建须出split_v2并重跑全部实验；2026-11-26 device空值回填unknown后重算清单哈希，分组不变；IMG_6111大小写重复登记去除、IMG_6110.jpg独立照片恢复并以_jpg后缀消歧，按分组归属重算counts"
 }
