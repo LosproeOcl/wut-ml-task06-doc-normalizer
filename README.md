@@ -1,5 +1,10 @@
 # 斜拍课堂文档自动拉正、去反光与内容归类系统
 
+[![CI](https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-arm64%20%7C%20amd64-2496ED?logo=docker&logoColor=white)
+![Course](https://img.shields.io/badge/course-WUT%20ML-1f3a5f)
+
 武汉理工大学《机器学习》课程工程实践大作业，第六组，选题编号 Task 06。
 
 计划工期为 2026 年 11 月 25 日至 12 月 9 日，共两周。当前已进入 M2 基线可用阶段：`split_v3` 已冻结（236/51/53，合格 340 张），矫正、增强、传统基线、MobileNetV3、网页交互与训练集标注工具均已实现；网页已接入载体门控与双分支分类，验证集路由准确率 88.24%，M2 的 82% 验证门禁已达到，待 M3 测试集最终评估。

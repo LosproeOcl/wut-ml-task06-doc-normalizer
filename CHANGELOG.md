@@ -27,6 +27,7 @@
 
 ### 文档与协作
 
+- 新增 GitHub Actions CI：数据层与工具测试、网页接口契约测试；README 增加 CI、Python、Docker 与课程 badges。
 - 处理 PR #1：未直接合并旧分支；选择性重写 `check_manifest.py`、`check_dataset.py` 两个只读校验脚本，原作者张毅卓（@qingwu0731）以 Co-authored-by 记录到 `CONTRIBUTORS.md`。
 - 新增本变更记录。
 - 更新 README、文档索引、需求、架构、评估、风险、部署、实验日志、外部数据、屏幕检测与报告索引。

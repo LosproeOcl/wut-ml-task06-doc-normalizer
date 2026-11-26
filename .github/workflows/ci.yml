@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: 数据层与工具测试
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: env/requirements-base.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r env/requirements-base.txt
+
+      - name: Compile sources and scripts
+        run: |
+          python -m compileall -q src web scripts tests
+
+      - name: Validate sample manifest
+        run: |
+          python scripts/check_manifest.py --no-files --json > /tmp/manifest-report.json
+          python -c "import json; r=json.load(open('/tmp/manifest-report.json', encoding='utf-8')); print({k: r[k] for k in ('ok','n_rows','n_qualified','n_excluded')}); assert r['ok'], r['errors']"
+
+      - name: Run lightweight unit tests
+        run: |
+          pytest tests/unit/test_manifest.py \
+                 tests/unit/test_split.py \
+                 tests/unit/test_loader.py \
+                 tests/unit/test_data_tools.py \
+                 -q
+
+  web-contract:
+    name: 网页接口契约测试
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            env/requirements-base.txt
+            env/requirements-web.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r env/requirements-base.txt -r env/requirements-web.txt
+
+      - name: Run web contract tests
+        run: |
+          pytest tests/unit/test_web.py -q
