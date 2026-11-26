@@ -367,7 +367,7 @@ function clearBatch() {
   });
   state.batchFiles = [];
   state.batchResults = [];
-  for (const id of ["file-input", "album-input", "camera-input"]) {
+  for (const id of ["file-input", "camera-input"]) {
     $(id).value = "";
   }
   $("pdf-range-start").value = "1";
@@ -526,7 +526,7 @@ function closeImageModal() {
 
 async function analyze() {
   if (!state.batchFiles.length) {
-    setStatus("请先拍照、从相册选择或从文件选择图片。", true);
+    setStatus("请先拍照或选择图片。", true);
     return;
   }
   return analyzeBatch();
@@ -1008,15 +1008,10 @@ function bindUI() {
   $("analyze-btn").addEventListener("click", analyze);
   $("apply-corners").addEventListener("click", applyCorners);
   $("pick-files").addEventListener("click", () => $("file-input").click());
-  $("pick-album").addEventListener("click", () => $("album-input").click());
   $("camera-btn").addEventListener("click", () => $("camera-input").click());
   $("file-input").addEventListener("change", () => {
     addFiles($("file-input").files);
     $("file-input").value = "";
-  });
-  $("album-input").addEventListener("change", () => {
-    addFiles($("album-input").files);
-    $("album-input").value = "";
   });
   $("camera-input").addEventListener("change", () => {
     addFiles($("camera-input").files);
@@ -1107,10 +1102,8 @@ async function setupDeviceButtons() {
   const mobile =
     window.matchMedia("(pointer: coarse)").matches ||
     /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (!mobile) {
-    $("pick-album").disabled = true;
-    $("pick-album").title = "电脑端请使用“从文件选择”";
-  }
+  // 手机上相册与文件选择共用系统图片选择器，合并为一个入口。
+  $("pick-files").textContent = mobile ? "从相册或文件选择" : "从文件选择";
   let hasCamera = mobile;
   try {
     if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
