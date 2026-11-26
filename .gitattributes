@@ -1,5 +1,5 @@
 * text=auto
+data/manifests/*.csv text eol=lf
 # split_v3 的 manifest_sha256 按 CRLF 计算；固定检出换行，避免 Linux CI 校验失败
 data/manifests/sample_manifest.csv text eol=crlf
-data/manifests/*.csv text eol=lf
 data/splits/*.json text eol=lf
