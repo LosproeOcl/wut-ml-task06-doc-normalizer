@@ -57,3 +57,7 @@ data/release/**/*.png
 # 临时文件
 *.tmp
 *.bak
+
+# 网页临时结果
+web/results/
+web/tmp/

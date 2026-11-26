@@ -66,6 +66,14 @@ privacy:
   require_manual_review: true
   max_document_coverage: 0.05  # 覆盖文档主体超过该比例时，样本不进入测试集
 
+web:
+  host: 127.0.0.1
+  port: 8000
+  max_upload_mb: 15
+  result_ttl_seconds: 3600
+  max_concurrency: 2
+  static_dir: web/static
+
 runtime:
   seed: 42
   device: cpu               # 正式评估统一使用中央处理器

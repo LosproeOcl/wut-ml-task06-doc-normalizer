@@ -8,6 +8,7 @@
 |---|---|---|
 | `requirements-base.txt` | 基础科学计算与图像处理依赖 | 必装 |
 | `requirements-dl.txt` | PyTorch 与 torchvision | 深度学习实验需要 |
+| `requirements-web.txt` | FastAPI、Uvicorn 与 multipart 解析 | 网页演示需要 |
 
 ## 安装方式
 
@@ -21,6 +22,12 @@ pip install -r env/requirements-base.txt
 
 ```bash
 pip install --index-url https://download.pytorch.org/whl/cpu -r env/requirements-dl.txt
+```
+
+网页依赖：
+
+```bash
+pip install -r env/requirements-web.txt
 ```
 
 ## 版本策略

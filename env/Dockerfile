@@ -23,6 +23,9 @@ RUN pip install -r /tmp/requirements-base.txt
 COPY env/requirements-dl.txt /tmp/requirements-dl.txt
 RUN pip install --index-url https://download.pytorch.org/whl/cpu -r /tmp/requirements-dl.txt
 
+COPY env/requirements-web.txt /tmp/requirements-web.txt
+RUN pip install -r /tmp/requirements-web.txt
+
 COPY . /app
 
 # 命令行入口在阶段一实现后启用：

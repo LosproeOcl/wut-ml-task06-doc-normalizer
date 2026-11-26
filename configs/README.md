@@ -39,6 +39,12 @@
 | `privacy.strip_exif` | 是否去除图像元数据 |
 | `privacy.require_manual_review` | 是否强制人工复核 |
 | `privacy.max_document_coverage` | 打码覆盖文档主体的最大比例 |
+| `web.host` | 网页监听地址，默认 `127.0.0.1` |
+| `web.port` | 网页端口，默认 8000 |
+| `web.max_upload_mb` | 单文件上传体积上限 |
+| `web.result_ttl_seconds` | 临时结果保留时长 |
+| `web.max_concurrency` | 同时处理的请求数 |
+| `web.static_dir` | 静态文件目录 |
 | `runtime.seed` | 随机种子 |
 | `runtime.device` | 运行设备，正式评估固定为 `cpu` |
 | `runtime.num_threads` | 计算线程数，正式评估固定为 1 |
