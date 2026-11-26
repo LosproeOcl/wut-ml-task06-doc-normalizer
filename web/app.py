@@ -39,6 +39,7 @@ def health():
         "model_ready": model is not None,
         "annotation": services.annotation_stats(),
         "corners": services.corner_stats(),
+        "annotators": services.annotators(),
     }
 
 
@@ -97,11 +98,12 @@ def result_image(result_id: str, stage: str):
 def annotations(
     limit: int = Query(default=30, ge=1, le=200),
     only_unlabeled: bool = Query(default=False),
+    assignee: str | None = Query(default=None),
 ):
     return {
-        "stats": services.annotation_stats(),
+        "stats": services.annotation_stats(assignee),
         "items": services.annotation_candidates(
-            limit=limit, only_unlabeled=only_unlabeled
+            limit=limit, only_unlabeled=only_unlabeled, assignee=assignee
         ),
     }
 
@@ -117,13 +119,19 @@ def annotate(payload: schemas.AnnotationRequest):
 def corners(
     limit: int = Query(default=20, ge=1, le=100),
     only_unannotated: bool = Query(default=True),
+    assignee: str | None = Query(default=None),
 ):
     return {
-        "stats": services.corner_stats(),
+        "stats": services.corner_stats(assignee),
         "items": services.corner_candidates(
-            limit=limit, only_unannotated=only_unannotated
+            limit=limit, only_unannotated=only_unannotated, assignee=assignee
         ),
     }
+
+
+@app.get("/api/annotators")
+def annotators():
+    return services.annotators()
 
 
 @app.post("/api/corners")

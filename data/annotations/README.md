@@ -10,6 +10,8 @@
 
 训练集四角覆盖写入 `manual_corners.csv`，字段为 `sample_id,points,annotator,updated_at`，`points` 为四个顶点 JSON 数组。只允许训练集样本，训练拉正时优先使用，见 ADR-0012；该文件不作为评估金标准。
 
+训练集标注任务分配写入 `assignees.csv`，字段为 `sample_id,assignee,label,doc_page_id`，由 `scripts/assign_annotations.py` 生成。前端按标注人筛选队列，服务端拒绝非本人写入，见 ADR-0013。
+
 ## 可选文件
 
 若后续需要记录模型参考角点，可建立 `corners_reference.json`，并明确标注来源为模型预测，不得称为人工真值。

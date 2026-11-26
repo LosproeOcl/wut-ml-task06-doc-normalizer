@@ -13,6 +13,10 @@ const state = {
   cornerQuad: [],
   cornerPending: [],
   cornerDragging: -1,
+  cornerMoving: false,
+  cornerMoveStart: null,
+  cornerMoveOriginal: null,
+  person: "",
 };
 
 const $ = (id) => document.getElementById(id);
@@ -226,9 +230,39 @@ async function loadHealth() {
   }
 }
 
+async function loadAnnotators() {
+  try {
+    const data = await fetchJSON("/api/annotators");
+    const select = $("person-select");
+    select.innerHTML = '<option value="">全部成员</option>';
+    data.members.forEach((member) => {
+      const option = document.createElement("option");
+      option.value = member.name;
+      option.textContent = `${member.name}（分配 ${member.assigned}）`;
+      select.appendChild(option);
+    });
+    const saved = localStorage.getItem("t06-person");
+    const names = data.members.map((member) => member.name);
+    state.person = saved && names.includes(saved) ? saved : (names[0] || "");
+    select.value = state.person;
+    state.annotatorData = data.members;
+    updatePersonStats();
+  } catch (error) {
+    $("person-stats").textContent = error.message;
+  }
+}
+
+function updatePersonStats() {
+  const member = (state.annotatorData || []).find((item) => item.name === state.person);
+  $("person-stats").textContent = member
+    ? `已分配 ${member.assigned} · 四角 ${member.corners} · 标签 ${member.labels}`
+    : "未选择成员时显示全部训练样本";
+}
+
 async function loadAnnotations() {
   try {
-    const data = await fetchJSON("/api/annotations?limit=50&only_unlabeled=true");
+    const suffix = state.person ? `&assignee=${encodeURIComponent(state.person)}` : "";
+    const data = await fetchJSON(`/api/annotations?limit=50&only_unlabeled=true${suffix}`);
     state.annotation = data.items;
     state.annotationIndex = 0;
     renderAnnotation(data.stats);
@@ -267,7 +301,7 @@ async function annotate(label) {
       body: JSON.stringify({
         sample_id: item.sample_id,
         label,
-        annotator: "web",
+        annotator: state.person || "web",
       }),
     });
     state.annotationIndex += 1;
@@ -279,7 +313,9 @@ async function annotate(label) {
 
 async function loadCorners() {
   try {
-    const data = await fetchJSON("/api/corners?limit=20&only_unannotated=true");
+    $("corner-stats").textContent = "载入待标注样本…";
+    const suffix = state.person ? `&assignee=${encodeURIComponent(state.person)}` : "";
+    const data = await fetchJSON(`/api/corners?limit=20&only_unannotated=true${suffix}`);
     state.cornerItems = data.items;
     state.cornerIndex = 0;
     renderCorner(data.stats);
@@ -308,9 +344,18 @@ function renderCorner(stats) {
   $("corner-label").textContent = item.original_label || "存疑";
   $("corner-source").textContent =
     item.source === "auto" ? "自动检测建议" : item.source === "manual" ? "已保存" : "未检出";
-  state.cornerQuad = item.points ? item.points.map((point) => [...point]) : [];
+  state.cornerQuad = item.points
+    ? item.points.map(([x, y]) => {
+        const [width, height] = item.resolution.split("x").map(Number);
+        return [
+          Math.max(0, Math.min(x, width - 1)),
+          Math.max(0, Math.min(y, height - 1)),
+        ];
+      })
+    : [];
   state.cornerPending = [];
   state.cornerDragging = -1;
+  state.cornerMoving = false;
   $("corner-confirm").disabled = state.cornerQuad.length !== 4;
 
   const image = new Image();
@@ -373,6 +418,25 @@ function cornerPoint(event) {
   ];
 }
 
+function clampCornerPoint([x, y]) {
+  return [
+    Math.max(0, Math.min(x, state.cornerImage.naturalWidth - 1)),
+    Math.max(0, Math.min(y, state.cornerImage.naturalHeight - 1)),
+  ];
+}
+
+function insidePolygon(point, polygon) {
+  const [x, y] = point;
+  let inside = false;
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const [xi, yi] = polygon[i];
+    const [xj, yj] = polygon[j];
+    const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
 function bindCornerCanvas() {
   const canvas = $("corner-canvas");
   canvas.addEventListener("pointerdown", (event) => {
@@ -380,11 +444,20 @@ function bindCornerCanvas() {
     canvas.setPointerCapture(event.pointerId);
     const [x, y] = cornerPoint(event);
     const threshold = 16 * (state.cornerImage.naturalWidth / canvas.width);
-    if (state.cornerQuad.length) {
-      state.cornerDragging = state.cornerQuad.findIndex(
+    if (state.cornerQuad.length === 4) {
+      const handle = state.cornerQuad.findIndex(
         ([px, py]) => Math.hypot(px - x, py - y) <= threshold
       );
-      return;
+      if (handle >= 0) {
+        state.cornerDragging = handle;
+        return;
+      }
+      if (insidePolygon([x, y], state.cornerQuad)) {
+        state.cornerMoving = true;
+        state.cornerMoveStart = [x, y];
+        state.cornerMoveOriginal = state.cornerQuad.map((point) => [...point]);
+        return;
+      }
     }
     if (state.cornerPending.length < 4) {
       state.cornerPending.push([x, y]);
@@ -393,13 +466,27 @@ function bindCornerCanvas() {
     }
   });
   canvas.addEventListener("pointermove", (event) => {
+    if (state.cornerMoving) {
+      const [x, y] = cornerPoint(event);
+      const dx = x - state.cornerMoveStart[0];
+      const dy = y - state.cornerMoveStart[1];
+      state.cornerQuad = state.cornerMoveOriginal.map(([px, py]) =>
+        clampCornerPoint([px + dx, py + dy])
+      );
+      drawCornerCanvas();
+      return;
+    }
     if (state.cornerDragging < 0) return;
-    state.cornerQuad[state.cornerDragging] = cornerPoint(event);
+    state.cornerQuad[state.cornerDragging] = clampCornerPoint(cornerPoint(event));
     drawCornerCanvas();
   });
   canvas.addEventListener("pointerup", () => {
     if (state.cornerDragging >= 0) {
       state.cornerDragging = -1;
+      $("corner-confirm").disabled = state.cornerQuad.length !== 4;
+    }
+    if (state.cornerMoving) {
+      state.cornerMoving = false;
       $("corner-confirm").disabled = state.cornerQuad.length !== 4;
     }
   });
@@ -419,7 +506,7 @@ async function confirmCorner() {
       body: JSON.stringify({
         sample_id: item.sample_id,
         points,
-        annotator: "web",
+        annotator: state.person || "web",
       }),
     });
     state.cornerIndex += 1;
@@ -453,6 +540,13 @@ function bindUI() {
   $("apply-corners").addEventListener("click", applyCorners);
   $("file-input").addEventListener("change", () => { $("sample-select").value = ""; });
   $("sample-select").addEventListener("change", () => { $("file-input").value = ""; });
+  $("person-select").addEventListener("change", () => {
+    state.person = $("person-select").value;
+    localStorage.setItem("t06-person", state.person);
+    updatePersonStats();
+    if (!$("annotate-panel").classList.contains("hidden")) loadAnnotations();
+    if (!$("corner-panel").classList.contains("hidden")) loadCorners();
+  });
   $("reload-anno").addEventListener("click", loadAnnotations);
   $("anno-skip").addEventListener("click", () => {
     state.annotationIndex += 1;
@@ -478,4 +572,4 @@ function bindUI() {
 bindUI();
 loadSamples();
 loadHealth();
-loadAnnotations();
+loadAnnotators().then(() => loadAnnotations());

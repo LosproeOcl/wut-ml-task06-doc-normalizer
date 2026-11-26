@@ -25,10 +25,11 @@ web/
 5. 显示类别概率、处理耗时与检测方式。
 6. 训练集标签校正：逐张选择文字或公式，写入独立标注文件，显示进度。
 7. 训练集四角：自动建议四角，拖动控制点后确认保存，训练时优先使用。
+8. 顶部标注人下拉框：按分配筛选个人队列，显示已分配、已保存四角与已校正标签数量。
 
 ## 约束
 
-- 默认绑定 `127.0.0.1:8000`，不对外网开放。
+- 默认绑定 `127.0.0.1:54312`，不对外网开放。
 - 上传限制 15 MB，按内容校验格式。
 - 结果只写临时目录，1 小时过期，不进入数据集与版本控制。
 - 前端使用原生 JavaScript 与 Canvas，不引入 Node 构建链与外部 CDN。
@@ -36,14 +37,14 @@ web/
 ## 启动方式
 
 ```bash
-PYTHONPATH=src uvicorn web.app:app --host 127.0.0.1 --port 8000
+PYTHONPATH=src uvicorn web.app:app --host 127.0.0.1 --port 54312
 ```
 
 容器内映射端口：
 
 ```bash
-docker run --rm -p 127.0.0.1:8000:8000 docnorm:cpu-arm64 \
-  uvicorn web.app:app --host 0.0.0.0 --port 8000
+docker run --rm -p 127.0.0.1:54312:54312 docnorm:cpu-arm64 \
+  uvicorn web.app:app --host 0.0.0.0 --port 54312
 ```
 
 原型阶段直接使用 Uvicorn，命令行 `docnorm serve` 在后续版本补充。模型从 `runs/` 下最新的 `svm.joblib` 加载；缺失时只展示预处理结果。

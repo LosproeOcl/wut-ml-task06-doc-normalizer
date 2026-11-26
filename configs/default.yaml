@@ -71,7 +71,7 @@ privacy:
 
 web:
   host: 127.0.0.1
-  port: 8000
+  port: 54312
   max_upload_mb: 15
   result_ttl_seconds: 3600
   max_concurrency: 2

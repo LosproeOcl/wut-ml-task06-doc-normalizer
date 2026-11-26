@@ -43,7 +43,7 @@
 | `privacy.require_manual_review` | 是否强制人工复核 |
 | `privacy.max_document_coverage` | 打码覆盖文档主体的最大比例 |
 | `web.host` | 网页监听地址，默认 `127.0.0.1` |
-| `web.port` | 网页端口，默认 8000 |
+| `web.port` | 网页端口，默认 54312 |
 | `web.max_upload_mb` | 单文件上传体积上限 |
 | `web.result_ttl_seconds` | 临时结果保留时长 |
 | `web.max_concurrency` | 同时处理的请求数 |

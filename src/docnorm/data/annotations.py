@@ -66,17 +66,44 @@ class ManualLabelStore:
 CORNER_FIELDS = ("sample_id", "points", "annotator", "updated_at")
 
 
+def rescale_points(
+    points: list[list[float]],
+    source_size: tuple[int, int],
+    target_size: tuple[int, int],
+) -> list[list[float]]:
+    """把坐标从 source_size 映射到 target_size。"""
+    source_width, source_height = source_size
+    target_width, target_height = target_size
+    scale_x = target_width / source_width
+    scale_y = target_height / source_height
+    return [[float(x) * scale_x, float(y) * scale_y] for x, y in points]
+
+
+def clamp_points(
+    points: list[list[float]], width: int, height: int
+) -> list[list[float]]:
+    """把坐标限制在图像范围内，避免默认点落在画布外。"""
+    return [
+        [
+            min(max(float(x), 0.0), float(width - 1)),
+            min(max(float(y), 0.0), float(height - 1)),
+        ]
+        for x, y in points
+    ]
+
+
 def scale_points(
     points: list[list[float]],
     original_size: tuple[int, int],
     image_shape: tuple[int, ...],
 ) -> list[list[float]]:
     """把原图像素坐标映射到缩放后的图像坐标。"""
-    original_width, original_height = original_size
     target_height, target_width = image_shape[:2]
-    scale_x = target_width / original_width
-    scale_y = target_height / original_height
-    return [[float(x) * scale_x, float(y) * scale_y] for x, y in points]
+    return rescale_points(
+        points,
+        original_size,
+        (target_width, target_height),
+    )
 
 
 class ManualCornerStore:

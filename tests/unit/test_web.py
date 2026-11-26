@@ -144,3 +144,26 @@ def test_corner_annotation_persists_only_for_train(tmp_path, monkeypatch):
         },
     )
     assert rejected.status_code == 403
+
+
+def test_assignee_filter_and_write_enforcement(tmp_path, monkeypatch):
+    # 破坏方式：不按人筛选会让所有人面对全部样本；不校验会让任务分配失效
+    monkeypatch.setenv("DOCNORM_CORNER_PATH", str(tmp_path / "manual_corners.csv"))
+    members = client.get("/api/annotators").json()["members"]
+    assert len(members) == 8
+    first, second = members[0]["name"], members[1]["name"]
+
+    payload = client.get(
+        "/api/corners",
+        params={"limit": 3, "only_unannotated": "false", "assignee": first},
+    ).json()
+    assert payload["items"]
+    assert all(item["assignee"] == first for item in payload["items"])
+
+    item = payload["items"][0]
+    points = [[10, 10], [100, 10], [100, 80], [10, 80]]
+    rejected = client.post(
+        "/api/corners",
+        json={"sample_id": item["sample_id"], "points": points, "annotator": second},
+    )
+    assert rejected.status_code == 403

@@ -1,6 +1,7 @@
 """网页层业务逻辑：样本索引、处理链路、临时结果与人工标注。"""
 from __future__ import annotations
 
+import csv
 import json
 import os
 import re
@@ -8,6 +9,7 @@ import shutil
 import time
 import uuid
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 
 import cv2
@@ -15,7 +17,12 @@ import numpy as np
 import yaml
 
 from docnorm.classify.classic import ClassicClassifier
-from docnorm.data.annotations import ManualCornerStore, ManualLabelStore
+from docnorm.data.annotations import (
+    ManualCornerStore,
+    ManualLabelStore,
+    clamp_points,
+    rescale_points,
+)
 from docnorm.data.loader import load_image
 from docnorm.data.manifest import load_manifest
 from docnorm.data.split import assign_samples, check_manifest_hash, load_split
@@ -51,6 +58,33 @@ def _corner_store() -> ManualCornerStore:
     )))
 
 
+def _assignments() -> dict[str, str]:
+    path = ROOT / "data/annotations/assignees.csv"
+    if not path.is_file():
+        return {}
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        return {
+            row["sample_id"]: row["assignee"]
+            for row in csv.DictReader(stream)
+            if row.get("sample_id") and row.get("assignee")
+        }
+
+
+def _members() -> list[str]:
+    values = _assignments().values()
+    ordered: list[str] = []
+    for value in values:
+        if value not in ordered:
+            ordered.append(value)
+    return ordered
+
+
+def _check_assignment(sample_id: str, annotator: str) -> None:
+    assigned = _assignments().get(sample_id)
+    if assigned and annotator in set(_members()) and annotator != assigned:
+        raise WebError(f"该样本分配给 {assigned}，不能由 {annotator} 标注", status=403)
+
+
 def _sample_index() -> dict[str, dict]:
     samples = load_manifest(
         ROOT / CONFIG["data"]["manifest"],
@@ -67,6 +101,7 @@ def _sample_index() -> dict[str, dict]:
             "original_label": sample.content_label,
             "split": assignment[sample.sample_id],
             "carrier": "ppt" if sample.file.startswith(("01_", "02_")) else "paper",
+            "resolution": sample.resolution,
         }
     return index
 
@@ -129,9 +164,6 @@ def _model_path() -> Path | None:
     override = os.environ.get(MODEL_ENV)
     if override and Path(override).is_file():
         return Path(override)
-    explicit = ROOT / "runs/exp-20261126-02/svm.joblib"
-    if explicit.is_file():
-        return explicit
     candidates = sorted(
         (ROOT / "runs").glob("exp-*/svm.joblib"), key=lambda p: p.stat().st_mtime
     )
@@ -374,9 +406,17 @@ def prune_results(ttl_seconds: int | None = None) -> int:
     return removed
 
 
-def annotation_stats() -> dict:
+def _member_scope(annotator: str) -> str | None:
+    return annotator if annotator in set(_members()) else None
+
+
+def annotation_stats(assignee: str | None = None) -> dict:
     index = _sample_index()
-    train = [item for item in index.values() if item["split"] == "train"]
+    assignment = _assignments()
+    train = [
+        item for item in index.values()
+        if item["split"] == "train" and (not assignee or assignment.get(item["sample_id"]) == assignee)
+    ]
     overrides = _annotation_store().load()
     counts = {"text": 0, "formula": 0}
     for item in train:
@@ -390,12 +430,17 @@ def annotation_stats() -> dict:
     }
 
 
-def annotation_candidates(*, limit: int = 30, only_unlabeled: bool = False) -> list[dict]:
+def annotation_candidates(
+    *, limit: int = 30, only_unlabeled: bool = False, assignee: str | None = None
+) -> list[dict]:
     index = _sample_index()
     overrides = _annotation_store().load()
+    assignment = _assignments()
     items = []
     for sample in index.values():
         if sample["split"] != "train":
+            continue
+        if assignee and assignment.get(sample["sample_id"]) != assignee:
             continue
         annotated = sample["sample_id"] in overrides
         if only_unlabeled and annotated:
@@ -405,6 +450,7 @@ def annotation_candidates(*, limit: int = 30, only_unlabeled: bool = False) -> l
                 **sample,
                 "label": overrides.get(sample["sample_id"], sample["original_label"]),
                 "annotated": annotated,
+                "assignee": assignment.get(sample["sample_id"], ""),
             }
         )
     items.sort(key=lambda item: (item["annotated"], item["sample_id"]))
@@ -415,13 +461,18 @@ def save_annotation(sample_id: str, label: str, annotator: str = "web") -> dict:
     sample = get_sample(sample_id)
     if sample["split"] != "train":
         raise WebError("只允许标注训练集样本", status=403)
+    _check_assignment(sample_id, annotator)
     _annotation_store().set(sample_id, label, annotator=annotator)
-    return annotation_stats()
+    return annotation_stats(_member_scope(annotator))
 
 
-def corner_stats() -> dict:
+def corner_stats(assignee: str | None = None) -> dict:
     index = _sample_index()
-    train = [item for item in index.values() if item["split"] == "train"]
+    assignment = _assignments()
+    train = [
+        item for item in index.values()
+        if item["split"] == "train" and (not assignee or assignment.get(item["sample_id"]) == assignee)
+    ]
     saved = _corner_store().load()
     return {
         "train_total": len(train),
@@ -429,29 +480,50 @@ def corner_stats() -> dict:
     }
 
 
-def corner_candidates(*, limit: int = 20, only_unannotated: bool = True) -> list[dict]:
+def annotators() -> dict:
+    index = _sample_index()
+    assignment = _assignments()
+    saved_corners = _corner_store().load()
+    saved_labels = _annotation_store().load()
+    members = _members()
+    rows = []
+    for member in members:
+        assigned = [item for item in index.values() if assignment.get(item["sample_id"]) == member]
+        rows.append(
+            {
+                "name": member,
+                "assigned": len(assigned),
+                "corners": sum(1 for item in assigned if item["sample_id"] in saved_corners),
+                "labels": sum(1 for item in assigned if item["sample_id"] in saved_labels),
+            }
+        )
+    return {"members": rows}
+
+
+def corner_candidates(
+    *, limit: int = 20, only_unannotated: bool = True, assignee: str | None = None
+) -> list[dict]:
     index = _sample_index()
     saved = _corner_store().load()
+    assignment = _assignments()
     items = []
     for sample in index.values():
         if sample["split"] != "train":
             continue
+        if assignee and assignment.get(sample["sample_id"]) != assignee:
+            continue
         annotated = sample["sample_id"] in saved
         if only_unannotated and annotated:
             continue
+        width, height = (int(value) for value in sample["resolution"].split("x"))
         points = saved.get(sample["sample_id"])
         source = "manual" if points else "none"
-        if points is None:
-            image = load_image(sample_path(sample["sample_id"]), max_long_edge=1280).image
-            quad = detect_document(
-                image,
-                canny_low=int(CONFIG["rectify"]["canny_low"]),
-                canny_high=int(CONFIG["rectify"]["canny_high"]),
-                min_area_ratio=float(CONFIG["rectify"]["min_area_ratio"]),
-                max_area_ratio=float(CONFIG["rectify"]["max_area_ratio"]),
-            )
-            if quad is not None:
-                points = quad.points.tolist()
+        if points is not None:
+            points = clamp_points(points, width, height)
+        else:
+            auto = _auto_points(sample["sample_id"])
+            if auto is not None:
+                points = [list(point) for point in auto]
                 source = "auto"
         items.append(
             {
@@ -459,10 +531,33 @@ def corner_candidates(*, limit: int = 20, only_unannotated: bool = True) -> list
                 "points": points,
                 "source": source,
                 "annotated": annotated,
+                "assignee": assignment.get(sample["sample_id"], ""),
             }
         )
     items.sort(key=lambda item: (item["annotated"], item["sample_id"]))
     return items[:limit]
+
+
+@lru_cache(maxsize=512)
+def _auto_points(sample_id: str) -> tuple[tuple[float, float], ...] | None:
+    sample = get_sample(sample_id)
+    width, height = (int(value) for value in sample["resolution"].split("x"))
+    loaded = load_image(sample_path(sample_id), max_long_edge=1280)
+    quad = detect_document(
+        loaded.image,
+        canny_low=int(CONFIG["rectify"]["canny_low"]),
+        canny_high=int(CONFIG["rectify"]["canny_high"]),
+        min_area_ratio=float(CONFIG["rectify"]["min_area_ratio"]),
+        max_area_ratio=float(CONFIG["rectify"]["max_area_ratio"]),
+    )
+    if quad is None:
+        return None
+    points = rescale_points(
+        quad.points.tolist(),
+        (loaded.image.shape[1], loaded.image.shape[0]),
+        (width, height),
+    )
+    return tuple((float(x), float(y)) for x, y in clamp_points(points, width, height))
 
 
 def save_corners(
@@ -471,9 +566,21 @@ def save_corners(
     sample = get_sample(sample_id)
     if sample["split"] != "train":
         raise WebError("只允许标注训练集样本", status=403)
+    _check_assignment(sample_id, annotator)
+    width, height = (int(value) for value in sample["resolution"].split("x"))
+    clamped = clamp_points(float_points(points), width, height)
     try:
-        quad = DocumentQuad(np.asarray(points, dtype=np.float32))
+        quad = DocumentQuad(np.asarray(clamped, dtype=np.float32))
     except (RectifyError, ValueError) as exc:
         raise WebError(f"四角非法: {exc}") from exc
     _corner_store().set(sample_id, quad.points.tolist(), annotator=annotator)
-    return corner_stats()
+    return corner_stats(_member_scope(annotator))
+
+
+def float_points(points: object) -> list[list[float]]:
+    if not isinstance(points, (list, tuple)) or len(points) != 4:
+        raise WebError("需要 4 个顶点")
+    try:
+        return [[float(point[0]), float(point[1])] for point in points]
+    except (TypeError, ValueError, IndexError) as exc:
+        raise WebError("四角坐标格式非法") from exc
