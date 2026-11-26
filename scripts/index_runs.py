@@ -78,6 +78,10 @@ def mtime_iso(path: Path) -> str:
 
 
 def family_of(exp_id: str) -> str:
+    if exp_id.startswith("carrier-gate"):
+        return "gate"
+    if exp_id.startswith("paper-cnn"):
+        return "paper"
     if exp_id.startswith("screen-gate"):
         return "gate"
     if exp_id.startswith("screen-fallback"):
@@ -184,6 +188,16 @@ def rows_for_run(run_dir: Path) -> list[dict]:
             )
             return [row]
         return []
+    if family == "paper":
+        row = dict(base)
+        row.update(
+            {
+                "model": "paper_cnn",
+                "accuracy": metrics.get("metrics", {}).get("accuracy", ""),
+                "macro_f1": metrics.get("metrics", {}).get("macro_f1", ""),
+            }
+        )
+        return [row]
     if family == "gate":
         row = dict(base)
         row.update(

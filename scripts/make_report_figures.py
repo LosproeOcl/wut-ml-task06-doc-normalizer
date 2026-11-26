@@ -297,6 +297,22 @@ def diagnostics_plot(exp: str, title: str, output: str) -> None:
     plt.close(fig)
 
 
+def carrier_gate_curves() -> None:
+    diagnostics_plot(
+        "carrier-gate-01",
+        "PPT / A4 纸质稿场景门控训练诊断",
+        "carrier_gate_curves.png",
+    )
+
+
+def paper_model_curves() -> None:
+    diagnostics_plot(
+        "paper-cnn-01",
+        "纸质稿专用内容模型训练诊断",
+        "paper_model_curves.png",
+    )
+
+
 def screen_gate_curves() -> None:
     diagnostics_plot(
         "screen-gate-01",
@@ -355,6 +371,8 @@ def main() -> int:
     external_comparison()
     screen_detector_curves()
     screen_gate_curves()
+    carrier_gate_curves()
+    paper_model_curves()
     print(f"图表写入 {FIG_DIR}")
     return 0
 
