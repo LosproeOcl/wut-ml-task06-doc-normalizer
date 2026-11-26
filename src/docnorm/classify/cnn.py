@@ -148,6 +148,8 @@ class CnnClassifier:
 
             self.model.train()
             running = 0.0
+            grad_norm_total = 0.0
+            grad_batches = 0
             for images, labels in train_loader:
                 images = images.to(self.device)
                 labels = labels.to(self.device)
@@ -155,10 +157,23 @@ class CnnClassifier:
                 logits = self.model(images)
                 loss = criterion(logits, labels)
                 loss.backward()
+                grad_sq = 0.0
+                for parameter in self.model.parameters():
+                    if parameter.grad is not None:
+                        grad_sq += float(parameter.grad.detach().pow(2).sum().item())
+                grad_norm_total += grad_sq ** 0.5
+                grad_batches += 1
                 optimizer.step()
                 running += float(loss.item()) * len(labels)
 
             train_loss = running / max(len(train_loader.dataset), 1)
+            grad_norm = grad_norm_total / max(grad_batches, 1)
+            lr = float(optimizer.param_groups[0]["lr"])
+            param_sq = sum(
+                float(parameter.detach().pow(2).sum().item())
+                for parameter in self.model.parameters()
+            )
+            param_norm = param_sq ** 0.5
             val_loss, val_accuracy = self.evaluate(val_loader, criterion)
             history["train_loss"].append(train_loss)
             history["val_loss"].append(val_loss)
@@ -169,6 +184,9 @@ class CnnClassifier:
                     train_loss=train_loss,
                     val_loss=val_loss,
                     val_accuracy=val_accuracy,
+                    lr=lr,
+                    grad_norm=grad_norm,
+                    param_norm=param_norm,
                 )
 
             if val_accuracy > best_accuracy:

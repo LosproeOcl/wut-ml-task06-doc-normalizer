@@ -259,6 +259,8 @@ def main() -> int:
     for epoch in range(1, args.epochs + 1):
         model.train()
         running = 0.0
+        grad_total = 0.0
+        grad_batches = 0
         for batch, target in train_loader:
             if args.feature_noise > 0:
                 batch = batch + torch.randn_like(batch) * args.feature_noise
@@ -266,9 +268,22 @@ def main() -> int:
             logits = model(batch)
             loss = criterion(logits, target)
             loss.backward()
+            grad_sq = sum(
+                float(parameter.grad.detach().pow(2).sum().item())
+                for parameter in model.parameters()
+                if parameter.grad is not None
+            )
+            grad_total += grad_sq ** 0.5
+            grad_batches += 1
             optimizer.step()
             running += float(loss.item()) * len(target)
         train_loss = running / len(train_dataset)
+        grad_norm = grad_total / max(grad_batches, 1)
+        lr = float(optimizer.param_groups[0]["lr"])
+        param_norm = sum(
+            float(parameter.detach().pow(2).sum().item())
+            for parameter in model.parameters()
+        ) ** 0.5
         val_loss, predictions, truths, _ = evaluate(model, val_loader, torch.device("cpu"))
         val_accuracy = accuracy_score(truths, predictions)
         history["train_loss"].append(train_loss)
@@ -279,6 +294,9 @@ def main() -> int:
             train_loss=train_loss,
             val_loss=val_loss,
             val_accuracy=val_accuracy,
+            lr=lr,
+            grad_norm=grad_norm,
+            param_norm=param_norm,
         )
         if val_accuracy > best_accuracy:
             best_accuracy = val_accuracy
@@ -355,7 +373,16 @@ def main() -> int:
         f"accuracy={metrics['accuracy']:.4f} macro_f1={metrics['macro_f1']:.4f} "
         f"confusion={metrics['confusion_matrix']}"
     )
-    logger.finish(metrics=metrics, extra=result)
+    logger.finish(
+        metrics=metrics,
+        extra={
+            **result,
+            "loss": "CrossEntropyLoss(weight=class_weights)",
+            "optimizer": "AdamW",
+            "lr": args.lr,
+            "weight_decay": args.weight_decay,
+        },
+    )
     return 0
 
 

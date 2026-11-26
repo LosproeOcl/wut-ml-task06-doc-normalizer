@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import csv
 import json
 import os
 from pathlib import Path
@@ -255,6 +256,55 @@ def lstm_comparison() -> None:
     plt.close(fig)
 
 
+def _read_epochs(exp: str) -> list[dict]:
+    path = ROOT / "runs" / exp / "epochs.csv"
+    if not path.is_file():
+        return []
+    with path.open(encoding="utf-8") as stream:
+        return list(csv.DictReader(stream))
+
+
+def diagnostics_plot(exp: str, title: str, output: str) -> None:
+    rows = _read_epochs(exp)
+    if not rows or "lr" not in rows[0] or "grad_norm" not in rows[0]:
+        return
+    epochs = [int(row["epoch"]) for row in rows]
+    train_loss = [float(row["train_loss"]) for row in rows if row["train_loss"]]
+    val_loss = [float(row["val_loss"]) for row in rows if row["val_loss"]]
+    lr = [float(row["lr"]) for row in rows if row["lr"]]
+    grad = [float(row["grad_norm"]) for row in rows if row["grad_norm"]]
+    fig, axes = plt.subplots(2, 2, figsize=(9, 5.4))
+    axes[0, 0].plot(epochs[:len(train_loss)], train_loss, label="训练损失")
+    axes[0, 0].plot(epochs[:len(val_loss)], val_loss, label="验证损失")
+    axes[0, 0].set_title("损失")
+    axes[0, 0].legend(fontsize=8)
+    axes[0, 1].plot(epochs[:len(lr)], lr, color="#4c72b0")
+    axes[0, 1].set_title("学习率")
+    axes[0, 1].set_ylim(0, max(lr) * 1.15 if lr else 1)
+    axes[1, 0].plot(epochs[:len(grad)], grad, color="#c44e52")
+    axes[1, 0].set_title("梯度范数")
+    axes[1, 0].set_yscale("log")
+    metric_key = "val_iou" if rows[0].get("val_iou") else "val_accuracy"
+    metric = [float(row[metric_key]) for row in rows if row.get(metric_key)]
+    axes[1, 1].plot(epochs[:len(metric)], metric, color="#55a868")
+    axes[1, 1].set_title("验证 IoU" if metric_key == "val_iou" else "验证准确率")
+    for ax in axes.flat:
+        ax.set_xlabel("轮次")
+        ax.grid(alpha=0.25)
+    fig.suptitle(title)
+    fig.tight_layout()
+    fig.savefig(FIG_DIR / output, dpi=200)
+    plt.close(fig)
+
+
+def screen_detector_curves() -> None:
+    diagnostics_plot(
+        "screen-detector-01",
+        "屏幕检测器训练诊断（SCB screen 框）",
+        "screen_detector_curves.png",
+    )
+
+
 def external_comparison() -> None:
     entries = [
         ("无外部（种子 42）", "exp-cnn-05", "#4c72b0"),
@@ -294,6 +344,7 @@ def main() -> int:
     training_curves()
     lstm_comparison()
     external_comparison()
+    screen_detector_curves()
     print(f"图表写入 {FIG_DIR}")
     return 0
 

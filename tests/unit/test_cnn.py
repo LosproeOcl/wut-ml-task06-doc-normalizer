@@ -97,7 +97,14 @@ def test_fit_calls_epoch_callback():
         on_epoch=lambda epoch, **metrics: records.append((epoch, metrics)),
     )
     assert records and records[0][0] == 1
-    assert set(records[0][1]) == {"train_loss", "val_loss", "val_accuracy"}
+    assert set(records[0][1]) == {
+        "train_loss",
+        "val_loss",
+        "val_accuracy",
+        "lr",
+        "grad_norm",
+        "param_norm",
+    }
 
 
 def test_empty_prediction_rejected():

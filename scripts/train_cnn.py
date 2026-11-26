@@ -457,6 +457,10 @@ def main() -> int:
             "best_val_accuracy": max(history["val_accuracy"]),
             "class_weights": class_weights,
             "history": history,
+            "loss": "CrossEntropyLoss(weight=class_weights,label_smoothing=args.label_smoothing)",
+            "optimizer": "AdamW",
+            "lr_head": float(args.lr_head or config["classify"]["lr_stage1"]),
+            "lr_finetune": float(args.lr_finetune or config["classify"]["lr_stage2"]),
         },
     )
     return 0

@@ -150,6 +150,7 @@ TRACKED_FILES = (
     "data/annotations/assignees.csv",
     "data/manifests/external_aux.csv",
     "data/manifests/external_aux_small.csv",
+    "data/manifests/scb_screen.csv",
 )
 
 
@@ -233,6 +234,10 @@ class RunLogger:
         train_loss: float | None = None,
         val_loss: float | None = None,
         val_accuracy: float | None = None,
+        val_iou: float | None = None,
+        lr: float | None = None,
+        grad_norm: float | None = None,
+        param_norm: float | None = None,
     ) -> None:
         new_file = not self.epoch_path.is_file()
         with self.epoch_path.open("a", encoding="utf-8", newline="") as stream:
@@ -248,6 +253,10 @@ class RunLogger:
                         "train_loss",
                         "val_loss",
                         "val_accuracy",
+                        "val_iou",
+                        "lr",
+                        "grad_norm",
+                        "param_norm",
                     ]
                 )
             writer.writerow(
@@ -258,6 +267,10 @@ class RunLogger:
                     "" if train_loss is None else round(float(train_loss), 6),
                     "" if val_loss is None else round(float(val_loss), 6),
                     "" if val_accuracy is None else round(float(val_accuracy), 6),
+                    "" if val_iou is None else round(float(val_iou), 6),
+                    "" if lr is None else round(float(lr), 10),
+                    "" if grad_norm is None else round(float(grad_norm), 6),
+                    "" if param_norm is None else round(float(param_norm), 6),
                 ]
             )
 
