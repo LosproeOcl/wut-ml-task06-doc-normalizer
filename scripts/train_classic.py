@@ -47,6 +47,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--exp-id", default=None)
     parser.add_argument("--no-rectify", action="store_true")
     parser.add_argument("--no-enhance", action="store_true")
+    parser.add_argument(
+        "--corners-policy",
+        choices=("always", "fallback", "none"),
+        default="fallback",
+        help="fallback 仅自动失败时用人工四角（默认）；always 优先人工；none 不使用",
+    )
     return parser.parse_args()
 
 
@@ -58,9 +64,21 @@ def build_features(
     use_enhance: bool,
     label_overrides: dict[str, str] | None = None,
     corner_overrides: dict[str, list[list[float]]] | None = None,
+    corner_policy: str = "always",
 ) -> tuple[np.ndarray, np.ndarray, list[str], int]:
     overrides = label_overrides or {}
     corners = corner_overrides or {}
+
+    def manual_quad(sample_id: str, loaded, image):
+        points = corners.get(sample_id)
+        if points is None:
+            return None
+        try:
+            points = scale_points(points, loaded.original_size, image.shape)
+            return DocumentQuad(np.asarray(points, dtype=np.float32))
+        except (RectifyError, ValueError):
+            return None
+
     vectors: list[np.ndarray] = []
     labels: list[str] = []
     ids: list[str] = []
@@ -79,17 +97,8 @@ def build_features(
 
         if use_rectify:
             quad = None
-            points = corners.get(sample.sample_id)
-            if points is not None:
-                try:
-                    points = scale_points(
-                        points,
-                        loaded.original_size,
-                        image.shape,
-                    )
-                    quad = DocumentQuad(np.asarray(points, dtype=np.float32))
-                except (RectifyError, ValueError):
-                    quad = None
+            if corner_policy == "always":
+                quad = manual_quad(sample.sample_id, loaded, image)
             if quad is None:
                 quad = detect_document(
                     image,
@@ -98,6 +107,8 @@ def build_features(
                     min_area_ratio=float(config["rectify"]["min_area_ratio"]),
                     max_area_ratio=float(config["rectify"]["max_area_ratio"]),
                 )
+            if quad is None and corner_policy == "fallback":
+                quad = manual_quad(sample.sample_id, loaded, image)
             if quad is not None:
                 image = warp_document(
                     image,
@@ -168,11 +179,12 @@ def main() -> int:
             ROOT / "data/annotations/manual_corners.csv"
         ).load().items()
         if assignment.get(sample_id) == "train"
-    }
+    } if args.corners_policy != "none" else {}
     if overrides:
         print(f"应用训练集人工标签 {len(overrides)} 条")
-    if corners:
-        print(f"应用训练集人工四角 {len(corners)} 条")
+    print(
+        f"人工四角策略 {args.corners_policy}，训练集可用 {len(corners)} 条"
+    )
     started = time.perf_counter()
     features, labels, ids, failures = build_features(
         samples,
@@ -181,6 +193,7 @@ def main() -> int:
         use_enhance=use_enhance,
         label_overrides=overrides,
         corner_overrides=corners,
+        corner_policy=args.corners_policy,
     )
     feature_seconds = time.perf_counter() - started
 
@@ -210,6 +223,8 @@ def main() -> int:
         "detection_failed": failures,
         "rectify": use_rectify,
         "enhance": use_enhance,
+        "corner_policy": args.corners_policy,
+        "n_manual_corners": len(corners),
         "feature_seconds": round(feature_seconds, 2),
         "models": {},
     }

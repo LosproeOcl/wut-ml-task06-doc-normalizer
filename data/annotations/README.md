@@ -8,7 +8,7 @@
 
 训练集标签校正写入 `manual_labels.csv`，字段为 `sample_id,label,annotator,updated_at`，只允许训练集样本。训练脚本读取该文件覆盖训练标签，验证与测试保持清单原值，见 ADR-0011。
 
-训练集四角覆盖写入 `manual_corners.csv`，字段为 `sample_id,points,annotator,updated_at`，`points` 为四个顶点 JSON 数组。只允许训练集样本，训练拉正时优先使用，见 ADR-0012；该文件不作为评估金标准。
+训练集四角覆盖写入 `manual_corners.csv`，字段为 `sample_id,points,annotator,updated_at`，`points` 为四个顶点 JSON 数组。只允许训练集样本，训练拉正时仅在自动检测失败后回退使用，见 ADR-0012 与 ADR-0015；该文件不作为评估金标准。当前 236 条已全部完成。
 
 训练集标注任务分配写入 `assignees.csv`，字段为 `sample_id,assignee,label,doc_page_id`，由 `scripts/assign_annotations.py` 生成。前端按标注人筛选队列，服务端拒绝非本人写入，见 ADR-0013。已有四角记录统一归属余青阳，其余样本按总计数均分，当前为 5 人 30 张、3 人 29 张。
 

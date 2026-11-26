@@ -54,6 +54,7 @@ class DocumentDataset(Dataset):
         rectify: bool,
         enhance: bool,
         corner_overrides: dict[str, list[list[float]]] | None = None,
+        corner_policy: str = "always",
     ):
         self.items = items
         self.config = config
@@ -61,9 +62,20 @@ class DocumentDataset(Dataset):
         self.rectify = rectify
         self.enhance = enhance
         self.corner_overrides = corner_overrides or {}
+        self.corner_policy = corner_policy
 
     def __len__(self) -> int:
         return len(self.items)
+
+    def _manual_quad(self, item, loaded, image):
+        points = self.corner_overrides.get(item["sample_id"])
+        if points is None:
+            return None
+        try:
+            points = scale_points(points, loaded.original_size, image.shape)
+            return DocumentQuad(np.asarray(points, dtype=np.float32))
+        except (RectifyError, ValueError):
+            return None
 
     def __getitem__(self, index: int):
         item = self.items[index]
@@ -74,13 +86,8 @@ class DocumentDataset(Dataset):
         image = loaded.image
         if self.rectify:
             quad = None
-            points = self.corner_overrides.get(item["sample_id"])
-            if points is not None:
-                try:
-                    points = scale_points(points, loaded.original_size, image.shape)
-                    quad = DocumentQuad(np.asarray(points, dtype=np.float32))
-                except (RectifyError, ValueError):
-                    quad = None
+            if self.corner_policy == "always":
+                quad = self._manual_quad(item, loaded, image)
             if quad is None:
                 quad = detect_document(
                     image,
@@ -89,6 +96,8 @@ class DocumentDataset(Dataset):
                     min_area_ratio=float(self.config["rectify"]["min_area_ratio"]),
                     max_area_ratio=float(self.config["rectify"]["max_area_ratio"]),
                 )
+            if quad is None and self.corner_policy == "fallback":
+                quad = self._manual_quad(item, loaded, image)
             if quad is not None:
                 image = warp_document(
                     image,
@@ -143,6 +152,12 @@ def main() -> int:
     parser.add_argument("--no-rectify", action="store_true")
     parser.add_argument("--no-enhance", action="store_true")
     parser.add_argument("--no-pretrained", action="store_true")
+    parser.add_argument(
+        "--corners-policy",
+        choices=("always", "fallback", "none"),
+        default="fallback",
+        help="fallback 仅自动失败时用人工四角（默认）；always 优先人工；none 不使用",
+    )
     args = parser.parse_args()
 
     torch.manual_seed(42)
@@ -171,11 +186,12 @@ def main() -> int:
             ROOT / "data/annotations/manual_corners.csv"
         ).load().items()
         if assignment.get(sample_id) == "train"
-    }
+    } if args.corners_policy != "none" else {}
     if overrides:
         print(f"应用训练集人工标签 {len(overrides)} 条")
-    if corners:
-        print(f"应用训练集人工四角 {len(corners)} 条")
+    print(
+        f"人工四角策略 {args.corners_policy}，训练集可用 {len(corners)} 条"
+    )
 
     items = {"train": [], "val": []}
     for sample in samples:
@@ -201,6 +217,7 @@ def main() -> int:
         rectify=rectify,
         enhance=enhance,
         corner_overrides=corners,
+        corner_policy=args.corners_policy,
     )
     val_dataset = DocumentDataset(
         items["val"],
@@ -209,6 +226,7 @@ def main() -> int:
         rectify=rectify,
         enhance=enhance,
         corner_overrides=corners,
+        corner_policy=args.corners_policy,
     )
     train_loader = DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0
@@ -301,6 +319,8 @@ def main() -> int:
         "n_val": len(val_dataset),
         "rectify": rectify,
         "enhance": enhance,
+        "corner_policy": args.corners_policy,
+        "n_manual_corners": len(corners),
         "epochs": len(history["train_loss"]),
         "train_seconds": round(train_seconds, 2),
         "metrics": {key: round(value, 4) if isinstance(value, float) else value
