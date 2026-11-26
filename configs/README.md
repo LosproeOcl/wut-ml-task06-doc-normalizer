@@ -22,6 +22,9 @@
 | `enhance.enabled` | 是否启用增强 |
 | `enhance.method` | 增强方法 |
 | `enhance.clahe_clip` | 直方图均衡对比度限值 |
+| `enhance.correct_shadows` | 是否执行光照校正 |
+| `enhance.shadow_kernel` | 背景估计核大小 |
+| `enhance.shadow_strength` | 光照校正混合强度 |
 | `classify.model` | 分类模型，取值为 `classic_svm`、`classic_rf` 或 `cnn` |
 | `classify.label_map` | 归档标签到评估标签的映射，当前为内容二分类（ADR-0008） |
 | `classify.class_weight` | 内容类别类权重策略，默认 `balanced` |

@@ -25,6 +25,9 @@ enhance:
   method: clahe
   clahe_clip: 2.0
   clahe_grid: 8
+  correct_shadows: true      # 大尺度背景估计，抑制侧向阴影与光照不均
+  shadow_kernel: 61
+  shadow_strength: 0.8
   denoise: true
 
 classify:
