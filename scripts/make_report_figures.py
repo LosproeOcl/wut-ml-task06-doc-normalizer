@@ -54,7 +54,8 @@ MODELS = [
     ("CNN MobileNetV3-Large 正则化", "exp-cnn-09", None, "#dd8452"),
     ("融合（传统特征 + CNN）", "fusion-exp-01", "fusion_svm", "#8172b2"),
     ("CNN + BiLSTM（最佳种子）", "exp-lstm-01", None, "#c44e52"),
-    ("CNN（外部预训练）", "exp-cnn-ext-01", None, "#55a868"),
+    ("CNN（外部预训练-2400）", "exp-cnn-ext-01", None, "#55a868"),
+    ("CNN（外部预训练-600）", "exp-cnn-ext-02", None, "#55a868"),
     ("遗传算法特征选择 + SVM", "ga-feature-01", None, "#8172b2"),
 ]
 
@@ -254,12 +255,45 @@ def lstm_comparison() -> None:
     plt.close(fig)
 
 
+def external_comparison() -> None:
+    entries = [
+        ("无外部（种子 42）", "exp-cnn-05", "#4c72b0"),
+        ("无外部（种子 43）", "exp-cnn-10", "#4c72b0"),
+        ("外部 2400（种子 42）", "exp-cnn-ext-01", "#dd8452"),
+        ("外部 600（种子 42）", "exp-cnn-ext-02", "#55a868"),
+        ("外部 600（种子 43）", "exp-cnn-ext-03", "#c44e52"),
+    ]
+    labels, values, colors = [], [], []
+    for label, exp, color in entries:
+        value = read_metrics(exp, None)
+        if value:
+            labels.append(label)
+            values.append(value[0] * 100)
+            colors.append(color)
+    if not values:
+        return
+    fig, ax = plt.subplots(figsize=(8, 4.2))
+    bars = ax.bar(labels, values, color=colors)
+    for bar in bars:
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 1,
+                f"{bar.get_height():.1f}", ha="center", fontsize=9)
+    ax.set_ylim(0, 100)
+    ax.set_ylabel("验证准确率（%）")
+    ax.set_title("外部预训练对照（自采 split_v3 验证集）")
+    ax.tick_params(axis="x", labelrotation=15, labelsize=9)
+    ax.grid(axis="y", alpha=0.25)
+    fig.tight_layout(rect=(0, 0.06, 1, 1))
+    fig.savefig(FIG_DIR / "external_comparison.png", dpi=200)
+    plt.close(fig)
+
+
 def main() -> int:
     model_comparison()
     corner_policy_comparison()
     confusion_panels()
     training_curves()
     lstm_comparison()
+    external_comparison()
     print(f"图表写入 {FIG_DIR}")
     return 0
 

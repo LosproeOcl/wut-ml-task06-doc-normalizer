@@ -1,0 +1,601 @@
+path,label,source,license,usage
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002512.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002752.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002032.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000467.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/005607.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002093.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Resume/003198.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001667.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/022246.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/010969.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012215.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/024486.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/029701.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000132.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background03/paper001/frame_0131.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000919.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000823.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002864.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/027811.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/003604.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003424.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002685.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002620.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/025788.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012992.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001812.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/057967.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000084.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000990.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/035847.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002278.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001803.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background04/datasheet002/frame_0011.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001222.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/000287.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/055244.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/016065.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/005360.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background01/tax005/frame_0221.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/007280.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/021553.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/010654.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002606.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/032802.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/038717.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/050813.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/052563.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/057316.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/005108.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012488.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/054985.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/013594.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/005943.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/034083.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/051380.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/034062.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/001687.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002092.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002059.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/005328.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/026768.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/003087.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/044457.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Resume/003136.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/001141.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/001973.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001091.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000692.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/037989.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background05/magazine005/frame_0061.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background03/tax004/frame_0201.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/053991.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001583.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/016506.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000507.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/035266.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000133.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/010115.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/002842.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/015351.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/046403.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/002723.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/004624.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002012.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/000232.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/001903.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/023576.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/015330.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003264.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001354.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/057505.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/026530.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/002890.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/008834.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/009989.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background04/letter003/frame_0031.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/005740.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/003023.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000241.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/023632.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/044625.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002334.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/029946.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background04/tax001/frame_0051.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/045087.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/067823.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/034559.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/033677.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001499.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002025.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003355.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002831.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001313.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000180.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/007042.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002206.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background05/magazine005/frame_0001.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002454.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002212.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/061376.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background01/tax005/frame_0071.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/066430.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000105.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/031185.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/005184.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003270.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/057463.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/054250.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000633.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/049728.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/048888.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001312.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001629.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/008435.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/005880.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background01/patent005/frame_0131.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/046270.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000092.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001474.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002274.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background01/magazine004/frame_0021.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Resume/003205.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000044.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/041069.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003378.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001315.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/025452.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000362.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/008743.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003332.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/004744.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000108.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002260.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002564.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/001837.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000835.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/050925.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/025172.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001795.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/006916.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/039795.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/065961.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/060452.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/042420.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/032809.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/021399.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/038990.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000059.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/052570.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002560.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/011004.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/004739.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background03/magazine004/frame_0081.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001792.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/014581.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/037863.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000839.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001680.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/057757.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/000700.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/059409.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/014756.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/038948.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003241.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000908.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001058.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003459.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/050323.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/052654.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001705.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002574.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002419.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/039200.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/044849.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/061047.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/021357.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/050379.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000341.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001821.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000866.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002380.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/057190.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background02/patent004/frame_0031.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/064435.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/001268.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002180.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/031339.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000763.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/008078.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/000748.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background02/tax002/frame_0041.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000454.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/041587.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/001882.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002599.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/025606.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012306.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002082.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002221.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/054915.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/002995.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000449.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/000980.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/062986.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/059108.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/058205.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/043106.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/014483.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003318.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002348.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/013349.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/014252.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001055.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/001890.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001771.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/011816.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000081.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/056882.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001532.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/064939.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/049959.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/059241.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/028574.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000174.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/065457.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012432.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002147.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001316.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background01/magazine002/frame_0141.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background02/tax005/frame_0021.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/048069.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/001408.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002707.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002369.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/009884.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/029386.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000295.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/001845.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background03/patent003/frame_0111.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003263.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000419.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/036855.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/067508.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001109.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/016898.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/011564.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003336.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/000756.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/015981.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000417.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/017234.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/036694.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/021308.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/049770.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000429.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002509.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/043204.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background01/tax002/frame_0041.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000758.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012152.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/009191.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/060872.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002030.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001603.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/058954.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002784.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002729.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/003090.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003310.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/037443.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/067242.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001649.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000886.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000161.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000427.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/027510.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/066395.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/011039.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001773.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000117.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/034391.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/039627.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/041461.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/003030.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001628.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/055832.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012096.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/010976.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002061.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/001556.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001280.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/043134.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/021532.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/009590.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002684.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background04/patent001/frame_0001.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002484.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001245.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/058765.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/062902.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/005028.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/003704.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/005859.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001463.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Resume/003182.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/029855.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/065954.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/050953.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/009436.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001743.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000155.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background01/patent002/frame_0041.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/021329.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/030590.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001182.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background03/magazine002/frame_0031.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001789.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/037660.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001762.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/042938.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/005580.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/019131.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002638.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000710.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/002954.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/050785.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/000072.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/051317.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001615.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/006615.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000144.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000447.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002690.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000829.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/030219.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/046872.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003411.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/027118.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/004108.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/066129.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001664.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/021756.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/033964.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/014896.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/017598.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/005026.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Resume/003145.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/035357.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/003829.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000262.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001697.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001331.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/030758.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/003013.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/008064.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/045178.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/066017.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001738.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/025186.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002691.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002532.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/030401.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Resume/003126.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/061649.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/037961.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003275.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/059892.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003480.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/047649.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/002869.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/063301.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/007014.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/002999.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000421.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/034293.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002748.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/051975.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002285.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000045.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background05/paper002/frame_0011.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001139.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/058583.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/021427.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000529.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/010787.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/067018.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/003115.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/032942.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/044009.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/003612.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/007000.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/045633.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/029225.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/041076.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/002856.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/065835.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/017668.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/044548.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/024164.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background01/paper001/frame_0071.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/037541.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/035322.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/020202.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/011858.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/004556.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/002915.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/036645.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/048748.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/062370.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/042700.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/004417.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/013125.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002044.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/049777.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000689.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/048713.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/001208.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/057141.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/000496.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001459.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/029204.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/038164.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/020888.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003369.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/043127.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/055153.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/056756.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001626.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/023793.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/017731.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/010402.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/060655.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001446.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000503.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001158.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/059395.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/001986.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/054481.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/041139.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000046.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000042.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/001022.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002140.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/049056.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background01/magazine003/frame_0161.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001035.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/007021.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/000376.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/022897.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001110.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002142.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/047586.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012789.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/041839.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000068.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/001364.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000309.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012341.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/051478.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002773.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001526.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001257.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/053046.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/019481.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/018417.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002086.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000407.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001282.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/002892.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/042210.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/044366.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/062237.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/049833.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002585.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/052990.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/034741.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012124.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/062034.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/022638.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003402.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/055223.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/002191.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/004904.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/024829.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/004196.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background04/letter004/frame_0071.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/004354.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000731.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001156.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/016310.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001239.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/014448.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/017360.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003250.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Report/002962.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/024507.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000175.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001029.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/052318.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/055741.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/052458.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/001953.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000765.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000091.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002718.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/015001.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000897.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001749.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background03/letter004/frame_0151.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000460.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001347.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002368.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001289.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002522.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/035511.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/044219.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000332.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/058107.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/055811.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/039613.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/029925.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/000060.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/067333.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background05/datasheet004/frame_0051.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002224.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/001068.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/062594.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/005572.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background05/tax002/frame_0021.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000352.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/001961.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/043225.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/030744.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001001.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/019005.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/000946.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/049588.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/010052.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/007357.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/004696.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/000805.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/020853.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/031570.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000317.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/006958.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Memo/002055.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002563.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/020391.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background05/paper003/frame_0031.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/021350.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/016807.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000443.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/053102.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Resume/003172.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/020811.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/027132.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Note/002737.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Letter/001817.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/004240.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/002152.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/ADVE/000094.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/012404.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/017892.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/061726.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/003384.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Scientific/003420.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Form/001061.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002576.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/062727.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/Email/000511.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/iam-handwriting-finevision/images/001880.png,text,iam-handwriting-finevision,non-commercial research,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/057127.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002490.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/065310.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/020475.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/023051.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/im2latex-100k/images/014280.png,formula,im2latex-100k,CC0-1.0,pretrain
+data/raw_samples/external-assets/smartdoc2015-ch1/background03/paper004/frame_0091.jpeg,text,smartdoc2015-ch1,CC BY 4.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002514.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain
+data/raw_samples/external-assets/tobacco3482/images/News/002571.jpg,text,tobacco3482,research use; mirror Apache-2.0,pretrain

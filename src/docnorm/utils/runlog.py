@@ -149,6 +149,7 @@ TRACKED_FILES = (
     "data/annotations/manual_labels.csv",
     "data/annotations/assignees.csv",
     "data/manifests/external_aux.csv",
+    "data/manifests/external_aux_small.csv",
 )
 
 
