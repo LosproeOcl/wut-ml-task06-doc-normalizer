@@ -284,6 +284,16 @@ def _scan_unsharp(image: np.ndarray, amount: float, sigma: float) -> np.ndarray:
     return cv2.addWeighted(image, amount, blurred, -(amount - 1), 0)
 
 
+def _limit_long_edge(image: np.ndarray, max_edge: int) -> np.ndarray:
+    height, width = image.shape[:2]
+    longest = max(height, width)
+    if longest <= max_edge:
+        return image
+    scale = max_edge / float(longest)
+    size = (max(1, int(round(width * scale))), max(1, int(round(height * scale))))
+    return cv2.resize(image, size, interpolation=cv2.INTER_AREA)
+
+
 def _scan_gamma(image: np.ndarray, gamma: float) -> np.ndarray:
     table = np.array(
         [((value / 255.0) ** gamma) * 255.0 for value in range(256)],
@@ -304,10 +314,11 @@ def _apply_scan(array: np.ndarray) -> np.ndarray:
 
     统一输出白底黑字，避免深色背景被自适应阈值整片漂白（过曝）。
     """
+    array = _limit_long_edge(np.asarray(array), 1600)
     gray = (
         cv2.cvtColor(array, cv2.COLOR_BGR2GRAY)
         if array.ndim == 3
-        else np.asarray(array)
+        else array
     )
     if float(gray.mean()) < 120.0:
         inverted = 255 - gray
@@ -414,6 +425,9 @@ def analyze_array(
         original = cv2.cvtColor(original, cv2.COLOR_GRAY2BGR)
     if min(original.shape[:2]) < 32:
         raise WebError("图像尺寸过小，短边至少 32 像素")
+    # 手机原图可能远超网页演示所需；先限制长边，避免检测/扫描阶段
+    # 在容器内申请过大内存导致整机卡死。
+    original = _limit_long_edge(original, 2000)
     started = time.perf_counter()
     if rectify:
         rectified, quad, status = _apply_rectify(original)

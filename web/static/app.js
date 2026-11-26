@@ -278,8 +278,30 @@ function renderBatch() {
   syncBatchResults();
 }
 
-function addFiles(fileList) {
-  const files = [...fileList].filter((file) => file.type.startsWith("image/"));
+async function makeBatchThumbnail(file) {
+  try {
+    const bitmap = await createImageBitmap(file, {
+      resizeWidth: 240,
+      resizeQuality: "low",
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    canvas.getContext("2d").drawImage(bitmap, 0, 0);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+    if (bitmap.close) bitmap.close();
+    return dataUrl;
+  } catch (_) {
+    return URL.createObjectURL(file);
+  }
+}
+
+async function addFiles(fileList) {
+  const files = [...fileList].filter(
+    (file) =>
+      file.type.startsWith("image/") ||
+      /\.(jpe?g|png|webp|bmp|heic)$/i.test(file.name)
+  );
   if (!files.length) {
     setStatus("请选择图片文件。", true);
     return;
@@ -289,31 +311,35 @@ function addFiles(fileList) {
     setStatus("单次最多 20 张。", true);
     return;
   }
-  files.slice(0, room).forEach((file) => {
+  const accepted = files.slice(0, room);
+  for (const file of accepted) {
+    const url = await makeBatchThumbnail(file);
     state.batchFiles.push({
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       file,
-      url: URL.createObjectURL(file),
+      url,
       status: "待分析",
       result: null,
       error: "",
       calibrated: false,
     });
-  });
+  }
   $("sample-select").value = "";
   renderBatch();
-  setStatus(`已加入 ${Math.min(files.length, room)} 张图片。`);
+  setStatus(`已加入 ${accepted.length} 张图片。`);
 }
 
 function removeBatch(id) {
   const item = state.batchFiles.find((entry) => entry.id === id);
-  if (item) URL.revokeObjectURL(item.url);
+  if (item && item.url.startsWith("blob:")) URL.revokeObjectURL(item.url);
   state.batchFiles = state.batchFiles.filter((entry) => entry.id !== id);
   renderBatch();
 }
 
 function clearBatch() {
-  state.batchFiles.forEach((item) => URL.revokeObjectURL(item.url));
+  state.batchFiles.forEach((item) => {
+    if (item.url.startsWith("blob:")) URL.revokeObjectURL(item.url);
+  });
   state.batchFiles = [];
   state.batchResults = [];
   $("file-input").value = "";
