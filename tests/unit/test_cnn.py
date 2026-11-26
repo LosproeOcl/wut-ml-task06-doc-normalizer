@@ -49,6 +49,22 @@ def test_save_and_load_roundtrip(tmp_path):
     )
 
 
+def test_input_size_survives_save_and_load(tmp_path):
+    # 破坏方式：加载时丢失输入尺寸会让 320 模型按 224 预处理
+    classifier = CnnClassifier(pretrained=False, input_size=320)
+    path = tmp_path / "cnn320.pt"
+    classifier.save(path)
+    loaded = CnnClassifier.load(path)
+    assert loaded.input_size == 320
+
+
+def test_efficientnet_backbone_outputs_two_logits():
+    # 破坏方式：新增骨干未替换分类头会输出 1000 类
+    model = build_model("efficientnet_b0", pretrained=False)
+    logits = model(torch.zeros(1, 3, 224, 224))
+    assert logits.shape == (1, 2)
+
+
 def test_invalid_backbone_rejected():
     # 破坏方式：拼写错误静默替换骨干会让实验记录失真
     with pytest.raises(CnnError, match="骨干"):
@@ -64,6 +80,24 @@ def test_fit_runs_one_epoch_on_tiny_dataset():
     history = classifier.fit(loader, loader, epochs=1, freeze_epochs=1)
     assert len(history["val_accuracy"]) == 1
     assert 0.0 <= history["val_accuracy"][0] <= 1.0
+
+
+def test_fit_calls_epoch_callback():
+    # 破坏方式：回调参数不匹配会让训练日志在第一个 epoch 后中断
+    classifier = CnnClassifier(pretrained=False)
+    images = torch.rand(8, 3, 224, 224)
+    labels = torch.tensor([0, 1, 0, 1, 0, 1, 0, 1])
+    loader = DataLoader(TensorDataset(images, labels), batch_size=4)
+    records = []
+    classifier.fit(
+        loader,
+        loader,
+        epochs=1,
+        freeze_epochs=1,
+        on_epoch=lambda epoch, **metrics: records.append((epoch, metrics)),
+    )
+    assert records and records[0][0] == 1
+    assert set(records[0][1]) == {"train_loss", "val_loss", "val_accuracy"}
 
 
 def test_empty_prediction_rejected():

@@ -36,6 +36,7 @@ from docnorm.enhance.clahe import enhance_document  # noqa: E402
 from docnorm.features.classic import FEATURE_DIM, extract_features  # noqa: E402
 from docnorm.rectify.detector import detect_document  # noqa: E402
 from docnorm.rectify.warp import warp_document  # noqa: E402
+from docnorm.utils.runlog import RunLogger  # noqa: E402
 
 LABELS = ["text", "formula"]
 
@@ -163,6 +164,18 @@ def main() -> int:
     split = load_split(split_path)
     check_manifest_hash(split, ROOT / config["data"]["manifest"])
     assignment = assign_samples(split, samples)
+    exp_id = args.exp_id or f"exp-{datetime.now():%Y%m%d-%H%M}"
+    out_dir = ROOT / "runs" / exp_id
+    logger = RunLogger(
+        exp_id,
+        out_dir,
+        "scripts/train_classic.py",
+        args,
+        config,
+        root=ROOT,
+        notes="传统特征基线；数据、参数与环境见 run.json",
+    )
+    logger.log(f"实验 {exp_id} 开始")
 
     use_rectify = not args.no_rectify
     use_enhance = not args.no_enhance
@@ -209,10 +222,6 @@ def main() -> int:
     val_index = np.asarray(groups["val"])
     x_train, y_train = features[train_index], labels[train_index]
     x_val, y_val = features[val_index], labels[val_index]
-
-    exp_id = args.exp_id or f"exp-{datetime.now():%Y%m%d-%H%M}"
-    out_dir = ROOT / "runs" / exp_id
-    out_dir.mkdir(parents=True, exist_ok=True)
 
     results = {
         "exp_id": exp_id,
@@ -279,6 +288,20 @@ def main() -> int:
         yaml.safe_dump(config, allow_unicode=True, sort_keys=False), encoding="utf-8"
     )
     print(f"结果写入 {out_dir}")
+    logger.finish(
+        metrics={
+            "models": results["models"],
+            "detection_failed": results["detection_failed"],
+            "feature_dim": results["feature_dim"],
+            "feature_seconds": results["feature_seconds"],
+        },
+        extra={
+            "n_train": results["n_train"],
+            "n_val": results["n_val"],
+            "rectify": use_rectify,
+            "enhance": use_enhance,
+        },
+    )
     return 0
 
 

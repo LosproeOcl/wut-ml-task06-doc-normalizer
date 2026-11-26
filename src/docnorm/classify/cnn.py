@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import copy
 from pathlib import Path
-from typing import Sequence
+from typing import Callable, Sequence
 
 import cv2
 import numpy as np
@@ -12,7 +12,11 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import models, transforms
 
-SUPPORTED_BACKBONES = ("mobilenet_v3_small", "mobilenet_v3_large")
+SUPPORTED_BACKBONES = (
+    "mobilenet_v3_small",
+    "mobilenet_v3_large",
+    "efficientnet_b0",
+)
 CLASSES = ("text", "formula")
 IMAGENET_MEAN = (0.485, 0.456, 0.406)
 IMAGENET_STD = (0.229, 0.224, 0.225)
@@ -27,7 +31,9 @@ def _weights(backbone: str, pretrained: bool):
         return None
     if backbone == "mobilenet_v3_small":
         return models.MobileNet_V3_Small_Weights.IMAGENET1K_V1
-    return models.MobileNet_V3_Large_Weights.IMAGENET1K_V1
+    if backbone == "mobilenet_v3_large":
+        return models.MobileNet_V3_Large_Weights.IMAGENET1K_V1
+    return models.EfficientNet_B0_Weights.IMAGENET1K_V1
 
 
 def build_model(
@@ -45,10 +51,16 @@ def build_model(
         raise CnnError(f"不支持的骨干网络: {backbone}")
     if backbone == "mobilenet_v3_small":
         model = models.mobilenet_v3_small(weights=_weights(backbone, pretrained))
-    else:
+        in_features = model.classifier[3].in_features
+        model.classifier[3] = nn.Linear(in_features, num_classes)
+    elif backbone == "mobilenet_v3_large":
         model = models.mobilenet_v3_large(weights=_weights(backbone, pretrained))
-    in_features = model.classifier[3].in_features
-    model.classifier[3] = nn.Linear(in_features, num_classes)
+        in_features = model.classifier[3].in_features
+        model.classifier[3] = nn.Linear(in_features, num_classes)
+    else:
+        model = models.efficientnet_b0(weights=_weights(backbone, pretrained))
+        in_features = model.classifier[1].in_features
+        model.classifier[1] = nn.Linear(in_features, num_classes)
     return model
 
 
@@ -62,18 +74,23 @@ class CnnClassifier:
         pretrained: bool = True,
         device: str = "cpu",
         random_state: int = 42,
+        input_size: int = 224,
     ) -> None:
+        if input_size < 96:
+            raise CnnError(f"输入尺寸过小: {input_size}")
         self.backbone = backbone
         self.device = torch.device(device)
         self.random_state = random_state
+        self.input_size = input_size
         self.model = build_model(
             backbone, num_classes=len(CLASSES), pretrained=pretrained
         ).to(self.device)
+        resize = int(round(input_size * 256 / 224))
         self.transform = transforms.Compose(
             [
                 transforms.ToPILImage(),
-                transforms.Resize(256),
-                transforms.CenterCrop(224),
+                transforms.Resize(resize),
+                transforms.CenterCrop(input_size),
                 transforms.ToTensor(),
                 transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
             ]
@@ -95,6 +112,8 @@ class CnnClassifier:
         lr_finetune: float = 1e-4,
         class_weights: Sequence[float] | None = None,
         patience: int = 5,
+        label_smoothing: float = 0.0,
+        on_epoch: Callable[[int, dict[str, float]], None] | None = None,
     ) -> dict[str, list[float]]:
         """两阶段训练：先冻结骨干训分类头，再整体微调。"""
         if epochs < 1:
@@ -105,7 +124,9 @@ class CnnClassifier:
             if class_weights is not None
             else None
         )
-        criterion = nn.CrossEntropyLoss(weight=weights)
+        criterion = nn.CrossEntropyLoss(
+            weight=weights, label_smoothing=label_smoothing
+        )
         optimizer = torch.optim.AdamW(
             self.model.classifier.parameters(), lr=lr_head, weight_decay=1e-4
         )
@@ -142,6 +163,13 @@ class CnnClassifier:
             history["train_loss"].append(train_loss)
             history["val_loss"].append(val_loss)
             history["val_accuracy"].append(val_accuracy)
+            if on_epoch is not None:
+                on_epoch(
+                    epoch + 1,
+                    train_loss=train_loss,
+                    val_loss=val_loss,
+                    val_accuracy=val_accuracy,
+                )
 
             if val_accuracy > best_accuracy:
                 best_accuracy = val_accuracy
@@ -191,6 +219,7 @@ class CnnClassifier:
         torch.save(
             {
                 "backbone": self.backbone,
+                "input_size": self.input_size,
                 "state_dict": self.model.state_dict(),
                 "classes": CLASSES,
             },
@@ -207,7 +236,10 @@ class CnnClassifier:
     ) -> "CnnClassifier":
         payload = torch.load(path, map_location=device)
         instance = cls(
-            backbone=payload["backbone"], pretrained=pretrained, device=device
+            backbone=payload["backbone"],
+            pretrained=pretrained,
+            device=device,
+            input_size=int(payload.get("input_size", 224)),
         )
         instance.model.load_state_dict(payload["state_dict"])
         instance.model.eval()

@@ -39,6 +39,7 @@ from docnorm.rectify.geometry import DocumentQuad, RectifyError  # noqa: E402
 from docnorm.enhance.clahe import enhance_document  # noqa: E402
 from docnorm.rectify.detector import detect_document  # noqa: E402
 from docnorm.rectify.warp import warp_document  # noqa: E402
+from docnorm.utils.runlog import RunLogger  # noqa: E402
 
 MEAN = (0.485, 0.456, 0.406)
 STD = (0.229, 0.224, 0.225)
@@ -55,6 +56,7 @@ class DocumentDataset(Dataset):
         enhance: bool,
         corner_overrides: dict[str, list[list[float]]] | None = None,
         corner_policy: str = "always",
+        load_size: int | None = None,
     ):
         self.items = items
         self.config = config
@@ -63,6 +65,7 @@ class DocumentDataset(Dataset):
         self.enhance = enhance
         self.corner_overrides = corner_overrides or {}
         self.corner_policy = corner_policy
+        self.load_size = load_size or int(config["data"]["image_size"])
 
     def __len__(self) -> int:
         return len(self.items)
@@ -81,7 +84,7 @@ class DocumentDataset(Dataset):
         item = self.items[index]
         loaded = load_image(
             ROOT / self.config["data"]["raw_dir"] / item["file"],
-            max_long_edge=int(self.config["data"]["image_size"]),
+            max_long_edge=self.load_size,
         )
         image = loaded.image
         if self.rectify:
@@ -118,24 +121,43 @@ class DocumentDataset(Dataset):
         return self.transform(rgb), CLASSES.index(item["label"])
 
 
-def build_transform(train: bool):
-    if train:
+def build_transform(
+    train: bool, *, input_size: int = 224, augment: str = "default"
+):
+    if not train:
         return transforms.Compose(
             [
                 transforms.ToPILImage(),
-                transforms.RandomResizedCrop(224, scale=(0.7, 1.0)),
-                transforms.RandomRotation(5),
-                transforms.RandomPerspective(distortion_scale=0.15, p=0.3),
-                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.1),
+                transforms.Resize(int(round(input_size * 256 / 224))),
+                transforms.CenterCrop(input_size),
                 transforms.ToTensor(),
                 transforms.Normalize(MEAN, STD),
             ]
         )
+    if augment == "none":
+        return build_transform(False, input_size=input_size)
+    if augment == "mild":
+        return transforms.Compose(
+            [
+                transforms.ToPILImage(),
+                transforms.RandomResizedCrop(
+                    input_size, scale=(0.85, 1.0), ratio=(0.95, 1.05)
+                ),
+                transforms.RandomRotation(3),
+                transforms.ColorJitter(brightness=0.15, contrast=0.15),
+                transforms.ToTensor(),
+                transforms.Normalize(MEAN, STD),
+            ]
+        )
+    if augment != "default":
+        raise ValueError(f"未知增强策略: {augment}")
     return transforms.Compose(
         [
             transforms.ToPILImage(),
-            transforms.Resize(256),
-            transforms.CenterCrop(224),
+            transforms.RandomResizedCrop(input_size, scale=(0.7, 1.0)),
+            transforms.RandomRotation(5),
+            transforms.RandomPerspective(distortion_scale=0.15, p=0.3),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.1),
             transforms.ToTensor(),
             transforms.Normalize(MEAN, STD),
         ]
@@ -158,14 +180,63 @@ def main() -> int:
         default="fallback",
         help="fallback 仅自动失败时用人工四角（默认）；always 优先人工；none 不使用",
     )
+    parser.add_argument("--input-size", type=int, default=224)
+    parser.add_argument(
+        "--augment",
+        choices=("default", "mild", "none"),
+        default="default",
+        help="增强强度；公式页建议 mild 或 none",
+    )
+    parser.add_argument(
+        "--backbone",
+        choices=(
+            "mobilenet_v3_small",
+            "mobilenet_v3_large",
+            "efficientnet_b0",
+        ),
+        default=None,
+        help="覆盖配置中的骨干网络",
+    )
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--patience", type=int, default=5)
+    parser.add_argument("--lr-head", type=float, default=None)
+    parser.add_argument("--lr-finetune", type=float, default=None)
+    parser.add_argument("--label-smoothing", type=float, default=0.0)
+    parser.add_argument(
+        "--formula-weight",
+        type=float,
+        default=1.0,
+        help="在自动类别权重上再乘公式类权重，缓解公式召回偏低",
+    )
+    parser.add_argument(
+        "--load-size",
+        type=int,
+        default=None,
+        help="原图长边；默认取 1280 与 input_size×5 的较大值",
+    )
     args = parser.parse_args()
 
-    torch.manual_seed(42)
-    np.random.seed(42)
+    torch.manual_seed(args.seed)
+    np.random.seed(args.seed)
     torch.set_num_threads(4)
     torch.use_deterministic_algorithms(True, warn_only=True)
 
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
+    if args.backbone:
+        config["classify"]["backbone"] = args.backbone
+    load_size = args.load_size or max(1280, args.input_size * 5)
+    exp_id = args.exp_id or f"exp-cnn-{datetime.now():%Y%m%d-%H%M}"
+    out_dir = ROOT / "runs" / exp_id
+    logger = RunLogger(
+        exp_id,
+        out_dir,
+        "scripts/train_cnn.py",
+        args,
+        config,
+        root=ROOT,
+        notes="CNN 训练；数据、参数与环境见 run.json",
+    )
+    logger.log(f"实验 {exp_id} 开始")
     samples = load_manifest(
         ROOT / config["data"]["manifest"],
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
@@ -213,20 +284,24 @@ def main() -> int:
     train_dataset = DocumentDataset(
         items["train"],
         config,
-        build_transform(True),
+        build_transform(
+            True, input_size=args.input_size, augment=args.augment
+        ),
         rectify=rectify,
         enhance=enhance,
         corner_overrides=corners,
         corner_policy=args.corners_policy,
+        load_size=load_size,
     )
     val_dataset = DocumentDataset(
         items["val"],
         config,
-        build_transform(False),
+        build_transform(False, input_size=args.input_size),
         rectify=rectify,
         enhance=enhance,
         corner_overrides=corners,
         corner_policy=args.corners_policy,
+        load_size=load_size,
     )
     train_loader = DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0
@@ -239,18 +314,19 @@ def main() -> int:
         [CLASSES.index(item["label"]) for item in items["train"]], minlength=2
     )
     class_weights = (counts.sum() / (2.0 * np.maximum(counts, 1))).tolist()
+    class_weights[CLASSES.index("formula")] *= args.formula_weight
     print(
         f"train={len(train_dataset)} val={len(val_dataset)} "
-        f"class_weights={class_weights} rectify={rectify} enhance={enhance}"
+        f"class_weights={class_weights} rectify={rectify} enhance={enhance} "
+        f"input={args.input_size} augment={args.augment} "
+        f"backbone={config['classify']['backbone']} seed={args.seed}"
     )
-
-    exp_id = args.exp_id or f"exp-cnn-{datetime.now():%Y%m%d-%H%M}"
-    out_dir = ROOT / "runs" / exp_id
-    out_dir.mkdir(parents=True, exist_ok=True)
 
     classifier = CnnClassifier(
         backbone=str(config["classify"]["backbone"]),
         pretrained=not args.no_pretrained,
+        input_size=args.input_size,
+        random_state=args.seed,
     )
     started = time.perf_counter()
     history = classifier.fit(
@@ -258,9 +334,12 @@ def main() -> int:
         val_loader,
         epochs=args.epochs,
         freeze_epochs=args.freeze_epochs,
-        lr_head=float(config["classify"]["lr_stage1"]),
-        lr_finetune=float(config["classify"]["lr_stage2"]),
+        lr_head=float(args.lr_head or config["classify"]["lr_stage1"]),
+        lr_finetune=float(args.lr_finetune or config["classify"]["lr_stage2"]),
         class_weights=class_weights,
+        patience=args.patience,
+        label_smoothing=args.label_smoothing,
+        on_epoch=logger.log_epoch,
     )
     train_seconds = time.perf_counter() - started
 
@@ -321,6 +400,16 @@ def main() -> int:
         "enhance": enhance,
         "corner_policy": args.corners_policy,
         "n_manual_corners": len(corners),
+        "backbone": str(config["classify"]["backbone"]),
+        "input_size": args.input_size,
+        "augment": args.augment,
+        "load_size": load_size,
+        "seed": args.seed,
+        "patience": args.patience,
+        "lr_head": float(args.lr_head or config["classify"]["lr_stage1"]),
+        "lr_finetune": float(args.lr_finetune or config["classify"]["lr_stage2"]),
+        "label_smoothing": args.label_smoothing,
+        "formula_weight": args.formula_weight,
         "epochs": len(history["train_loss"]),
         "train_seconds": round(train_seconds, 2),
         "metrics": {key: round(value, 4) if isinstance(value, float) else value
@@ -338,6 +427,18 @@ def main() -> int:
         f"confusion={metrics['confusion_matrix']} seconds={train_seconds:.1f}"
     )
     print(f"结果写入 {out_dir}")
+    logger.finish(
+        metrics=result["metrics"],
+        extra={
+            "n_train": len(train_dataset),
+            "n_val": len(val_dataset),
+            "epochs": len(history["train_loss"]),
+            "train_seconds": round(train_seconds, 2),
+            "best_val_accuracy": max(history["val_accuracy"]),
+            "class_weights": class_weights,
+            "history": history,
+        },
+    )
     return 0
 
 
