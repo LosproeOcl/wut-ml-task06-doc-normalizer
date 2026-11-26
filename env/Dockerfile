@@ -1,5 +1,7 @@
 FROM python:3.11-slim
 
+ARG INSTALL_CJK_FONTS=1
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -8,8 +10,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONHASHSEED=0 \
     TORCH_HOME=/cache/torch
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      libglib2.0-0 fonts-noto-cjk \
+RUN apt-get update && apt-get install -y --no-install-recommends libglib2.0-0 \
+    && if [ "$INSTALL_CJK_FONTS" = "1" ]; then \
+         apt-get install -y --no-install-recommends fonts-noto-cjk; \
+       fi \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
