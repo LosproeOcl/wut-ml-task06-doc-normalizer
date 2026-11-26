@@ -154,6 +154,7 @@ TRACKED_FILES = (
     "data/manifests/screen_gate.csv",
     "data/manifests/carrier_gate.csv",
     "data/manifests/paper_content.csv",
+    "data/manifests/paper_content_extctl.csv",
 )
 
 

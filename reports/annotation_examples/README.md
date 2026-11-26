@@ -6,7 +6,7 @@
 
 | 文件 | 内容 |
 |---|---|
-| `index.html` | 25 条标注的画廊，点击图片可看大图 |
+| `index.html` | 标注抽查画廊，点击图片可看大图；当前保留 25 条历史抽查图 |
 | `sheet_0.jpg` 至 `sheet_2.jpg` | 三张总览图，每条附样本标识 |
 | `00_*.jpg` 至 `24_*.jpg` | 单条标注图，红框为保存的四角，黄点为顶点顺序 |
 | `corner_scale_check.jpg` | 坐标缩放修正前后的对照图 |
@@ -15,7 +15,7 @@
 
 - 标注数据：`data/annotations/manual_corners.csv`
 - 样本清单：`data/manifests/sample_manifest.csv`
-- 当前有效记录：25 条，全部为训练集
+- 当前有效记录：236 条，全部为训练集；本目录抽查图 25 条，完整坐标见 `manual_corners.csv`
 
 已排除 4 张非课堂或含个人信息样本，删除 1 条整图无效四角。详细审查见 `reports/annotation_audit.md`。
 

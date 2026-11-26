@@ -50,6 +50,22 @@ T06_P03_pptFormula_classroom_017,02_ppt_formula/T06_P03_pptFormula_classroom_017
 
 排除表当前 36 行。数据加载、划分与评估必须以该表为准，不得仅凭清单判断样本可用性。
 
+## 其他清单
+
+除自采样本清单外，以下清单用于外部数据、屏幕检测与辅助训练。所有清单只记录路径与标签，图像本体不进入版本控制。
+
+| 清单 | 用途 | 关键字段 |
+|---|---|---|
+| `external_aux.csv` | 外部预训练（2,400 张） | `path,label,source,license,usage` |
+| `external_aux_small.csv` | 小样本外部预训练（600 张） | 同上 |
+| `scb_screen.csv` | SCB 屏幕框检测训练/验证 | `path,label,split,source` |
+| `screen_gate.csv` | 屏幕存在性门控 | `path,label,split,source` |
+| `carrier_gate.csv` | PPT/幕布 vs A4 纸质稿载体门控 | `path,label,source,split` |
+| `paper_content.csv` | 纸质稿内容二分类辅助训练 | `path,label,source,split,sample_id` |
+| `paper_content_extctl.csv` | 外部文本对照：仅 SmartDoc + Tobacco Scientific | 同上 |
+
+外部数据与辅助清单的边界见 `docs/13-外部数据使用说明.md`：只进入训练集，不进入自采验证/测试，不改变 `split_v3` 与最终指标分母。
+
 ## 检查方式
 
 数据层已实现清单与划分校验，入口为 `src/docnorm/data/`。检查内容如下。

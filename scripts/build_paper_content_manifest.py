@@ -20,6 +20,14 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=OUT)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--mode",
+        choices=("all", "smartdoc-scientific"),
+        default="all",
+        help="all：现有四类外部数据；smartdoc-scientific：只用 SmartDoc 与 Tobacco Scientific 做文本对照",
+    )
+    parser.add_argument("--smartdoc", type=int, default=250)
+    parser.add_argument("--scientific", type=int, default=261)
     return parser.parse_args()
 
 
@@ -56,12 +64,28 @@ def main() -> int:
             }
         )
 
-    pools = [
-        (sorted((ASSETS / "smartdoc2015-ch1").glob("background*/*/frame_*.jpeg")), "smartdoc2015-ch1", "text", 250),
-        (sorted((ASSETS / "tobacco3482/images").glob("*/*.jpg")), "tobacco3482", "text", 200),
-        (sorted((ASSETS / "iam-handwriting-finevision/images").glob("*.png")), "iam-handwriting-finevision", "text", 50),
-        (sorted((ASSETS / "im2latex-100k/images").glob("*.png")), "im2latex-100k", "formula", 400),
-    ]
+    if args.mode == "smartdoc-scientific":
+        pools = [
+            (
+                sorted((ASSETS / "smartdoc2015-ch1").glob("background*/*/frame_*.jpeg")),
+                "smartdoc2015-ch1",
+                "text",
+                args.smartdoc,
+            ),
+            (
+                sorted((ASSETS / "tobacco3482/images/Scientific").glob("*.jpg")),
+                "tobacco3482-scientific",
+                "text",
+                args.scientific,
+            ),
+        ]
+    else:
+        pools = [
+            (sorted((ASSETS / "smartdoc2015-ch1").glob("background*/*/frame_*.jpeg")), "smartdoc2015-ch1", "text", 250),
+            (sorted((ASSETS / "tobacco3482/images").glob("*/*.jpg")), "tobacco3482", "text", 200),
+            (sorted((ASSETS / "iam-handwriting-finevision/images").glob("*.png")), "iam-handwriting-finevision", "text", 50),
+            (sorted((ASSETS / "im2latex-100k/images").glob("*.png")), "im2latex-100k", "formula", 400),
+        ]
     for files, source, label, count in pools:
         if not files:
             continue
