@@ -6,7 +6,7 @@ import textwrap
 
 import pytest
 
-from docnorm.data.manifest import ManifestError, load_manifest
+from docnorm.data.manifest import ManifestError, find_missing_files, load_manifest
 
 HEADER = (
     "sample_id,file,label,doc_page_id,shooter,device,scene,angle_deg,"
@@ -106,3 +106,12 @@ def test_exclusion_of_unknown_id_rejected(tmp_path):
     ex.write_text("sample_id,reason\nghost,personal_info\n", encoding="utf-8")
     with pytest.raises(ManifestError, match="ghost"):
         load_manifest(p, exclusions_path=ex)
+
+
+def test_find_missing_files_reports_only_absent(tmp_path):
+    # 破坏方式：不校验文件存在性会让缺失样本进入划分，训练批次中途失败
+    root = tmp_path / "raw"
+    (root / "01_ppt_text").mkdir(parents=True)
+    (root / "01_ppt_text/a.jpg").write_bytes(b"x")
+    p = write_csv(tmp_path, [ROW_A, ROW_B])
+    assert find_missing_files(load_manifest(p), root) == ["04_paper_formula/b.jpg"]

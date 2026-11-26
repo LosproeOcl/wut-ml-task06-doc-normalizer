@@ -1,0 +1,15 @@
+.git
+.gitignore
+.venv
+venv
+data/raw_samples
+data/release
+data/annotations
+runs
+models
+reports/figures
+__pycache__
+.pytest_cache
+.ruff_cache
+*.md
+docs/assets

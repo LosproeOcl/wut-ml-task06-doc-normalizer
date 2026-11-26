@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterable
 
 LABEL_TO_CONTENT = {
     "ppt_text": "text",
@@ -63,6 +64,15 @@ def _parse_bool(value: str, row_no: int) -> bool:
     if value == "false":
         return False
     raise ManifestError(f"第 {row_no} 行 privacy_masked 取值非法: {value!r}")
+
+
+def find_missing_files(samples: Iterable[Sample], root: Path) -> list[str]:
+    """返回在 root 下找不到实际文件的样本路径。
+
+    用于在训练前拦截"清单已登记但文件缺失"的缺陷，避免批处理中途失败。
+    """
+    root = Path(root)
+    return [s.file for s in samples if not (root / s.file).is_file()]
 
 
 def load_manifest(
