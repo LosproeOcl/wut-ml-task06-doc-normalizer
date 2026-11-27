@@ -61,6 +61,7 @@
 - 测试失败根因核查：验证/测试分格对比显示 PPT 分支 95.24%→62.50%，低于单 CNN 66.7% 与 SVM 70.8%；主因是 PPT 公式验证仅 4 张导致选择过拟合、文字/公式边界样本不足；标签错误最多解释 1–2 张。见 `reports/test_failure_analysis.md`。
 - 新增验证集难例清单 `reports/hard_cases_val.csv`（7 错 + 8 低置信），用于定向补采/复核；不使用测试集调参。
 - 完成 5 折分组 CV：按 doc_page_id 分组、载体×内容分层，PPT/纸质各 5 折 × 3 种子；PPT 折内 70.44%±8.24，纸质 88.90%±5.29；OOF PPT 71.71%、纸质 90.23%，OOF 阈值 PPT 75.12%、纸质 90.98%，验证集检查 84.31%。原验证集 95.24% 被证实不可复现。见 `reports/cv_oof.md` 与 `scripts/make_cv_folds.py`、`scripts/cv_oof_report.py`。
+- 跨载体评估：纸质 CV 模型在 PPT 205 张上 63.41% / F1 58.89（公式召回 36.9%）；部署式纸质集成在 PPT val 21 张仅 42.86%。纸质模型不能替代 PPT 分支，分支拆分必要；测试集未使用。见 `reports/cross_carrier.md`。
 - 复现核验：同一冻结配置在干净容器复跑测试脚本，最终链路、单 CNN、SVM 的指标与逐样本预测完全一致；报告见 `reports/repro_check.md`。
 - 提交 `ec5e3af` 并打标签 `m3-eval-20261127`；该提交包含数据/模型/网页/测试/文档全部当前变更。复现核验记录另提交。
 - 固定 `sample_manifest.csv` 为 CRLF 检出，避免 Linux CI 因换行变化导致 `split_v3` 清单哈希校验失败；4 个依赖本地图像的网页用例增加 `requires_dataset` 标记，CI 运行上传契约子集。
