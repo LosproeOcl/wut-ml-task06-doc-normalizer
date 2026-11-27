@@ -149,6 +149,20 @@ def build_transform(
                 transforms.Normalize(MEAN, STD),
             ]
         )
+    if augment == "skew":
+        return transforms.Compose(
+            [
+                transforms.ToPILImage(),
+                transforms.RandomResizedCrop(
+                    input_size, scale=(0.6, 1.0), ratio=(0.8, 1.25)
+                ),
+                transforms.RandomRotation(10),
+                transforms.RandomPerspective(distortion_scale=0.3, p=0.5),
+                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.1),
+                transforms.ToTensor(),
+                transforms.Normalize(MEAN, STD),
+            ]
+        )
     if augment != "default":
         raise ValueError(f"未知增强策略: {augment}")
     return transforms.Compose(
@@ -183,9 +197,9 @@ def main() -> int:
     parser.add_argument("--input-size", type=int, default=224)
     parser.add_argument(
         "--augment",
-        choices=("default", "mild", "none"),
+        choices=("default", "mild", "skew", "none"),
         default="default",
-        help="增强强度；公式页建议 mild 或 none",
+        help="增强强度；skew 增加随机透视/旋转，公式页建议 mild 或 none",
     )
     parser.add_argument(
         "--backbone",

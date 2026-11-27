@@ -33,10 +33,32 @@ from docnorm.utils.runlog import RunLogger  # noqa: E402
 
 
 class GateDataset(Dataset):
-    def __init__(self, rows, input_size: int, train: bool):
+    def __init__(self, rows, input_size: int, train: bool, skew_augment: bool = False):
         self.rows = rows
         self.input_size = input_size
         self.train = train
+        self.skew_augment = skew_augment
+
+    def _skew(self, image):
+        height, width = image.shape[:2]
+        shift = random.uniform(0.04, 0.14) * width
+        if random.random() < 0.5:
+            src = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
+            dst = np.float32([[shift, 0], [width - shift, 0], [width, height], [0, height]])
+        else:
+            src = np.float32([[0, 0], [width, 0], [width, height], [0, height]])
+            dst = np.float32([[0, shift], [width, 0], [width, height - shift], [0, height]])
+        matrix = cv2.getPerspectiveTransform(src, dst)
+        image = cv2.warpPerspective(
+            image, matrix, (width, height), borderMode=cv2.BORDER_REPLICATE
+        )
+        if random.random() < 0.5:
+            angle = random.uniform(-8, 8)
+            matrix = cv2.getRotationMatrix2D((width / 2, height / 2), angle, 1.0)
+            image = cv2.warpAffine(
+                image, matrix, (width, height), borderMode=cv2.BORDER_REPLICATE
+            )
+        return image
 
     def __len__(self) -> int:
         return len(self.rows)
@@ -53,6 +75,8 @@ class GateDataset(Dataset):
         if self.train and random.random() < 0.5:
             factor = random.uniform(0.85, 1.15)
             image = np.clip(image.astype(np.float32) * factor, 0, 255).astype(np.uint8)
+        if self.train and self.skew_augment and random.random() < 0.7:
+            image = self._skew(image)
         tensor = torch.from_numpy(image).permute(2, 0, 1).float() / 255.0
         mean = torch.tensor(MEAN).view(3, 1, 1)
         std = torch.tensor(STD).view(3, 1, 1)
@@ -91,6 +115,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input-size", type=int, default=160)
     parser.add_argument("--patience", type=int, default=3)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--skew-augment",
+        action="store_true",
+        help="训练时加入随机梯形透视与旋转，提升空间偏度鲁棒性",
+    )
     return parser.parse_args()
 
 
@@ -120,7 +149,9 @@ def main() -> int:
     logger.log(f"屏幕门控训练开始，train={len(train_rows)} val={len(val_rows)}")
 
     train_loader = DataLoader(
-        GateDataset(train_rows, args.input_size, train=True),
+        GateDataset(
+            train_rows, args.input_size, train=True, skew_augment=args.skew_augment
+        ),
         batch_size=args.batch_size,
         shuffle=True,
         num_workers=0,

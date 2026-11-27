@@ -24,6 +24,9 @@
 | `make_report_figures.py` | 生成诊断图与对比图 |
 | `check_manifest.py` | 只读校验清单字段、唯一性、分组与类别分布；支持 `--json` |
 | `check_dataset.py` | 只读核对清单与磁盘文件一致性；未登记文件只报警告 |
+| `eval_spatial_skew.py` | 对现有 PPT 验证页做合成透视，评估内容模型/完整链路/门控阈值 TTA |
+| `eval_gate_skew.py` | 载体门控在合成偏度下的阈值、TTA 与 AUC 评估 |
+| `make_skew_figures.py` | 生成空间偏度三张评估图 |
 
 `check_manifest.py` 与 `check_dataset.py` 基于 PR #1 的校验思路、按当前数据契约重写；贡献记录见 `CONTRIBUTORS.md`。
 

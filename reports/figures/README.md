@@ -20,6 +20,9 @@
 | `eval_confusion_matrices.png` | 单模型与纸质集成的混淆矩阵，对应 F17 |
 | `eval_recall_comparison.png` | text / formula 分召回对比，对应 F18 |
 | `eval_probability_shift.png` | 逐样本 P(formula) 迁移散点，对应 F19 |
+| `spatial_skew_accuracy.png` | 合成偏度下内容模型与完整链路准确率，对应 F20 |
+| `spatial_skew_gate.png` | 载体门控 PPT 召回随偏度变化，对应 F21 |
+| `spatial_skew_examples.png` | 0°/20°/40° 合成偏度示意，对应 F22 |
 
 说明：
 

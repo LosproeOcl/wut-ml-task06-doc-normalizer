@@ -30,6 +30,7 @@
 
 - 新增 GitHub Actions CI：数据层与工具测试、网页接口契约测试；README 增加 CI、Python、Docker 与课程 badges。
 - 取消 GitHub Pages 部署：静态托管无法运行 FastAPI/模型，完整 webapp 只在本机与现有 Server1 反向代理运行；移除 `site/`、`pages.yml` 与相关生成脚本。
+- 新增空间偏度调研：合成 0°–40° 压力测试、门控 TTA/阈值、偏度增广门控与内容模型增广对照；结论与复现见 `docs/15-空间偏度优化调研.md`。
 - 固定 `sample_manifest.csv` 为 CRLF 检出，避免 Linux CI 因换行变化导致 `split_v3` 清单哈希校验失败；4 个依赖本地图像的网页用例增加 `requires_dataset` 标记，CI 运行上传契约子集。
 - 处理 PR #1：未直接合并旧分支；选择性重写 `check_manifest.py`、`check_dataset.py` 两个只读校验脚本，原作者张毅卓（@qingwu0731）以 Co-authored-by 记录到 `CONTRIBUTORS.md`。
 - 新增本变更记录。
