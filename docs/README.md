@@ -62,6 +62,7 @@
 | [`reports/annotation_audit.md`](../reports/annotation_audit.md) | 四角标注结构审计（含 338 条更新） |
 | [`reports/stage_audit.md`](../reports/stage_audit.md) | 阶段门禁审计与文档/数据/模型一致性核查 |
 | [`reports/final_test.md`](../reports/final_test.md) | 测试集一次性评估、置信区间、McNemar 与错误分析 |
+| [`reports/test_failure_analysis.md`](../reports/test_failure_analysis.md) | 测试失败根因核查与分格退化分析 |
 | [`reports/test_label_audit/README.md`](../reports/test_label_audit/README.md) | 测试标签双人盲审规则、第一遍结果与第二遍材料 |
 | [`reports/repro_check.md`](../reports/repro_check.md) | 冻结提交 `ec5e3af` 上的测试复现核验记录 |
 | [`reports/model_manifest.csv`](../reports/model_manifest.csv) | 线上模型路径、大小、SHA-256 与验证指标 |
