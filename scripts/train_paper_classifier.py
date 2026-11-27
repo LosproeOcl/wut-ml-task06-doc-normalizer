@@ -209,9 +209,12 @@ def main() -> int:
     classifier.model.eval()
     predictions = []
     labels = []
+    probabilities = []
     with torch.no_grad():
         for images, targets in val_loader:
-            predictions.extend(classifier.model(images).argmax(dim=1).tolist())
+            logits = classifier.model(images)
+            probabilities.extend(torch.softmax(logits, dim=1).cpu().numpy().tolist())
+            predictions.extend(logits.argmax(dim=1).tolist())
             labels.extend(targets.tolist())
     true_labels = [CLASSES[index] for index in labels]
     pred_labels = [CLASSES[index] for index in predictions]
@@ -236,6 +239,26 @@ def main() -> int:
     (out_dir / "metrics.json").write_text(
         json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+    with (out_dir / "predictions_val.csv").open(
+        "w", encoding="utf-8", newline=""
+    ) as stream:
+        writer = csv.DictWriter(
+            stream,
+            fieldnames=["sample_id", "true_label", "pred_label", "prob_text", "prob_formula"],
+        )
+        writer.writeheader()
+        for row, true_label, pred_label, prob in zip(
+            val_rows, true_labels, pred_labels, probabilities
+        ):
+            writer.writerow(
+                {
+                    "sample_id": row["sample_id"],
+                    "true_label": true_label,
+                    "pred_label": pred_label,
+                    "prob_text": f"{prob[0]:.8f}",
+                    "prob_formula": f"{prob[1]:.8f}",
+                }
+            )
     print(f"paper acc={metrics['accuracy']:.4f} f1={metrics['macro_f1']:.4f} conf={metrics['confusion_matrix']}")
     logger.finish(
         metrics=metrics,

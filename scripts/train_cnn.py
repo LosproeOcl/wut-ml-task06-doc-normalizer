@@ -194,6 +194,12 @@ def build_transform(
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=ROOT / "configs/default.yaml")
+    parser.add_argument(
+        "--split",
+        type=Path,
+        default=None,
+        help="覆盖配置中的划分文件（用于交叉验证折）",
+    )
     parser.add_argument("--exp-id", default=None)
     parser.add_argument("--epochs", type=int, default=12)
     parser.add_argument("--freeze-epochs", type=int, default=2)
@@ -320,7 +326,7 @@ def main() -> int:
         ROOT / config["data"]["manifest"],
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    split = load_split(ROOT / config["data"]["split"])
+    split = load_split(args.split or ROOT / config["data"]["split"])
     check_manifest_hash(split, ROOT / config["data"]["manifest"])
     assignment = assign_samples(split, samples)
     overrides = {

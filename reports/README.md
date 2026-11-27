@@ -45,6 +45,7 @@ reports/
 | `final_test.md` | 测试集一次性评估、95% CI、McNemar 与错误分析（M3 未通过） | `reports/final_test.json`、`reports/final_test_predictions.csv` |
 | `test_failure_analysis.md` | 测试失败根因：分格退化、PPT 过拟合、标签边界与门控/拉正影响 | `reports/final_test.json` |
 | `hard_cases_val.csv` | 验证集错误与低置信样本清单，用于定向补采/复核（不使用测试集） | `reports/eval_paper/routed_val.csv` |
+| `cv_oof.md` | 5 折分组 CV、3 种子、OOF 校准/阈值/融合与验证集检查 | `reports/cv_oof.json`、`reports/cv_oof_predictions.csv` |
 | `repro_check.md` | 冻结提交上的测试复现核验（结果一致，指标未达标） | `reports/final_test_repro.json` |
 | `ppt_quad.md` | 人工四角标签训练的 PPT 四角回归与 OpenCV 对比 | `runs/quad-ppt-01/quad_ppt.pt` |
 | `quad_localization.md` | PPT/纸质分载体四角模型、端到端接入评估与门控审计 | `runs/quad-ppt-02`、`runs/quad-paper-01`、`reports/quad_routing_eval.json` |
