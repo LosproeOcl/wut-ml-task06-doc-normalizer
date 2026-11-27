@@ -28,6 +28,7 @@
 ### 文档与协作
 
 - 新增 GitHub Actions CI：数据层与工具测试、网页接口契约测试；README 增加 CI、Python、Docker 与课程 badges。
+- 新增 GitHub Pages 静态演示：隐藏训练集标签/四角/标注检查入口，本机完整 webapp 保留；`site/` 提供 6 个预计算样张与评估图，`pages.yml` 自动部署。
 - 固定 `sample_manifest.csv` 为 CRLF 检出，避免 Linux CI 因换行变化导致 `split_v3` 清单哈希校验失败；4 个依赖本地图像的网页用例增加 `requires_dataset` 标记，CI 运行上传契约子集。
 - 处理 PR #1：未直接合并旧分支；选择性重写 `check_manifest.py`、`check_dataset.py` 两个只读校验脚本，原作者张毅卓（@qingwu0731）以 Co-authored-by 记录到 `CONTRIBUTORS.md`。
 - 新增本变更记录。

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>斜拍文档规范化 · 在线演示</title>
+  <link rel="icon" href="favicon.svg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-title"><a href="./">斜拍文档规范化</a></h1>
+    <p class="site-description">定位 · 拉正 · 扫描件 · 内容分类</p>
+    <nav class="site-nav">
+      <a href="#demo" class="tab active">在线演示</a>
+      <a href="#evaluation" class="tab">评估结果</a>
+      <a href="https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer" class="tab">项目仓库</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="hero-note">
+      GitHub Pages 静态演示：展示 6 个预计算样张，不运行后端模型。
+      完整的上传分析、四角校准、批量 PDF 与训练集标注请在本机运行 webapp。
+    </p>
+
+    <section id="demo">
+      <h2>选择样张</h2>
+      <p class="hint">点击卡片查看原图四角、矫正图、扫描件与分类结果。</p>
+      <div id="demo-grid" class="demo-grid" aria-live="polite"></div>
+
+      <div id="result-card" class="card hidden">
+        <h2>分类结果</h2>
+        <p><strong id="label"></strong></p>
+        <div id="routing" class="badges"></div>
+        <div id="probabilities"></div>
+        <p class="hint" id="meta"></p>
+      </div>
+
+      <div class="demo-stages">
+        <figure>
+          <img id="stage-original" alt="原图与四角" />
+          <figcaption>原图与四角（预计算）</figcaption>
+        </figure>
+        <figure>
+          <img id="stage-rectified" alt="矫正图" />
+          <figcaption>矫正结果</figcaption>
+        </figure>
+        <figure>
+          <img id="stage-scan" alt="扫描件" />
+          <figcaption>扫描件（自适应黑白）</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="evaluation">
+      <h2>评估结果</h2>
+      <p class="hint">
+        自采验证集 51 张逐页评估：双分支路由准确率 88.24%，宏平均 F1 88.01%。
+        完整报告见
+        <a href="https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/blob/main/reports/web_integration.md">web_integration.md</a>。
+      </p>
+      <div class="eval-grid">
+        <figure>
+          <img src="figures/eval_pipeline_comparison.png" alt="单模型、纸质集成与双分支路由对比" />
+          <figcaption>单模型、纸质集成与双分支路由对比（含 95% Wilson 区间）</figcaption>
+        </figure>
+        <figure>
+          <img src="figures/eval_confusion_matrices.png" alt="单模型与纸质集成混淆矩阵" />
+          <figcaption>单模型 vs 纸质稿集成混淆矩阵（30 张纸质验证页）</figcaption>
+        </figure>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    武汉理工大学《机器学习》课程实践 · 第六组 · 静态演示
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

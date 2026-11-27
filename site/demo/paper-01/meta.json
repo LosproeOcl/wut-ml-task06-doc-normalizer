@@ -1,0 +1,24 @@
+{
+  "slug": "paper-01",
+  "display": "纸质公式页 A",
+  "kind": "paper",
+  "label": "formula",
+  "carrier": "paper",
+  "branch": "paper-cnn-ensemble-3",
+  "probabilities": {
+    "text": 0.45694097876548767,
+    "formula": 0.5430590510368347
+  },
+  "carrier_probabilities": {
+    "paper": 0.9998675584793091,
+    "ppt": 0.00013245496666058898
+  },
+  "runtime_ms": 29.62,
+  "status": "rectify_failed",
+  "images": {
+    "original": "demo/paper-01/original.jpg",
+    "quad": "demo/paper-01/quad.jpg",
+    "rectified": "demo/paper-01/rectified.jpg",
+    "scan": "demo/paper-01/scan.jpg"
+  }
+}

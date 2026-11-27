@@ -1,6 +1,7 @@
 # 斜拍课堂文档自动拉正、去反光与内容归类系统
 
 [![CI](https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/actions/workflows/ci.yml)
+[![GitHub Pages](https://img.shields.io/badge/demo-GitHub%20Pages-2a9d8f)](https://losproeocl.github.io/wut-ml-task06-doc-normalizer/)
 ![Python](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)
 ![Docker](https://img.shields.io/badge/docker-arm64%20%7C%20amd64-2496ED?logo=docker&logoColor=white)
 ![Course](https://img.shields.io/badge/course-WUT%20ML-1f3a5f)
@@ -39,6 +40,16 @@
 | 网页双分支路由 | 验证集 88.24% / 宏 F1 88.01% | 载体门控 + 纸质集成 + PPT CNN，测试集待评估，`reports/web_integration.md` |
 
 完整变更见 [`CHANGELOG.md`](CHANGELOG.md)，全部运行索引见 `reports/run_index.csv`。多维度评估图见 `reports/figures/eval_*.png`（300 dpi）与同名 SVG，说明见 `reports/web_integration.md`。
+
+### 1.2 在线演示
+
+GitHub Pages 静态演示：<https://losproeocl.github.io/wut-ml-task06-doc-normalizer/>
+
+- 展示 6 个预计算样张与两张评估图；
+- **隐藏**“训练集标签”“训练集四角”“标注检查”和标注人筛选；
+- 不运行后端模型；完整上传、四角校准、PDF 与标注功能在本机 webapp 中保留。
+
+静态站点源码在 `site/`，部署流程见 `.github/workflows/pages.yml` 与 `site/README.md`。
 
 ## 2. 与选题手册的对应关系
 
@@ -118,6 +129,7 @@
 ├── tests/                    测试代码，阶段 0 仅保留占位说明
 ├── notebooks/                探索性分析
 ├── scripts/                  运维与一次性脚本
+├── site/                     GitHub Pages 静态演示（隐藏标注入口）
 ├── web/                      本机网页交互层
 │   ├── README.md             结构与接口说明
 │   ├── app.py                FastAPI 应用
@@ -222,6 +234,7 @@
 | 2026-11-27 | 网页：拍照/相册/文件上传、批量校准、点击放大、横向队列、区间/离散/全部 PDF 导出；修复大图上传卡死；手机端合并相册与文件入口 |
 | 2026-11-27 | 模型：新增 PPT/纸质稿载体门控与纸质稿专用模型；外部预训练零样本在 340 张真实数据上仅 54.41%，确认不能直接使用 |
 | 2026-11-27 | 文档：新增 `CHANGELOG.md` 与 ADR-0016；同步更新需求、架构、评估、风险、部署、实验日志、外部数据与报告索引 |
+| 2026-11-27 | 新增 GitHub Pages 静态演示：隐藏训练集标签/四角/标注检查入口，保留本机完整 webapp；添加 `site/`、`pages.yml` 与在线演示链接 |
 | 2026-11-27 | 处理 PR #1：未直接合并旧分支；选择性重写 `check_manifest.py`、`check_dataset.py` 两个只读校验脚本，原作者张毅卓（@qingwu0731）以 Co-authored-by 记录到 `CONTRIBUTORS.md` |
 | 2026-11-27 | 网页接入双分支：载体门控 → 纸质稿 CNN 集成 / PPT CNN → SVM 兜底；结果卡显示载体与分支徽标，健康检查报告 `routing`；验证集 88.24% |
 | 2026-11-27 | 新增 6 张多维度评估图（PNG 300 dpi + SVG）与 `reports/web_integration.md`；新增 ADR-0017 |
