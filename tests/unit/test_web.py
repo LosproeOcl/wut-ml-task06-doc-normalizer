@@ -30,7 +30,9 @@ def test_health_and_samples():
     health = client.get("/api/health")
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
-    assert "routing" in health.json()
+    routing = health.json()["routing"]
+    assert "gate_threshold" in routing
+    assert "gate_tta" in routing
 
     samples = client.get("/api/samples?limit=3")
     assert samples.status_code == 200

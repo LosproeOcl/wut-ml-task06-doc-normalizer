@@ -133,7 +133,9 @@ def validate_manifest(
     for page_id, labels in sorted(page_labels.items()):
         labels = {label for label in labels if label}
         if len(labels) > 1:
-            errors.append(f"同一文档页存在多种内容标签: {page_id} -> {sorted(labels)}")
+            warnings.append(
+                f"同一分组含多种内容标签，可能是多页文档，需人工确认: {page_id} -> {sorted(labels)}"
+            )
     page_counts = Counter(row.get("doc_page_id", "") for row in qualified)
     for page_id, count in sorted(page_counts.items()):
         if count > MAX_VIEWS_PER_PAGE:

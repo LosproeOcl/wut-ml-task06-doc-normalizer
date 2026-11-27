@@ -59,7 +59,7 @@ def test_validate_manifest_reports_duplicate_and_mixed_page(tmp_path):
     report = validate_manifest(path, check_files=False)
     assert not report["ok"]
     assert any("sample_id 重复" in error for error in report["errors"])
-    assert any("多种内容标签" in error for error in report["errors"])
+    assert any("多种内容标签" in warning for warning in report["warnings"])
 
 
 def test_validate_manifest_reports_unknown_exclusion(tmp_path):

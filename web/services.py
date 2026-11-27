@@ -42,6 +42,8 @@ CONFIG = yaml.safe_load((ROOT / "configs/default.yaml").read_text(encoding="utf-
 RESULT_DIR = ROOT / "web/results"
 MODEL_ENV = "DOCNORM_CLASSIC_MODEL"
 CARRIER_GATE_ENV = "DOCNORM_CARRIER_GATE"
+GATE_THRESHOLD_ENV = "DOCNORM_GATE_THRESHOLD"
+GATE_TTA_ENV = "DOCNORM_GATE_TTA"
 PAPER_MODELS_ENV = "DOCNORM_PAPER_MODELS"
 PPT_MODEL_ENV = "DOCNORM_PPT_MODEL"
 DEFAULT_CARRIER_GATE = ROOT / "runs/carrier-gate-01/screen_gate.pt"
@@ -233,6 +235,35 @@ def _model_path() -> Path | None:
     return candidates[-1] if candidates else None
 
 
+def _gate_threshold() -> float:
+    value = os.environ.get(GATE_THRESHOLD_ENV)
+    if value is not None:
+        return float(value)
+    return float(CONFIG.get("web", {}).get("gate_threshold", 0.5))
+
+
+def _gate_tta_enabled() -> bool:
+    value = os.environ.get(GATE_TTA_ENV)
+    if value is not None:
+        return value.strip().lower() not in {"0", "false", "off", "no"}
+    return bool(CONFIG.get("web", {}).get("gate_tta", False))
+
+
+def _rotate(image: np.ndarray, angle: float) -> np.ndarray:
+    height, width = image.shape[:2]
+    matrix = cv2.getRotationMatrix2D((width / 2, height / 2), angle, 1.0)
+    return cv2.warpAffine(
+        image, matrix, (width, height), borderMode=cv2.BORDER_REPLICATE
+    )
+
+
+def _gate_probabilities(gate: ScreenGate, image: np.ndarray) -> np.ndarray:
+    if not _gate_tta_enabled():
+        return gate.predict_proba(image)
+    angles = (-12, 0, 12)
+    return np.mean([gate.predict_proba(_rotate(image, angle)) for angle in angles], axis=0)
+
+
 def _carrier_gate_path() -> Path | None:
     override = os.environ.get(CARRIER_GATE_ENV)
     path = Path(override) if override else DEFAULT_CARRIER_GATE
@@ -266,6 +297,8 @@ def model_status() -> dict:
         "paper_models": [str(path) for path in paper],
         "ppt_model": str(ppt) if ppt else None,
         "routing_ready": bool(carrier and paper and ppt),
+        "gate_threshold": _gate_threshold(),
+        "gate_tta": _gate_tta_enabled(),
     }
 
 
@@ -357,8 +390,8 @@ def _classify(
     branch = "classic-svm"
     gate = _carrier_gate()
     if gate is not None:
-        gate_probabilities = gate.predict_proba(original)
-        carrier = "ppt" if gate_probabilities[1] >= 0.5 else "paper"
+        gate_probabilities = _gate_probabilities(gate, original)
+        carrier = "ppt" if gate_probabilities[1] >= _gate_threshold() else "paper"
         carrier_probabilities = {
             "paper": float(gate_probabilities[0]),
             "ppt": float(gate_probabilities[1]),

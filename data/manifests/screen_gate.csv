@@ -817,7 +817,7 @@ data/raw_samples/03_paper_text/IMG_20261125_232755.jpg,other,self-paper,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0089_000724.jpg,screen,SCB-screen,val
 data/raw_samples/02_ppt_formula/IMG_6203.JPG,screen,self-ppt,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/3002035.jpg,other,SCB-other,train
-data/raw_samples/01_ppt_text/IMG_6199.JPG,screen,self-ppt,train
+data/raw_samples/02_ppt_formula/IMG_6199.JPG,screen,self-ppt,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/1317008.jpg,other,SCB-other,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/0081_002030.jpg,screen,SCB-screen,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0090_001317.jpg,screen,SCB-screen,val
@@ -1005,7 +1005,7 @@ data/raw_samples/03_paper_text/IMG_20261126_020812.jpg,other,self-paper,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0089_000223.jpg,screen,SCB-screen,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0089_000276.jpg,screen,SCB-screen,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/53_001918.jpg,other,SCB-other,train
-data/raw_samples/03_paper_text/formula_04.jpg,other,self-paper,train
+data/raw_samples/04_paper_formula/formula_04.jpg,other,self-paper,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/1281003.jpg,other,SCB-other,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/0081_001861.jpg,screen,SCB-screen,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/11_001319.jpg,other,SCB-other,train
@@ -1288,7 +1288,7 @@ data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBo
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/0086_000211.jpg,screen,SCB-screen,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/13210032.jpg,screen,SCB-screen,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/150_001939.jpg,other,SCB-other,train
-data/raw_samples/04_paper_formula/IMG_20261126_013754.jpg,other,self-paper,train
+data/raw_samples/03_paper_text/IMG_20261126_013754.jpg,other,self-paper,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/0401021.jpg,other,SCB-other,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/0086_001373.jpg,screen,SCB-screen,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/10_001551.jpg,other,SCB-other,train
@@ -1810,7 +1810,7 @@ data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBo
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/12_001441.jpg,other,SCB-other,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/1265070.jpg,other,SCB-other,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0090_000442.jpg,screen,SCB-screen,val
-data/raw_samples/01_ppt_text/IMG_5740.jpg,screen,self-ppt,train
+data/raw_samples/02_ppt_formula/IMG_5740.jpg,screen,self-ppt,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/115_002082.jpg,other,SCB-other,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0001063.jpg,screen,SCB-screen,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/16_000489.jpg,other,SCB-other,train
@@ -1892,7 +1892,7 @@ data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBo
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/132_000330.jpg,screen,SCB-screen,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/60_000515.jpg,screen,SCB-screen,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/0088_001493.jpg,screen,SCB-screen,train
-data/raw_samples/03_paper_text/formula_10.jpg,other,self-paper,train
+data/raw_samples/04_paper_formula/formula_10.jpg,other,self-paper,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/148_002205.jpg,other,SCB-other,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/10_002442.jpg,other,SCB-other,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/132_000736.jpg,screen,SCB-screen,val
@@ -1985,7 +1985,7 @@ data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBo
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/108_000253.jpg,screen,SCB-screen,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/157_000963.jpg,other,SCB-other,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/23_001767.jpg,screen,SCB-screen,train
-data/raw_samples/01_ppt_text/IMG_6185.JPG,screen,self-ppt,train
+data/raw_samples/02_ppt_formula/IMG_6185.JPG,screen,self-ppt,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0089_000025.jpg,screen,SCB-screen,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/0088_002193.jpg,screen,SCB-screen,train
 data/raw_samples/01_ppt_text/IMG_6108.jpeg,screen,self-ppt,train
@@ -2439,7 +2439,7 @@ data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBo
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/0401050.jpg,other,SCB-other,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0089_000956.jpg,screen,SCB-screen,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/3001213.jpg,screen,SCB-screen,val
-data/raw_samples/01_ppt_text/IMG_6200.jpeg,screen,self-ppt,train
+data/raw_samples/02_ppt_formula/IMG_6200.jpeg,screen,self-ppt,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/18_000059.jpg,screen,SCB-screen,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/156_000702.jpg,screen,SCB-screen,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/0081_000375.jpg,other,SCB-other,train
@@ -2981,7 +2981,7 @@ data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBo
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/152_000466.jpg,screen,SCB-screen,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/3001137.jpg,other,SCB-other,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/57_002385.jpg,screen,SCB-screen,train
-data/raw_samples/03_paper_text/formula_06.jpg,other,self-paper,train
+data/raw_samples/04_paper_formula/formula_06.jpg,other,self-paper,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/train/19_001940.jpg,other,SCB-other,train
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0107037.jpg,other,SCB-other,val
 data/raw_samples/external-assets/scb-teacher/SCB5_Teacher_Behavior_Stand_BlackBoard_Sreen_20250406-2/images/val/0011004.jpg,other,SCB-other,val

@@ -40,7 +40,7 @@ web/
 | PPT 分类 | `runs/exp-cnn-05/cnn.pt` | `DOCNORM_PPT_MODEL` |
 | SVM 兜底 | `runs/exp-*/svm.joblib` 中验证集最佳 | `DOCNORM_CLASSIC_MODEL` |
 
-模型权重不进入版本控制。门控/分支缺失或加载失败时自动回退 SVM，不阻断分析；`/api/health` 的 `routing` 字段报告模型路径与 `routing_ready`。
+模型权重不进入版本控制。门控/分支缺失或加载失败时自动回退 SVM，不阻断分析；`/api/health` 的 `routing` 字段报告模型路径、`routing_ready`、`gate_threshold` 与 `gate_tta`。门控默认启用 -12/0/12 度旋转 TTA 与 0.3 阈值，可用 `DOCNORM_GATE_TTA=0`、`DOCNORM_GATE_THRESHOLD=0.5` 回退。
 
 分析响应在原有字段上新增：
 

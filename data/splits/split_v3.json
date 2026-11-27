@@ -297,7 +297,7 @@
   "test": 53
  },
  "frozen_at": "2026-11-26",
- "manifest_sha256": "dff1c2e8e75e0e4b3769b4a3eddaae19ea434520bc131ae53467a170c163555e",
+ "manifest_sha256": "591aa7aa7ca0cef83b7a4096fdaf3187c78b6fbf8d32b4dce30b49e812453add",
  "excluded_samples": 36,
- "note": "2026-11-26 排除 4 张非课堂/含个人信息样本（0731_2、6.车位转让协议2、65181f、3eac2d）并重建；相应单样本分组移除，其余归属与 v2 一致"
+ "note": "2026-11-27 按人工修正后的文件位置同步 file/label，并重算清单哈希"
 }

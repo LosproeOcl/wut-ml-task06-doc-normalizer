@@ -161,7 +161,7 @@ data/raw_samples/external-assets/im2latex-100k/images/013916.png,formula,im2late
 data/raw_samples/external-assets/im2latex-100k/images/057393.png,formula,im2latex-100k,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background02/magazine005/frame_0121.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background02/magazine005/frame_0071.jpeg,text,smartdoc2015-ch1,train,
-data/raw_samples/03_paper_text/formula_06.jpg,text,self-paper,train,formula_06
+data/raw_samples/04_paper_formula/formula_06.jpg,formula,self-paper,train,formula_06
 data/raw_samples/03_paper_text/IMG_20261125_233354.jpg,text,self-paper,val,IMG_20261125_233354
 data/raw_samples/external-assets/smartdoc2015-ch1/background03/tax001/frame_0011.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/tobacco3482/images/Note/002643.jpg,text,tobacco3482,train,
@@ -195,7 +195,7 @@ data/raw_samples/external-assets/im2latex-100k/images/007868.png,formula,im2late
 data/raw_samples/external-assets/im2latex-100k/images/022834.png,formula,im2latex-100k,train,
 data/raw_samples/03_paper_text/text_05.jpg,text,self-paper,train,text_05
 data/raw_samples/03_paper_text/IMG_20261125_232931.jpg,text,self-paper,train,IMG_20261125_232931
-data/raw_samples/03_paper_text/formula_04.jpg,text,self-paper,train,formula_04
+data/raw_samples/04_paper_formula/formula_04.jpg,formula,self-paper,train,formula_04
 data/raw_samples/external-assets/smartdoc2015-ch1/background02/datasheet001/frame_0201.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/tobacco3482/images/Letter/001717.jpg,text,tobacco3482,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background05/magazine002/frame_0001.jpeg,text,smartdoc2015-ch1,train,
@@ -492,12 +492,12 @@ data/raw_samples/external-assets/im2latex-100k/images/031220.png,formula,im2late
 data/raw_samples/external-assets/im2latex-100k/images/009814.png,formula,im2latex-100k,train,
 data/raw_samples/external-assets/im2latex-100k/images/039816.png,formula,im2latex-100k,train,
 data/raw_samples/external-assets/iam-handwriting-finevision/images/001612.png,text,iam-handwriting-finevision,train,
-data/raw_samples/04_paper_formula/IMG_20261126_013746.jpg,formula,self-paper,val,IMG_20261126_013746
+data/raw_samples/03_paper_text/IMG_20261126_013746.jpg,text,self-paper,val,IMG_20261126_013746
 data/raw_samples/04_paper_formula/8ba8df668b0db4aaaa0970c8b0cd71ec.jpg,formula,self-paper,train,8ba8df668b0db4aaaa0970c8b0cd71ec
 data/raw_samples/external-assets/im2latex-100k/images/053753.png,formula,im2latex-100k,train,
 data/raw_samples/external-assets/im2latex-100k/images/045829.png,formula,im2latex-100k,train,
 data/raw_samples/external-assets/im2latex-100k/images/035161.png,formula,im2latex-100k,train,
-data/raw_samples/04_paper_formula/IMG_20261126_013754.jpg,formula,self-paper,train,IMG_20261126_013754
+data/raw_samples/03_paper_text/IMG_20261126_013754.jpg,text,self-paper,train,IMG_20261126_013754
 data/raw_samples/external-assets/tobacco3482/images/Memo/002437.jpg,text,tobacco3482,train,
 data/raw_samples/external-assets/im2latex-100k/images/037541.png,formula,im2latex-100k,train,
 data/raw_samples/04_paper_formula/1142babf371682c970a56117a6dcf089.jpg,formula,self-paper,train,1142babf371682c970a56117a6dcf089
@@ -674,7 +674,7 @@ data/raw_samples/03_paper_text/text_08.jpg,text,self-paper,train,text_08
 data/raw_samples/external-assets/tobacco3482/images/Report/002890.jpg,text,tobacco3482,train,
 data/raw_samples/external-assets/im2latex-100k/images/022743.png,formula,im2latex-100k,train,
 data/raw_samples/external-assets/im2latex-100k/images/027433.png,formula,im2latex-100k,train,
-data/raw_samples/03_paper_text/formula_10.jpg,text,self-paper,train,formula_10
+data/raw_samples/04_paper_formula/formula_10.jpg,formula,self-paper,train,formula_10
 data/raw_samples/external-assets/tobacco3482/images/Memo/002166.jpg,text,tobacco3482,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background04/letter005/frame_0041.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/03_paper_text/IMG20261126015402.jpg,text,self-paper,train,IMG20261126015402

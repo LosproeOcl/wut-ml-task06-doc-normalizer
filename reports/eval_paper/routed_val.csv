@@ -11,7 +11,7 @@ sample_id,label,carrier,pred,correct,prob_text,prob_formula,carrier_pred,branch,
 85f47f76771d7af3aeb87134a5d37e81,formula,paper,formula,1,0.138877,0.861123,paper,paper-cnn-ensemble-3,ok
 IMG20261126020737,text,paper,text,1,0.856497,0.143503,paper,paper-cnn-ensemble-3,ok
 IMG_20261125_233354,text,paper,text,1,0.955761,0.044239,paper,paper-cnn-ensemble-3,ok
-IMG_20261126_013746,formula,paper,formula,1,0.260386,0.739614,paper,paper-cnn-ensemble-3,ok
+IMG_20261126_013746,text,paper,formula,0,0.260386,0.739614,paper,paper-cnn-ensemble-3,ok
 IMG_20261126_013809,text,paper,formula,0,0.286021,0.713979,paper,paper-cnn-ensemble-3,ok
 IMG_20261126_021834,text,paper,text,1,0.755616,0.244384,paper,paper-cnn-ensemble-3,ok
 IMG_20261126_021846,text,paper,text,1,0.771233,0.228767,paper,paper-cnn-ensemble-3,ok
@@ -28,7 +28,7 @@ IMG_6109,text,ppt,text,1,0.693019,0.306981,ppt,ppt-cnn-exp-cnn-05,ok
 IMG_6110,text,ppt,text,1,0.990938,0.009062,ppt,ppt-cnn-exp-cnn-05,ok
 IMG_6135,text,ppt,text,1,0.600622,0.399378,ppt,ppt-cnn-exp-cnn-05,ok
 IMG_6141,text,ppt,text,1,0.861197,0.138803,ppt,ppt-cnn-exp-cnn-05,ok
-IMG_6174,text,ppt,text,1,0.795248,0.204752,ppt,ppt-cnn-exp-cnn-05,ok
+IMG_6174,formula,ppt,text,0,0.795248,0.204752,ppt,ppt-cnn-exp-cnn-05,ok
 IMG_6180,text,ppt,text,1,0.942914,0.057086,ppt,ppt-cnn-exp-cnn-05,ok
 IMG_6201,text,ppt,text,1,0.755034,0.244966,ppt,ppt-cnn-exp-cnn-05,ok
 IMG_6206,formula,ppt,text,0,0.635866,0.364134,ppt,ppt-cnn-exp-cnn-05,rectify_failed

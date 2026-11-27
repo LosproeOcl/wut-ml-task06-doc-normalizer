@@ -273,13 +273,13 @@ data/raw_samples/external-assets/smartdoc2015-ch1/background01/patent001/frame_0
 data/raw_samples/03_paper_text/text_05.jpg,text,self-paper,train,text_05
 data/raw_samples/external-assets/smartdoc2015-ch1/background02/paper004/frame_0001.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background02/magazine005/frame_0031.jpeg,text,smartdoc2015-ch1,train,
-data/raw_samples/03_paper_text/formula_06.jpg,text,self-paper,train,formula_06
+data/raw_samples/04_paper_formula/formula_06.jpg,formula,self-paper,train,formula_06
 data/raw_samples/03_paper_text/text_12.jpg,text,self-paper,train,text_12
 data/raw_samples/external-assets/smartdoc2015-ch1/background01/patent004/frame_0111.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background01/letter005/frame_0121.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background02/datasheet005/frame_0071.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background04/tax004/frame_0091.jpeg,text,smartdoc2015-ch1,train,
-data/raw_samples/03_paper_text/formula_04.jpg,text,self-paper,train,formula_04
+data/raw_samples/04_paper_formula/formula_04.jpg,formula,self-paper,train,formula_04
 data/raw_samples/external-assets/smartdoc2015-ch1/background01/magazine004/frame_0061.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/tobacco3482/images/Scientific/003355.jpg,text,tobacco3482-scientific,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background04/datasheet003/frame_0141.jpeg,text,smartdoc2015-ch1,train,
@@ -738,7 +738,7 @@ data/raw_samples/external-assets/tobacco3482/images/Scientific/003449.jpg,text,t
 data/raw_samples/04_paper_formula/05160fce8d4f650a50e1f0c9f189d268.jpg,formula,self-paper,train,05160fce8d4f650a50e1f0c9f189d268
 data/raw_samples/external-assets/smartdoc2015-ch1/background02/magazine001/frame_0131.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background01/magazine002/frame_0041.jpeg,text,smartdoc2015-ch1,train,
-data/raw_samples/03_paper_text/formula_10.jpg,text,self-paper,train,formula_10
+data/raw_samples/04_paper_formula/formula_10.jpg,formula,self-paper,train,formula_10
 data/raw_samples/external-assets/smartdoc2015-ch1/background02/datasheet003/frame_0001.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/tobacco3482/images/Scientific/003356.jpg,text,tobacco3482-scientific,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background05/patent005/frame_0021.jpeg,text,smartdoc2015-ch1,train,
@@ -811,7 +811,7 @@ data/raw_samples/external-assets/smartdoc2015-ch1/background04/patent003/frame_0
 data/raw_samples/external-assets/smartdoc2015-ch1/background01/datasheet004/frame_0141.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background01/paper005/frame_0121.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/tobacco3482/images/Scientific/003288.jpg,text,tobacco3482-scientific,train,
-data/raw_samples/04_paper_formula/IMG_20261126_013754.jpg,formula,self-paper,train,IMG_20261126_013754
+data/raw_samples/03_paper_text/IMG_20261126_013754.jpg,text,self-paper,train,IMG_20261126_013754
 data/raw_samples/03_paper_text/text_paper_alex-p1_roll90_indoor_02.jpg,text,self-paper,train,text_paper_alex-p1_roll90_indoor_02
 data/raw_samples/external-assets/smartdoc2015-ch1/background04/magazine005/frame_0131.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/tobacco3482/images/Scientific/003352.jpg,text,tobacco3482-scientific,train,
@@ -829,7 +829,7 @@ data/raw_samples/external-assets/tobacco3482/images/Scientific/003265.jpg,text,t
 data/raw_samples/external-assets/tobacco3482/images/Scientific/003454.jpg,text,tobacco3482-scientific,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background03/paper001/frame_0051.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/tobacco3482/images/Scientific/003318.jpg,text,tobacco3482-scientific,train,
-data/raw_samples/04_paper_formula/IMG_20261126_013746.jpg,formula,self-paper,val,IMG_20261126_013746
+data/raw_samples/03_paper_text/IMG_20261126_013746.jpg,text,self-paper,val,IMG_20261126_013746
 data/raw_samples/external-assets/smartdoc2015-ch1/background01/datasheet002/frame_0141.jpeg,text,smartdoc2015-ch1,train,
 data/raw_samples/external-assets/tobacco3482/images/Scientific/003345.jpg,text,tobacco3482-scientific,train,
 data/raw_samples/external-assets/smartdoc2015-ch1/background04/patent004/frame_0031.jpeg,text,smartdoc2015-ch1,train,

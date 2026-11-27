@@ -76,6 +76,9 @@ web:
   result_ttl_seconds: 3600
   max_concurrency: 2
   static_dir: web/static
+  # 空间偏度优化：门控在 -12/0/12 度旋转上平均，阈值 0.3；可用环境变量覆盖
+  gate_threshold: 0.3
+  gate_tta: true
 
 runtime:
   seed: 42
