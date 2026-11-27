@@ -1,0 +1,16 @@
+sample_id,label,carrier,pred,correct,prob_text,prob_formula,carrier_pred,branch,status,max_prob,reason
+39ec59ddfcab08f2712ec32682e8071a,text,paper,formula,0,0.004800,0.995200,paper,paper-cnn-ensemble-3,ok,0.9952,error
+IMG_20261126_013746,text,paper,formula,0,0.260386,0.739614,paper,paper-cnn-ensemble-3,ok,0.7396,error
+IMG_20261126_013809,text,paper,formula,0,0.286021,0.713979,paper,paper-cnn-ensemble-3,ok,0.714,error
+IMG_6025,text,ppt,text,1,0.521305,0.478695,ppt,ppt-cnn,ok,0.5213,low_confidence
+IMG_6075,text,ppt,formula,0,0.327953,0.672047,ppt,ppt-cnn,ok,0.672,error
+IMG_6109,text,ppt,text,1,0.506264,0.493736,ppt,ppt-cnn,ok,0.5063,low_confidence
+IMG_6174,formula,ppt,formula,1,0.403503,0.596497,ppt,ppt-cnn,ok,0.5965,low_confidence
+IMG_6180,text,ppt,text,1,0.581343,0.418657,ppt,ppt-cnn,ok,0.5813,low_confidence
+IMG_6201,text,ppt,text,1,0.583468,0.416532,ppt,ppt-cnn,ok,0.5835,low_confidence
+IMG_6206,formula,ppt,formula,1,0.439654,0.560346,ppt,ppt-cnn,rectify_failed,0.5603,low_confidence
+formula_07,formula,paper,text,0,0.836455,0.163545,paper,paper-cnn-ensemble-3,ok,0.8365,error
+formula_14,formula,paper,formula,1,0.456941,0.543059,paper,paper-cnn-ensemble-3,rectify_failed,0.5431,low_confidence
+formula_15,formula,paper,text,0,0.559118,0.440882,paper,paper-cnn-ensemble-3,ok,0.5591,error
+formula_page_06,formula,paper,text,0,0.760960,0.239040,paper,paper-cnn-ensemble-3,ok,0.761,error
+IMG_5613,text,ppt,text,1,0.630613,0.369387,ppt,ppt-cnn,ok,0.6306,low_confidence
