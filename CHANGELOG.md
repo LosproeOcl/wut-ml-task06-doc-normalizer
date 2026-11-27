@@ -59,6 +59,7 @@
 - M3 测试集一次性评估：当前链路 **67.92% / 宏 F1 67.92%**（36/53，95% CI 54.72%–81.13%），单模型 CNN 66.04%、SVM 67.92%；未达 85%，M3 未通过、M4 阻塞。新增 `reports/final_test.md`、`reports/final_test.json`、`reports/final_test_predictions.csv` 与错误案例图；测试集不得再用于调参。
 - 测试标签双人盲审：新增 `reports/test_label_audit/`，含判定规则、53 张盲审表、无标签对照图与第一遍结果；第一遍仅发现 `9aa1e77...` 明确疑似 text→formula，其余 52 张维持。即使修正该标签，测试准确率仅 69.81%，明确模型错误仍使 M3 无法达标；第二遍待组员签字。
 - 复现核验：同一冻结配置在干净容器复跑测试脚本，最终链路、单 CNN、SVM 的指标与逐样本预测完全一致；报告见 `reports/repro_check.md`。
+- 提交 `ec5e3af` 并打标签 `m3-eval-20261127`；该提交包含数据/模型/网页/测试/文档全部当前变更。复现核验记录另提交。
 - 固定 `sample_manifest.csv` 为 CRLF 检出，避免 Linux CI 因换行变化导致 `split_v3` 清单哈希校验失败；4 个依赖本地图像的网页用例增加 `requires_dataset` 标记，CI 运行上传契约子集。
 - 处理 PR #1：未直接合并旧分支；选择性重写 `check_manifest.py`、`check_dataset.py` 两个只读校验脚本，原作者张毅卓（@qingwu0731）以 Co-authored-by 记录到 `CONTRIBUTORS.md`。
 - 新增本变更记录。
