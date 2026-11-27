@@ -66,24 +66,45 @@ def sample_image(sample_id: str):
 
 
 @app.post("/api/analyze")
-async def analyze(
+def analyze(
     file: UploadFile | None = File(default=None),
     sample_id: str | None = Form(default=None),
     rectify: bool = Form(default=True),
     enhance: bool = Form(default=False),
+    carrier: str | None = Form(default=None),
 ):
+    # 同步端点由 FastAPI 放进线程池执行：解码、OpenCV 与 torch 推理不会
+    # 阻塞事件循环，上传大图时健康检查和静态资源仍可响应。
     services.prune_results()
+    if carrier not in {None, "auto", "ppt", "paper"}:
+        raise HTTPException(status_code=400, detail="载体参数非法")
+    carrier_override = None if carrier in {None, "auto"} else carrier
     if file is not None:
-        data = await file.read(MAX_UPLOAD + 1)
+        data = file.file.read(MAX_UPLOAD + 1)
         if len(data) > MAX_UPLOAD:
             raise HTTPException(status_code=413, detail="上传文件超过体积限制")
         try:
-            Image.open(BytesIO(data)).verify()
+            with Image.open(BytesIO(data)) as probe:
+                probe.verify()
+        except Image.DecompressionBombError as exc:
+            raise HTTPException(
+                status_code=413, detail="图片像素过大，请先缩小后再上传"
+            ) from exc
         except (UnidentifiedImageError, OSError) as exc:
             raise HTTPException(status_code=400, detail="上传内容不是有效图像") from exc
-        return services.analyze_upload(data, rectify=rectify, enhance=enhance)
+        return services.analyze_upload(
+            data,
+            rectify=rectify,
+            enhance=enhance,
+            carrier_override=carrier_override,
+        )
     if sample_id:
-        return services.analyze_sample(sample_id, rectify=rectify, enhance=enhance)
+        return services.analyze_sample(
+            sample_id,
+            rectify=rectify,
+            enhance=enhance,
+            carrier_override=carrier_override,
+        )
     raise HTTPException(status_code=400, detail="需要上传文件或选择样本")
 
 
@@ -96,8 +117,9 @@ def update_corners(result_id: str, payload: schemas.CornersRequest):
 def result_pdf(
     result_id: str,
     mode: str = Query(default="scan", pattern="^(scan|rectified|original)$"),
+    view: str = Query(default="quad", pattern="^(quad|opencv)$"),
 ):
-    buffer = services.build_pdf([result_id], mode)
+    buffer = services.build_pdf([result_id], mode, view)
     return StreamingResponse(
         buffer,
         media_type="application/pdf",
@@ -107,7 +129,7 @@ def result_pdf(
 
 @app.post("/api/pdf")
 def export_pdf(payload: schemas.PdfRequest):
-    buffer = services.build_pdf(payload.result_ids, payload.mode)
+    buffer = services.build_pdf(payload.result_ids, payload.mode, payload.view)
     return StreamingResponse(
         buffer,
         media_type="application/pdf",

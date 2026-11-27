@@ -34,7 +34,7 @@ def load_locked(path: Path) -> dict[str, str]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--split", type=Path, default=ROOT / "data/splits/split_v3.json")
+    parser.add_argument("--split", type=Path, default=ROOT / "data/splits/split_v4.json")
     parser.add_argument("--corners", type=Path, default=ROOT / "data/annotations/manual_corners.csv")
     parser.add_argument("--out", type=Path, default=ROOT / "data/annotations/assignees.csv")
     args = parser.parse_args()

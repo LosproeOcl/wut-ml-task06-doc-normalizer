@@ -46,7 +46,7 @@ def main() -> int:
         ROOT / "data/manifests/sample_manifest.csv",
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    split = assign_samples(load_split(ROOT / "data/splits/split_v3.json"), samples)
+    split = assign_samples(load_split(ROOT / "data/splits/split_v4.json"), samples)
     rows = []
     for sample in samples:
         if not (sample.label or "").startswith("paper_"):

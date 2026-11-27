@@ -30,3 +30,4 @@ class RedoRequest(BaseModel):
 class PdfRequest(BaseModel):
     result_ids: list[str] = Field(min_length=1, max_length=50)
     mode: Literal["scan", "rectified", "original"] = "scan"
+    view: Literal["quad", "opencv"] = "quad"

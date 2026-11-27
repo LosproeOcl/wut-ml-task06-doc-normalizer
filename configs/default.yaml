@@ -18,6 +18,18 @@ rectify:
   max_area_ratio: 0.98      # 四边形面积占画面比例上限
   canny_low: 50
   canny_high: 150
+  # 2026-11-27 用 338 张人工四角调参：PPT 幕布在更高阈值下检出率更高，
+  # 纸质稿仍用低阈值保留弱边缘。见 runs/rectify-tune-*。
+  # 90/250 仅用于检测实验；分类仍用 50/150，与 exp-cnn-ppt-dedup-fw 训练一致。
+  ppt_canny_low: 50
+  ppt_canny_high: 150
+  paper_canny_low: 50
+  paper_canny_high: 150
+  # 学习四角：按载体加载；off/fallback/primary 可切换，模型缺失时自动回退 OpenCV。
+  quad_policy: off
+  quad_display: true
+  quad_ppt_model: runs/quad-ppt-02/quad_ppt.pt
+  quad_paper_model: runs/quad-paper-01/quad_ppt.pt
   output_long_edge: 1600
 
 enhance:
@@ -78,6 +90,9 @@ web:
   static_dir: web/static
   # 空间偏度优化：门控在 -12/0/12 度旋转上平均，阈值 0.3；可用环境变量覆盖
   gate_threshold: 0.3
+  # 门控质量兜底：阈值附近或分支置信度低时，尝试另一载体分支并比较置信度。
+  gate_margin: 0.15
+  branch_low_confidence: 0.60
   gate_tta: true
 
 runtime:

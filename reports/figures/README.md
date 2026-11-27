@@ -14,6 +14,9 @@
 | `screen_gate_curves.png` | 屏幕存在性门控的损失、验证准确率、学习率与梯度范数曲线 |
 | `carrier_gate_curves.png` | PPT/幕布 vs A4 纸质稿场景门控（carrier-gate-01）的训练诊断，对应 F12 |
 | `paper_model_curves.png` | 纸质稿专用内容模型（paper-cnn-01）的训练诊断，对应 F13 |
+| `rectify_compare.png` | 四类样本拉正前后对比，对应 F3 |
+| `web_ui_early.png` | 早期网页批量队列与结果页截图，对应 F11 |
+| `test_errors.jpg` | 测试集 17 张错误案例拼图，对应 F8 |
 | `eval_pipeline_comparison.png` | 单模型、纸质集成与双分支路由的准确率/宏 F1 对比，对应 F14 |
 | `eval_seed_stability.png` | 全部外部数据 vs SmartDoc + Scientific 的三种子稳定性，对应 F15 |
 | `eval_weight_ablation.png` | 平衡权重 / 无权重消融，对应 F16 |

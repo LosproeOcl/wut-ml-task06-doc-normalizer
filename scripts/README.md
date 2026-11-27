@@ -25,6 +25,15 @@
 | `check_manifest.py` | 只读校验清单字段、唯一性、分组与类别分布；支持 `--json` |
 | `check_dataset.py` | 只读核对清单与磁盘文件一致性；未登记文件只报警告 |
 | `reconcile_manifest_paths.py` | 按磁盘实际位置修正清单 file/label；默认预演，`--apply` 写回 |
+| `group_inbox_slides.py` | 按同一幻灯片聚合 2026-11-27 inbox 样本，选清晰度代表并更新 split_v4 |
+| `assign_inbox_corners.py` | 把新增实拍样本的四角任务按公式/文字分层平均分配给指定成员，默认 PT-INBOX 前缀与三人名单 |
+| `ingest_inbox_batch.py` | 把 inbox 新批次按映射表归档、登记清单、更新幻灯片分组与 train 划分、重算清单哈希 |
+| `tune_rectify_detector.py` | 用人工四角按 `doc_page_id` 分组调优 OpenCV 检测器的 Canny/面积参数 |
+| `eval_quad_routing.py` | 比较 OpenCV、学习四角兜底、学习四角优先三种拉正策略的端到端分类准确率 |
+| `build_developer_report.py` | 生成论文格式的开发者视角开发历程 DOCX |
+| `make_developer_report_assets.py` | 生成报告所需的数据样本、架构、指标与混淆矩阵图 |
+| `train_ppt_quad.py` | 用训练集人工四角标签训练分载体四角回归器（`--carrier ppt/paper`），按 doc_page_id 分组切分 |
+| `eval_ppt_quad.py` | 在同一载体验证组上对比学习四角与 OpenCV 检测的归一化误差 |
 | `eval_spatial_skew.py` | 对现有 PPT 验证页做合成透视，评估内容模型/完整链路/门控阈值 TTA |
 | `eval_gate_skew.py` | 载体门控在合成偏度下的阈值、TTA 与 AUC 评估 |
 | `make_skew_figures.py` | 生成空间偏度三张评估图 |

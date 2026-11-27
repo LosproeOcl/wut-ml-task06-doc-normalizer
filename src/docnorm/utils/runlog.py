@@ -145,6 +145,7 @@ TRACKED_FILES = (
     "data/manifests/sample_manifest.csv",
     "data/manifests/exclusions.csv",
     "data/splits/split_v3.json",
+    "data/splits/split_v4.json",
     "data/annotations/manual_corners.csv",
     "data/annotations/manual_labels.csv",
     "data/annotations/assignees.csv",

@@ -20,6 +20,7 @@
 | 14 | [13-外部数据使用说明](13-外部数据使用说明.md) | 外部数据的来源、许可、预训练与辅助训练边界、零样本评估结果 | 全体成员、任课教师 |
 | 15 | [14-屏幕检测方案](14-屏幕检测方案.md) | 用 SCB-Dataset screen 框训练幕布检测器，失败时裁剪再分类；增补 PPT/纸质稿载体门控 | 开发成员、报告成员 |
 | 16 | [15-空间偏度优化调研](15-空间偏度优化调研.md) | 不新增样本的合成偏度压力测试、门控 TTA/阈值与增广结论 | 开发成员、报告成员 |
+| 17 | [16-开发者视角开发历程报告](16-开发者视角开发历程报告.docx) | 数据集、模型选择、架构、参数更迭、上线取舍、问题与截图（DOCX） | 全体成员、任课教师 |
 
 ## 架构决策记录
 
@@ -40,7 +41,7 @@
 | [0013](adr/0013-训练集标注任务分配.md) | 训练集标注任务按人分配并在前端筛选 | 已接受 |
 | [0014](adr/0014-标注检查与退回重标.md) | 新增标注检查页，四角可退回原成员重标并保留审计记录 | 已接受 |
 | [0015](adr/0015-人工四角仅作失败回退.md) | 训练拉正默认使用自动检测，人工四角仅在自动失败时回退 | 已接受 |
-| [0016](adr/0016-外部公式数据辅助训练与载体门控.md) | 外部公式数据只用于辅助训练；载体门控为候选分支，预训练权重不直接部署 | 已接受（实验性） |
+| [0016](adr/0016-外部公式数据辅助训练与载体门控.md) | 外部公式数据只用于辅助训练；载体门控 2026-11-27 已接入网页，预训练权重不直接部署 | 已接受（实验性） |
 | [0017](adr/0017-网页双分支接入.md) | 网页接入载体门控与双分支分类，模型缺失回退 SVM | 已接受 |
 | [0018](adr/0018-门控旋转TTA与阈值.md) | 门控默认旋转 TTA + 0.3 阈值，环境变量可回退 | 已接受（待真实偏度样本复核） |
 
@@ -55,6 +56,14 @@
 | [`reports/pretrained_zero_shot.md`](../reports/pretrained_zero_shot.md) | 外部预训练权重在 340 张真实数据上的零样本评估 |
 | [`reports/external_control.md`](../reports/external_control.md) | 外部文本对照：仅 SmartDoc + Tobacco Scientific |
 | [`reports/web_integration.md`](../reports/web_integration.md) | 网页双分支接入、验证集路由评估与 6 张评估图 |
+| [`reports/rectify_detection.md`](../reports/rectify_detection.md) | 四角检测、按载体 OpenCV 参数调优与失败分析 |
+| [`reports/ppt_quad.md`](../reports/ppt_quad.md) | 首轮 PPT 四角回归实验 |
+| [`reports/quad_localization.md`](../reports/quad_localization.md) | 分载体四角模型、端到端接入、门控审计与双路径拉正 |
+| [`reports/annotation_audit.md`](../reports/annotation_audit.md) | 四角标注结构审计（含 338 条更新） |
+| [`reports/stage_audit.md`](../reports/stage_audit.md) | 阶段门禁审计与文档/数据/模型一致性核查 |
+| [`reports/final_test.md`](../reports/final_test.md) | 测试集一次性评估、置信区间、McNemar 与错误分析 |
+| [`reports/test_label_audit/README.md`](../reports/test_label_audit/README.md) | 测试标签双人盲审规则、第一遍结果与第二遍材料 |
+| [`reports/model_manifest.csv`](../reports/model_manifest.csv) | 线上模型路径、大小、SHA-256 与验证指标 |
 | [`CHANGELOG.md`](../CHANGELOG.md) | 功能、实验与文档变更记录 |
 
 ## 贡献记录

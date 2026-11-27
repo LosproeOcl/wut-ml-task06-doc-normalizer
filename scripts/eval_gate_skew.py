@@ -36,7 +36,7 @@ def main() -> int:
         ROOT / "data/manifests/sample_manifest.csv",
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    assignment = assign_samples(load_split(ROOT / "data/splits/split_v3.json"), samples)
+    assignment = assign_samples(load_split(ROOT / "data/splits/split_v4.json"), samples)
     items = [
         sample
         for sample in samples

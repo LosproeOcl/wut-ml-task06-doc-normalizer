@@ -40,7 +40,7 @@ def main() -> int:
         ROOT / "data/manifests/sample_manifest.csv",
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    assignment = assign_samples(load_split(ROOT / "data/splits/split_v3.json"), samples)
+    assignment = assign_samples(load_split(ROOT / "data/splits/split_v4.json"), samples)
     rows = []
     labels = []
     predictions = []
@@ -53,9 +53,11 @@ def main() -> int:
             continue
         loaded = load_image(ROOT / "data/raw_samples" / sample.file, max_long_edge=1280)
         original = services._limit_long_edge(loaded.image, 2000)
-        rectified, _quad, status = services._apply_rectify(original)
-        enhanced = rectified
-        label, probabilities, routing = services._classify(original, enhanced)
+        result = services.analyze_pipeline(original, rectify=True, enhance=False)
+        status = result["status"]
+        label = result["label"]
+        probabilities = result["probabilities"]
+        routing = result["routing"]
         true_label = sample.content_label
         carrier = (sample.label or "").split("_")[0]
         labels.append(true_label)

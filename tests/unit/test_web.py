@@ -6,10 +6,12 @@ from __future__ import annotations
 
 from io import BytesIO
 
+import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 from PIL import Image, ImageDraw
 
+from web import services
 from web.app import app
 
 client = TestClient(app)
@@ -112,6 +114,139 @@ def test_upload_applies_exif_orientation():
     assert response.status_code == 200
     result = response.json()
     assert (result["width"], result["height"]) == (360, 480)
+
+
+def test_rectify_uses_carrier_specific_canny(monkeypatch):
+    # 破坏方式：PPT 与纸质共用一组阈值，弱边缘纸质稿或强边缘幕布检出率下降
+    calls = {}
+
+    def fake_detect(image, **kwargs):
+        calls.update(kwargs)
+        return None
+
+    monkeypatch.setattr(services, "detect_document", fake_detect)
+    services._apply_rectify(np.zeros((64, 64, 3), dtype=np.uint8), "ppt")
+    assert calls["canny_low"] == int(services.CONFIG["rectify"]["ppt_canny_low"])
+    assert calls["canny_high"] == int(services.CONFIG["rectify"]["ppt_canny_high"])
+    services._apply_rectify(np.zeros((64, 64, 3), dtype=np.uint8), "paper")
+    assert calls["canny_low"] == int(services.CONFIG["rectify"]["paper_canny_low"])
+    assert calls["canny_high"] == int(services.CONFIG["rectify"]["paper_canny_high"])
+
+
+def test_rectify_quad_primary_skips_opencv(monkeypatch):
+    # 破坏方式：quad_policy=primary 时仍先走 OpenCV，学习四角永远不生效
+    from docnorm.rectify.geometry import DocumentQuad
+
+    calls = {}
+
+    def fake_predict(self, image):
+        return DocumentQuad(
+            np.array([[10, 10], [90, 10], [90, 90], [10, 90]], dtype=np.float32),
+            area_ratio=0.64,
+            method="quad",
+        )
+
+    monkeypatch.setattr(services.QuadRegressor, "predict", fake_predict)
+    monkeypatch.setattr(services, "_quad_policy", lambda: "primary")
+    monkeypatch.setattr(
+        services, "_quad_model", lambda carrier: services.QuadRegressor.__new__(services.QuadRegressor)
+    )
+    monkeypatch.setattr(
+        services, "detect_document", lambda *a, **k: calls.setdefault("detect", True)
+    )
+    image = np.zeros((100, 100, 3), dtype=np.uint8)
+    _rectified, quad, status = services._apply_rectify(image, "ppt")
+    assert status == "ok" and quad is not None and quad.method == "quad"
+    assert "detect" not in calls
+
+
+def test_rectify_quad_fallback_after_opencv_failure(monkeypatch):
+    # 破坏方式：OpenCV 失败后没有学习四角兜底，页面仍显示 rectify_failed
+    from docnorm.rectify.geometry import DocumentQuad
+
+    monkeypatch.setattr(
+        services.QuadRegressor,
+        "predict",
+        lambda self, image: DocumentQuad(
+            np.array([[10, 10], [90, 10], [90, 90], [10, 90]], dtype=np.float32),
+            area_ratio=0.64,
+            method="quad",
+        ),
+    )
+    monkeypatch.setattr(services, "_quad_policy", lambda: "fallback")
+    monkeypatch.setattr(
+        services, "_quad_model", lambda carrier: services.QuadRegressor.__new__(services.QuadRegressor)
+    )
+    monkeypatch.setattr(services, "detect_document", lambda *a, **k: None)
+    image = np.zeros((100, 100, 3), dtype=np.uint8)
+    _rectified, quad, status = services._apply_rectify(image, "ppt")
+    assert status == "ok" and quad is not None and quad.method == "quad"
+
+
+def test_pipeline_marks_uncertain_routing(monkeypatch):
+    # 破坏方式：门控阈值附近仍显示为确定结果，用户无法发现潜在误判
+    image = np.zeros((100, 100, 3), dtype=np.uint8)
+    monkeypatch.setattr(
+        services, "_carrier_info", lambda original: ("ppt", {"ppt": 0.32, "paper": 0.68})
+    )
+    monkeypatch.setattr(
+        services, "_apply_rectify", lambda array, carrier=None: (array, None, "ok")
+    )
+    monkeypatch.setattr(services, "_apply_scan", lambda array: array)
+    monkeypatch.setattr(
+        services,
+        "_classify",
+        lambda original, array, info=None: (
+            "text",
+            {"text": 0.4, "formula": 0.6},
+            {"carrier": "ppt", "branch": "ppt-cnn", "carrier_probabilities": {"ppt": 0.32, "paper": 0.68}},
+        ),
+    )
+    result = services.analyze_pipeline(image, rectify=True, enhance=False)
+    assert result["routing"]["uncertain"] is True
+    assert result["routing"]["gate_margin"] < 0.15
+
+
+def test_pipeline_carrier_override(monkeypatch):
+    # 破坏方式：手动“按 PPT 重试”仍被门控改回 paper
+    image = np.zeros((100, 100, 3), dtype=np.uint8)
+    calls = {}
+    monkeypatch.setattr(
+        services, "_carrier_info", lambda original: ("paper", {"ppt": 0.05, "paper": 0.95})
+    )
+
+    def fake_rectify(array, carrier=None):
+        calls["carrier"] = carrier
+        return array, None, "ok"
+
+    monkeypatch.setattr(services, "_apply_rectify", fake_rectify)
+    monkeypatch.setattr(services, "_apply_scan", lambda array: array)
+    monkeypatch.setattr(
+        services,
+        "_classify",
+        lambda original, array, info=None: (
+            "text",
+            {"text": 0.9, "formula": 0.1},
+            {"carrier": info[0] if info else "unknown", "branch": "ppt-cnn", "carrier_probabilities": {"ppt": 0.05, "paper": 0.95}},
+        ),
+    )
+    result = services.analyze_pipeline(
+        image, rectify=True, enhance=False, carrier_override="ppt"
+    )
+    assert calls["carrier"] == "ppt"
+    assert result["routing"]["carrier"] == "ppt"
+    assert result["routing"]["carrier_override"] is True
+
+
+def test_oversized_pixels_rejected(monkeypatch):
+    # 破坏方式：超大像素图进入完整解码会瞬间吃光内存，拖死整机
+    monkeypatch.setattr(services, "MAX_DECODE_PIXELS", 1000)
+    response = client.post(
+        "/api/analyze",
+        files={"file": ("huge.png", make_png(), "image/png")},
+        data={"rectify": "true", "enhance": "false"},
+    )
+    assert response.status_code == 413
 
 
 def test_invalid_upload_rejected():

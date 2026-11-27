@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>斜拍文档规范化</title>
   <link rel="icon" href="/static/favicon.svg" />
-  <link rel="stylesheet" href="/static/style.css?v=20261127f" />
+  <link rel="stylesheet" href="/static/style.css?v=20261127o" />
 </head>
 <body>
   <header class="site-header">
@@ -42,7 +42,7 @@
       <input id="file-input" type="file" accept="image/*" multiple hidden />
 
       <div id="drop-zone" class="drop-zone">
-        <p class="hint">也可以把图片拖到这里。支持多张，单张最大 15 MB；拍照可重复点击连续添加。</p>
+        <p class="hint">也可以把图片拖到这里。支持相册多选或连续拍照，单张最大 15 MB；可重复点击继续添加。</p>
       </div>
 
       <div id="batch-actions" class="toolbar hidden">
@@ -70,7 +70,7 @@
       <div class="stages">
         <figure>
           <canvas id="canvas" width="720" height="480"></canvas>
-          <figcaption>原图与四角。拖动控制点，或在框内拖动整体移动；未检出时依次点击四个顶点。</figcaption>
+          <figcaption>原图与四角。拖动控制点，或在框内拖动整体移动；未检出时点击四个顶点，顺序不限。</figcaption>
         </figure>
         <figure>
           <img id="rectified" alt="矫正图" hidden />
@@ -94,12 +94,24 @@
         <button id="pdf-selected" disabled>导出选中</button>
         <button id="pdf-all" disabled>导出全部</button>
       </div>
+      <p class="hint">导出多页 PDF 前需逐页校准：点击下方卡片，调整四角后点“应用四角”。</p>
 
       <div id="result-card" class="card hidden">
         <h2>分类结果</h2>
         <p><strong id="label"></strong></p>
         <div id="routing" class="routing"></div>
         <div id="probabilities"></div>
+        <div id="view-toggle" class="toolbar hidden">
+          <span class="hint">拉正显示：</span>
+          <button type="button" data-view-mode="quad" class="active">学习四角</button>
+          <button type="button" data-view-mode="opencv">OpenCV</button>
+          <span class="hint" id="view-note">仅影响显示/PDF，分类不变。</span>
+        </div>
+        <div class="toolbar">
+          <span id="carrier-note" class="hint"></span>
+          <button type="button" data-carrier-retry="ppt">按 PPT 重试</button>
+          <button type="button" data-carrier-retry="paper">按纸质重试</button>
+        </div>
         <p class="hint" id="meta"></p>
       </div>
     </section>
@@ -139,9 +151,10 @@
           <p>清单标签：<span id="corner-label"></span></p>
           <p>初始来源：<span id="corner-source"></span></p>
           <p id="corner-reason" class="hint hidden"></p>
-          <p class="hint">拖动圆点调整；无初始四角时在图上依次点击四个顶点。</p>
+          <p class="hint">拖动圆点调整；无初始四角时在图上点击四个顶点，顺序不限。</p>
           <div class="buttons">
             <button id="corner-confirm" class="primary" disabled>确认四角</button>
+            <button id="corner-reset">重选四角</button>
             <button id="corner-skip">跳过</button>
           </div>
           <p id="corner-stats" class="hint"></p>
@@ -183,6 +196,6 @@
     武汉理工大学《机器学习》课程实践 · 第六组 · 本机演示
   </footer>
 
-  <script type="module" src="/static/app.js?v=20261127f"></script>
+  <script type="module" src="/static/app.js?v=20261127o"></script>
 </body>
 </html>

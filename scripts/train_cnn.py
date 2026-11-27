@@ -36,6 +36,7 @@ from docnorm.data.manifest import load_manifest  # noqa: E402
 from docnorm.data.split import assign_samples, check_manifest_hash, load_split  # noqa: E402
 from docnorm.data.annotations import ManualCornerStore, ManualLabelStore, scale_points  # noqa: E402
 from docnorm.rectify.geometry import DocumentQuad, RectifyError  # noqa: E402
+from docnorm.rectify.quad import QuadRegressor  # noqa: E402
 from docnorm.enhance.clahe import enhance_document  # noqa: E402
 from docnorm.rectify.detector import detect_document  # noqa: E402
 from docnorm.rectify.warp import warp_document  # noqa: E402
@@ -57,6 +58,8 @@ class DocumentDataset(Dataset):
         corner_overrides: dict[str, list[list[float]]] | None = None,
         corner_policy: str = "always",
         load_size: int | None = None,
+        quad_model=None,
+        quad_policy: str = "off",
     ):
         self.items = items
         self.config = config
@@ -66,6 +69,8 @@ class DocumentDataset(Dataset):
         self.corner_overrides = corner_overrides or {}
         self.corner_policy = corner_policy
         self.load_size = load_size or int(config["data"]["image_size"])
+        self.quad_model = quad_model
+        self.quad_policy = quad_policy
 
     def __len__(self) -> int:
         return len(self.items)
@@ -89,8 +94,8 @@ class DocumentDataset(Dataset):
         image = loaded.image
         if self.rectify:
             quad = None
-            if self.corner_policy == "always":
-                quad = self._manual_quad(item, loaded, image)
+            if self.quad_policy == "primary" and self.quad_model is not None:
+                quad = self.quad_model.predict(image)
             if quad is None:
                 quad = detect_document(
                     image,
@@ -99,6 +104,14 @@ class DocumentDataset(Dataset):
                     min_area_ratio=float(self.config["rectify"]["min_area_ratio"]),
                     max_area_ratio=float(self.config["rectify"]["max_area_ratio"]),
                 )
+            if (
+                quad is None
+                and self.quad_policy == "fallback"
+                and self.quad_model is not None
+            ):
+                quad = self.quad_model.predict(image)
+            if quad is None and self.corner_policy == "always":
+                quad = self._manual_quad(item, loaded, image)
             if quad is None and self.corner_policy == "fallback":
                 quad = self._manual_quad(item, loaded, image)
             if quad is not None:
@@ -196,6 +209,17 @@ def main() -> int:
     )
     parser.add_argument("--input-size", type=int, default=224)
     parser.add_argument(
+        "--carrier",
+        choices=("all", "ppt", "paper"),
+        default="all",
+        help="只用某一载体的样本训练/验证，默认全部",
+    )
+    parser.add_argument(
+        "--dedupe-inbox",
+        action="store_true",
+        help="同一幻灯片的 2026-11-27 inbox 样本只保留清晰度最高的一张",
+    )
+    parser.add_argument(
         "--augment",
         choices=("default", "mild", "skew", "none"),
         default="default",
@@ -234,6 +258,18 @@ def main() -> int:
         default=None,
         help="外部预训练或上一阶段权重，加载后继续微调",
     )
+    parser.add_argument(
+        "--quad-model",
+        type=Path,
+        default=None,
+        help="按载体训练的四角回归权重；提供后按 --quad-policy 参与拉正",
+    )
+    parser.add_argument(
+        "--quad-policy",
+        choices=("off", "primary", "fallback"),
+        default="off",
+        help="primary 学习四角优先；fallback 仅 OpenCV 失败时用学习四角",
+    )
     args = parser.parse_args()
 
     torch.manual_seed(args.seed)
@@ -241,7 +277,30 @@ def main() -> int:
     torch.set_num_threads(4)
     torch.use_deterministic_algorithms(True, warn_only=True)
 
+    quad_model = None
+    if args.quad_model is not None:
+        if not args.quad_model.is_file():
+            raise SystemExit(f"四角模型不存在: {args.quad_model}")
+        quad_model = QuadRegressor.from_checkpoint(args.quad_model)
+    if args.quad_policy != "off" and quad_model is None:
+        raise SystemExit("--quad-policy 需要同时提供 --quad-model")
+
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
+    # 训练时的 OpenCV 回退参数与网页按载体选参保持一致。
+    if args.carrier == "ppt":
+        config["rectify"]["canny_low"] = int(
+            config["rectify"].get("ppt_canny_low", config["rectify"]["canny_low"])
+        )
+        config["rectify"]["canny_high"] = int(
+            config["rectify"].get("ppt_canny_high", config["rectify"]["canny_high"])
+        )
+    elif args.carrier == "paper":
+        config["rectify"]["canny_low"] = int(
+            config["rectify"].get("paper_canny_low", config["rectify"]["canny_low"])
+        )
+        config["rectify"]["canny_high"] = int(
+            config["rectify"].get("paper_canny_high", config["rectify"]["canny_high"])
+        )
     if args.backbone:
         config["classify"]["backbone"] = args.backbone
     load_size = args.load_size or max(1280, args.input_size * 5)
@@ -285,11 +344,32 @@ def main() -> int:
     )
 
     items = {"train": [], "val": []}
+    inbox_representatives = set()
+    if args.dedupe_inbox:
+        groups_path = ROOT / "data/manifests/inbox_slide_groups.csv"
+        if groups_path.is_file():
+            inbox_representatives = {
+                row["sample_id"]
+                for row in csv.DictReader(groups_path.open(encoding="utf-8"))
+                if row.get("representative") == "1"
+            }
     for sample in samples:
         label = overrides.get(sample.sample_id, sample.content_label)
         if label is None:
             continue
+        if args.carrier != "all" and not (sample.label or "").startswith(args.carrier + "_"):
+            continue
         name = assignment[sample.sample_id]
+        if (
+            args.dedupe_inbox
+            and name == "train"
+            and sample.sample_id not in inbox_representatives
+            and sample.sample_id in {
+                row["sample_id"]
+                for row in csv.DictReader((ROOT / "data/manifests/inbox_slide_groups.csv").open(encoding="utf-8"))
+            }
+        ):
+            continue
         if name in items:
             items[name].append(
                 {
@@ -312,6 +392,8 @@ def main() -> int:
         corner_overrides=corners,
         corner_policy=args.corners_policy,
         load_size=load_size,
+        quad_model=quad_model,
+        quad_policy=args.quad_policy,
     )
     val_dataset = DocumentDataset(
         items["val"],
@@ -322,6 +404,8 @@ def main() -> int:
         corner_overrides=corners,
         corner_policy=args.corners_policy,
         load_size=load_size,
+        quad_model=quad_model,
+        quad_policy=args.quad_policy,
     )
     train_loader = DataLoader(
         train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=0

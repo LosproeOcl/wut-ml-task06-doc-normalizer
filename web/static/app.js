@@ -25,6 +25,7 @@ const state = {
   reviewTotal: 0,
   batchFiles: [],
   batchResults: [],
+  displayMode: localStorage.getItem("t06-display-mode") || "quad",
 };
 
 const REVIEW_PAGE_SIZE = 12;
@@ -125,6 +126,7 @@ canvas.addEventListener("pointerdown", (event) => {
   }
   if (state.pending.length < 4) {
     state.pending.push([x, y]);
+    if (state.pending.length === 4) state.pending = sortQuad(state.pending);
     drawCanvas();
     $("apply-corners").disabled = state.pending.length !== 4;
   }
@@ -186,7 +188,7 @@ function branchLabel(branch) {
     const count = branch.split("-").pop();
     return `纸质稿 CNN 集成（${count} 模型）`;
   }
-  if (branch === "ppt-cnn-exp-cnn-05") return "PPT CNN";
+  if (branch === "ppt-cnn" || branch.startsWith("ppt-cnn-")) return "PPT CNN";
   if (branch === "classic-svm") return "传统基线兜底";
   return branch;
 }
@@ -211,17 +213,40 @@ function renderRouting(result) {
   box.appendChild(branchBadge);
 }
 
+function applyDisplayMode(mode) {
+  if (!state.result) return;
+  const result = state.result;
+  const effective = result.opencv_view_available ? mode : "quad";
+  const suffix = effective === "opencv" ? "_opencv" : "";
+  const stamp = Date.now();
+  $("rectified").src = `/api/results/${result.result_id}/rectified${suffix}.png?t=${stamp}`;
+  $("scan").src = `/api/results/${result.result_id}/scan${suffix}.png?t=${stamp}`;
+  document.querySelectorAll("[data-view-mode]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.viewMode === effective);
+  });
+  const note = $("view-note");
+  if (note) {
+    note.textContent =
+      effective === "opencv" && result.classifier_status === "rectify_failed"
+        ? "OpenCV 未检出，此视图为原图。"
+        : "仅影响显示/PDF，分类不变。";
+  }
+}
+
 function showResult(result) {
   state.result = result;
   state.quad = result.quad ? result.quad.map((point) => [...point]) : [];
-  state.pending = [];
+  state.pending =
+    !result.quad && Array.isArray(result.suggested_quad)
+      ? result.suggested_quad.map((point) => [...point])
+      : [];
   $("rectified").hidden = false;
   $("scan").hidden = false;
-  const stamp = Date.now();
-  $("rectified").src = `/api/results/${result.result_id}/rectified.png?t=${stamp}`;
-  $("scan").src = `/api/results/${result.result_id}/scan.png?t=${stamp}`;
   $("pdf-current").disabled = false;
   $("result-card").classList.remove("hidden");
+  const hasAlternate = Boolean(result.opencv_view_available);
+  $("view-toggle").classList.toggle("hidden", !hasAlternate);
+  applyDisplayMode(state.displayMode);
   const batchItem = state.batchFiles.find(
     (item) => item.result && item.result.result_id === result.result_id
   );
@@ -238,8 +263,18 @@ function showResult(result) {
   renderRouting(result);
   probabilityBars(result.probabilities);
   $("meta").textContent =
-    `状态：${result.status}｜方式：${result.method}｜耗时：${result.runtime_ms} ms`;
-  $("apply-corners").disabled = result.quad === null;
+    `状态：${result.status}｜分类拉正：${result.classifier_status || result.status}` +
+    `｜耗时：${result.runtime_ms} ms`;
+  const notes = [];
+  if (result.display_quad) notes.push("显示/PDF 可切换学习四角与 OpenCV，分类不变。");
+  if (result.carrier_override) {
+    notes.push(`当前按 ${result.carrier === "ppt" ? "PPT" : "纸质"} 手动重试。`);
+  } else if (result.uncertain) {
+    notes.push("门控把握不足，可切换载体重试。");
+  }
+  $("carrier-note").textContent = notes.join(" ") || "载体判定有误时可手动重试。";
+  $("apply-corners").disabled =
+    result.quad === null && state.pending.length !== 4;
 
   const image = new Image();
   image.onload = () => {
@@ -249,7 +284,16 @@ function showResult(result) {
   image.src = `/api/results/${result.result_id}/original.png?t=${Date.now()}`;
 
   if (result.status === "rectify_failed") {
-    setStatus("未检出文档四边形，请在原图上依次点击四个顶点后应用。", true);
+    if (result.display_quad) {
+      setStatus("OpenCV 未检出，分类按原图；显示/导出已用学习四角拉正。", true);
+    } else {
+      setStatus(
+        state.pending.length === 4
+          ? "未检出文档四边形，已用学习四角给出建议；确认或调整后点“应用四角”。"
+          : "未检出文档四边形，请在原图上依次点击四个顶点后应用。",
+        true
+      );
+    }
   } else {
     setStatus("分析完成。");
   }
@@ -288,17 +332,17 @@ function renderBatch() {
     const card = document.createElement("div");
     card.className = `batch-item${
       item.status === "完成" ? " done" : item.status === "失败" ? " failed" : ""
-    }`;
+    }${item.calibrated ? " calibrated" : item.result ? " needs-calibration" : ""}`;
     card.innerHTML = `
       <label class="batch-pick">
         <input type="checkbox" class="batch-check" ${item.selected ? "checked" : ""} />
         选中
       </label>
-      <img src="${item.url}" alt="${escapeHtml(item.file.name)}" />
+      <img src="${item.url}" alt="${escapeHtml(item.file.name)}" loading="lazy" decoding="async" />
       <div class="batch-meta">
         <div>${escapeHtml(item.file.name)}</div>
         <div class="batch-status">${escapeHtml(item.error || item.status)}${
-          item.calibrated ? " · 已校准" : ""
+          item.calibrated ? " · 已校准" : item.result ? " · 待校准" : ""
         }</div>
       </div>
       <button type="button" class="batch-remove">移除</button>`;
@@ -331,50 +375,42 @@ function renderBatch() {
     list.appendChild(card);
   });
   const done = state.batchFiles.filter((item) => item.status === "完成").length;
-  $("batch-stats").textContent = `队列 ${state.batchFiles.length} 张，已完成 ${done} 张`;
+  const calibrated = state.batchFiles.filter((item) => item.calibrated).length;
+  $("batch-stats").textContent =
+    `队列 ${state.batchFiles.length} 张，已完成 ${done} 张，已校准 ${calibrated} 张`;
   syncBatchSelection();
 }
 
-async function makeBatchThumbnail(file) {
-  try {
-    const bitmap = await createImageBitmap(file, {
-      resizeWidth: 240,
-      resizeQuality: "low",
-    });
-    const canvas = document.createElement("canvas");
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-    canvas.getContext("2d").drawImage(bitmap, 0, 0);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
-    if (bitmap.close) bitmap.close();
-    return dataUrl;
-  } catch (_) {
-    return URL.createObjectURL(file);
-  }
+const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
+
+function isImageFile(file) {
+  return (
+    file.type.startsWith("image/") ||
+    /\.(jpe?g|png|webp|bmp|heic|heif)$/i.test(file.name)
+  );
 }
 
-async function addFiles(fileList) {
-  const files = [...fileList].filter(
-    (file) =>
-      file.type.startsWith("image/") ||
-      /\.(jpe?g|png|webp|bmp|heic)$/i.test(file.name)
-  );
-  if (!files.length) {
+function addFiles(fileList) {
+  const images = [...fileList].filter(isImageFile);
+  if (!images.length) {
     setStatus("请选择图片文件。", true);
     return;
   }
+  const oversized = images.filter((file) => file.size > MAX_UPLOAD_BYTES);
+  const usable = images.filter((file) => file.size <= MAX_UPLOAD_BYTES);
   const room = 20 - state.batchFiles.length;
   if (room <= 0) {
     setStatus("单次最多 20 张。", true);
     return;
   }
-  const accepted = files.slice(0, room);
+  const accepted = usable.slice(0, room);
   for (const file of accepted) {
-    const url = await makeBatchThumbnail(file);
+    // 直接使用 Blob URL，让浏览器按显示尺寸懒解码；
+    // 避免主线程用 createImageBitmap 解整张手机原图导致内存飙升。
     state.batchFiles.push({
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       file,
-      url,
+      url: URL.createObjectURL(file),
       status: "待分析",
       result: null,
       error: "",
@@ -383,7 +419,12 @@ async function addFiles(fileList) {
     });
   }
   renderBatch();
-  setStatus(`已加入 ${accepted.length} 张图片。`);
+  const notes = [`已加入 ${accepted.length} 张图片`];
+  if (oversized.length) notes.push(`跳过 ${oversized.length} 张超过 15 MB 的图片`);
+  if (usable.length > accepted.length) {
+    notes.push(`${usable.length - accepted.length} 张超出队列上限`);
+  }
+  setStatus(`${notes.join("，")}。`, oversized.length > 0);
 }
 
 function removeBatch(id) {
@@ -502,7 +543,7 @@ async function downloadCurrentPdf() {
   try {
     setStatus("生成 PDF…");
     await downloadBlob(
-      `/api/pdf/${state.result.result_id}?mode=${$("pdf-mode").value}`,
+      `/api/pdf/${state.result.result_id}?mode=${$("pdf-mode").value}&view=${state.displayMode}`,
       {},
       "document.pdf"
     );
@@ -527,6 +568,7 @@ async function downloadResultsPdf(results, filename) {
         body: JSON.stringify({
           result_ids: results.map((result) => result.result_id),
           mode: $("pdf-mode").value,
+          view: state.displayMode,
         }),
       },
       filename
@@ -537,23 +579,60 @@ async function downloadResultsPdf(results, filename) {
   }
 }
 
+function calibrationGate(items) {
+  if (!items.length) {
+    setStatus("没有可导出的已完成结果。", true);
+    return false;
+  }
+  const missing = items.filter((item) => !item.calibrated);
+  if (missing.length) {
+    setStatus(
+      `还有 ${missing.length} 页未校准：请点击对应卡片，调整四角后点“应用四角”。`,
+      true
+    );
+    return false;
+  }
+  return true;
+}
+
 async function downloadSelectedPdf() {
-  return downloadResultsPdf(selectedResults(), "document-selected.pdf");
+  const items = state.batchFiles.filter((item) => item.selected && item.result);
+  if (!calibrationGate(items)) return;
+  return downloadResultsPdf(
+    items.map((item) => item.result),
+    "document-selected.pdf"
+  );
 }
 
 async function downloadAllPdf() {
-  return downloadResultsPdf(state.batchResults, "document-all.pdf");
+  const items = state.batchFiles.filter((item) => item.result);
+  if (!calibrationGate(items)) return;
+  return downloadResultsPdf(
+    items.map((item) => item.result),
+    "document-all.pdf"
+  );
 }
 
 function openImageModal(src, alt) {
   $("image-modal-img").src = src;
   $("image-modal-img").alt = alt || "查看大图";
-  $("image-modal").classList.remove("hidden");
+  $("image-modal-img").title = "点击切换 1:1 查看";
+  $("image-modal").classList.remove("hidden", "is-zoomed");
+  $("image-modal-img").classList.remove("zoomed");
 }
 
 function closeImageModal() {
   $("image-modal").classList.add("hidden");
+  $("image-modal").classList.remove("is-zoomed");
+  $("image-modal-img").classList.remove("zoomed");
   $("image-modal-img").removeAttribute("src");
+}
+
+function toggleImageZoom() {
+  if ($("image-modal").classList.contains("hidden")) return;
+  const zoomed = $("image-modal").classList.toggle("is-zoomed");
+  $("image-modal-img").classList.toggle("zoomed", zoomed);
+  $("image-modal-img").title = zoomed ? "点击恢复适应窗口" : "点击切换 1:1 查看";
 }
 
 async function analyze() {
@@ -699,7 +778,7 @@ async function loadCorners() {
   try {
     $("corner-stats").textContent = "载入待标注样本…";
     const suffix = state.person ? `&assignee=${encodeURIComponent(state.person)}` : "";
-    const data = await fetchJSON(`/api/corners?limit=20&only_unannotated=true${suffix}`);
+    const data = await fetchJSON(`/api/corners?limit=100&only_unannotated=true${suffix}`);
     state.cornerItems = data.items;
     state.cornerIndex = 0;
     renderCorner(data.stats);
@@ -828,6 +907,37 @@ function insidePolygon(point, polygon) {
   return inside;
 }
 
+function sortQuad(points) {
+  // 手工点击顺序可能不是沿边缘；按质心角度排序再规范为左上/右上/右下/左下。
+  if (points.length !== 4) return points;
+  const center = points.reduce(
+    (acc, [x, y]) => [acc[0] + x / 4, acc[1] + y / 4],
+    [0, 0]
+  );
+  const cyclic = [...points].sort(
+    (a, b) =>
+      Math.atan2(a[1] - center[1], a[0] - center[0]) -
+      Math.atan2(b[1] - center[1], b[0] - center[0])
+  );
+  const sums = cyclic.map(([x, y]) => x + y);
+  const diffs = cyclic.map(([x, y]) => y - x);
+  const topLeft = sums.indexOf(Math.min(...sums));
+  const bottomRight = sums.indexOf(Math.max(...sums));
+  if (topLeft === bottomRight) return cyclic;
+  const rest = [0, 1, 2, 3].filter(
+    (index) => index !== topLeft && index !== bottomRight
+  );
+  const topRight = rest.reduce((a, b) => (diffs[a] <= diffs[b] ? a : b));
+  const bottomLeft = rest.reduce((a, b) => (diffs[a] >= diffs[b] ? a : b));
+  if (new Set([topLeft, topRight, bottomRight, bottomLeft]).size < 4) return cyclic;
+  return [
+    cyclic[topLeft],
+    cyclic[topRight],
+    cyclic[bottomRight],
+    cyclic[bottomLeft],
+  ];
+}
+
 function bindCornerCanvas() {
   const canvas = $("corner-canvas");
   canvas.addEventListener("pointerdown", (event) => {
@@ -852,6 +962,9 @@ function bindCornerCanvas() {
     }
     if (state.cornerPending.length < 4) {
       state.cornerPending.push([x, y]);
+      if (state.cornerPending.length === 4) {
+        state.cornerPending = sortQuad(state.cornerPending);
+      }
       drawCornerCanvas();
       $("corner-confirm").disabled = state.cornerPending.length !== 4;
     }
@@ -1017,6 +1130,39 @@ async function sendBackCorner(sampleId, button) {
   }
 }
 
+async function retryCarrier(carrier) {
+  if (!state.result) return;
+  const item = state.batchFiles.find(
+    (entry) => entry.result && entry.result.result_id === state.result.result_id
+  );
+  const form = new FormData();
+  form.append("rectify", $("rectify").checked ? "true" : "false");
+  form.append("carrier", carrier);
+  if (item && item.file) {
+    form.append("file", item.file);
+  } else if (state.result.source && state.result.source !== "upload") {
+    form.append("sample_id", state.result.source);
+  } else {
+    setStatus("找不到原图，无法切换载体重试。", true);
+    return;
+  }
+  setStatus(`按 ${carrier === "ppt" ? "PPT" : "纸质"} 重新分析…`);
+  try {
+    const result = await fetchJSON("/api/analyze", { method: "POST", body: form });
+    if (item) {
+      item.result = result;
+      item.status = "完成";
+      item.error = "";
+      item.calibrated = false;
+    }
+    showResult(result);
+    renderBatch();
+    setStatus(`已按 ${carrier === "ppt" ? "PPT" : "纸质"} 重新分析。`);
+  } catch (error) {
+    setStatus(error.message, true);
+  }
+}
+
 function bindUI() {
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.addEventListener("click", (event) => {
@@ -1041,6 +1187,16 @@ function bindUI() {
   });
   $("analyze-btn").addEventListener("click", analyze);
   $("apply-corners").addEventListener("click", applyCorners);
+  document.querySelectorAll("[data-carrier-retry]").forEach((button) => {
+    button.addEventListener("click", () => retryCarrier(button.dataset.carrierRetry));
+  });
+  document.querySelectorAll("[data-view-mode]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.displayMode = button.dataset.viewMode;
+      localStorage.setItem("t06-display-mode", state.displayMode);
+      applyDisplayMode(state.displayMode);
+    });
+  });
   $("pick-files").addEventListener("click", () => $("file-input").click());
   $("camera-btn").addEventListener("click", () => $("camera-input").click());
   $("file-input").addEventListener("change", () => {
@@ -1060,6 +1216,7 @@ function bindUI() {
     openImageModal($("scan").src, "扫描件");
   });
   $("image-modal-close").addEventListener("click", closeImageModal);
+  $("image-modal-img").addEventListener("click", toggleImageZoom);
   $("image-modal").addEventListener("click", (event) => {
     if (event.target === $("image-modal")) closeImageModal();
   });
@@ -1102,6 +1259,14 @@ function bindUI() {
   });
   bindCornerCanvas();
   $("corner-confirm").addEventListener("click", confirmCorner);
+  $("corner-reset").addEventListener("click", () => {
+    state.cornerQuad = [];
+    state.cornerPending = [];
+    state.cornerDragging = -1;
+    state.cornerMoving = false;
+    $("corner-confirm").disabled = true;
+    drawCornerCanvas();
+  });
   $("corner-skip").addEventListener("click", () => {
     state.cornerIndex += 1;
     renderCorner(null);

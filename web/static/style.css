@@ -225,6 +225,7 @@ button:disabled {
 
 .batch-status { color: var(--muted); }
 .batch-item.done .batch-status { color: #2f7d32; }
+.batch-item.needs-calibration .batch-status { color: #9a6b00; }
 .batch-item.failed .batch-status { color: var(--danger); }
 
 .batch-remove {
@@ -304,10 +305,27 @@ figcaption {
   background: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.35);
   box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+  cursor: zoom-in;
+}
+
+.image-modal.is-zoomed {
+  display: block;
+  padding: 0;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.94);
+}
+
+.image-modal.is-zoomed img {
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  box-shadow: none;
+  cursor: zoom-out;
 }
 
 .image-modal-close {
-  position: absolute;
+  position: fixed;
   top: 16px;
   right: 22px;
   width: 36px;

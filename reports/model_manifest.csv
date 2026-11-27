@@ -1,0 +1,9 @@
+role,path,bytes,sha256,metrics
+carrier_gate,runs/carrier-gate-01/screen_gate.pt,4432511,8a6c3679fc2e68eaf6e3f87d62470ef9dc27265929faaf277f96792ee8a11188,外部1000/1000；自采val51/51
+ppt_classifier,runs/exp-cnn-ppt-dedup-fw/cnn.pt,6199151,d6969c241984bf63209fe7ff3184358ac38e7370b3d763ab87e0c802960115f7,PPT val 95.24% / F1 92.93%
+paper_classifier_01,runs/paper-cnn-extctl-01/paper_cnn.pt,6210699,70358d39906984e8a7a81bfb1a8882b6bf4fbc6c606c2a7e8e11c8f39ec7ff09,paper val 80.00% / F1 78.47%
+paper_classifier_43,runs/paper-cnn-extctl-43/paper_cnn.pt,6210699,10a2803e12029c4c2767337b39d007d5911bb5abf2b50828f23647e76c893c26,paper val 86.67% / F1 85.00%
+paper_classifier_44,runs/paper-cnn-extctl-44/paper_cnn.pt,6210699,fe710248a1b9b4f9eab719d964c42ecf69ac2e4007adecb51189a756d627f64f,paper val 83.33% / F1 81.68%
+ppt_quad,runs/quad-ppt-02/quad_ppt.pt,4437777,e0096a68a2dbffdad5c9b8c28dabdadb88befdfeb1cfd0a293b8aed03c067bb0,PPT 52/52，L2 0.1314
+paper_quad,runs/quad-paper-01/quad_ppt.pt,4437777,dc90c79a3b03e9de42e69297a4ac2ac4b1c13f4e7bacecc64c7c9ed34543506e,paper 29/29，L2 0.1347
+classic_svm,runs/exp-20261126-08/svm.joblib,3281981,e17a6956e6731d796108f9a850a6a51cdc00db3f7c5faa67769e449b0ece94f6,val 76.47% / F1 75.71%

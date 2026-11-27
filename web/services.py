@@ -6,6 +6,7 @@ import json
 import os
 import re
 import shutil
+import threading
 import time
 import uuid
 from datetime import datetime, timezone
@@ -35,10 +36,20 @@ from docnorm.enhance.clahe import enhance_document
 from docnorm.features.classic import extract_features
 from docnorm.rectify.detector import detect_document
 from docnorm.rectify.geometry import DocumentQuad, RectifyError
+from docnorm.rectify.quad import QuadRegressor, quad_area_ratio
 from docnorm.rectify.warp import warp_document
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = yaml.safe_load((ROOT / "configs/default.yaml").read_text(encoding="utf-8"))
+
+# 单张图解码上限与并发闸门：避免多张大图同时解码把整机内存打满。
+MAX_DECODE_PIXELS = 60_000_000
+_ANALYZE_SLOTS = threading.BoundedSemaphore(
+    max(1, int(CONFIG["web"].get("max_concurrency", 2)))
+)
+_DECODE_SLOTS = threading.BoundedSemaphore(
+    max(1, int(CONFIG["web"].get("max_concurrency", 2)))
+)
 RESULT_DIR = ROOT / "web/results"
 MODEL_ENV = "DOCNORM_CLASSIC_MODEL"
 CARRIER_GATE_ENV = "DOCNORM_CARRIER_GATE"
@@ -46,15 +57,21 @@ GATE_THRESHOLD_ENV = "DOCNORM_GATE_THRESHOLD"
 GATE_TTA_ENV = "DOCNORM_GATE_TTA"
 PAPER_MODELS_ENV = "DOCNORM_PAPER_MODELS"
 PPT_MODEL_ENV = "DOCNORM_PPT_MODEL"
+QUAD_POLICY_ENV = "DOCNORM_QUAD_POLICY"
+QUAD_DISPLAY_ENV = "DOCNORM_QUAD_DISPLAY"
+QUAD_PPT_ENV = "DOCNORM_QUAD_PPT"
+QUAD_PAPER_ENV = "DOCNORM_QUAD_PAPER"
 DEFAULT_CARRIER_GATE = ROOT / "runs/carrier-gate-01/screen_gate.pt"
 DEFAULT_PAPER_MODELS = (
     ROOT / "runs/paper-cnn-extctl-01/paper_cnn.pt",
     ROOT / "runs/paper-cnn-extctl-43/paper_cnn.pt",
     ROOT / "runs/paper-cnn-extctl-44/paper_cnn.pt",
 )
-DEFAULT_PPT_MODEL = ROOT / "runs/exp-cnn-05/cnn.pt"
+DEFAULT_PPT_MODEL = ROOT / "runs/exp-cnn-ppt-dedup-fw/cnn.pt"
+DEFAULT_QUAD_PPT = ROOT / "runs/quad-ppt-02/quad_ppt.pt"
+DEFAULT_QUAD_PAPER = ROOT / "runs/quad-paper-01/quad_ppt.pt"
 RESULT_ID_PATTERN = re.compile(r"^[0-9a-f]{32}$")
-STAGES = ("original", "quad", "rectified", "enhanced", "scan")
+STAGES = ("original", "quad", "rectified", "rectified_opencv", "enhanced", "scan", "scan_opencv")
 
 
 class WebError(ValueError):
@@ -249,6 +266,14 @@ def _gate_tta_enabled() -> bool:
     return bool(CONFIG.get("web", {}).get("gate_tta", False))
 
 
+def _gate_margin() -> float:
+    return float(CONFIG.get("web", {}).get("gate_margin", 0.15))
+
+
+def _branch_low_confidence() -> float:
+    return float(CONFIG.get("web", {}).get("branch_low_confidence", 0.60))
+
+
 def _rotate(image: np.ndarray, angle: float) -> np.ndarray:
     height, width = image.shape[:2]
     matrix = cv2.getRotationMatrix2D((width / 2, height / 2), angle, 1.0)
@@ -287,6 +312,85 @@ def _ppt_model_path() -> Path | None:
     return path if path.is_file() else None
 
 
+def _quad_display_enabled() -> bool:
+    value = os.environ.get(QUAD_DISPLAY_ENV)
+    if value is not None:
+        return value.strip().lower() not in {"0", "false", "off", "no"}
+    return bool(CONFIG["rectify"].get("quad_display", False))
+
+
+def _quad_policy() -> str:
+    value = os.environ.get(QUAD_POLICY_ENV)
+    if value is not None:
+        value = value.strip().lower()
+        return value if value in {"off", "fallback", "primary"} else "off"
+    value = str(CONFIG["rectify"].get("quad_policy", "off")).strip().lower()
+    return value if value in {"off", "fallback", "primary"} else "off"
+
+
+def _quad_model_path(carrier: str | None) -> Path | None:
+    if carrier == "ppt":
+        override = os.environ.get(QUAD_PPT_ENV)
+        path = Path(override) if override else ROOT / str(
+            CONFIG["rectify"].get("quad_ppt_model", DEFAULT_QUAD_PPT)
+        )
+    elif carrier == "paper":
+        override = os.environ.get(QUAD_PAPER_ENV)
+        path = Path(override) if override else ROOT / str(
+            CONFIG["rectify"].get("quad_paper_model", DEFAULT_QUAD_PAPER)
+        )
+    else:
+        return None
+    return path if path.is_file() else None
+
+
+def _quad_model(carrier: str | None) -> QuadRegressor | None:
+    if carrier not in {"ppt", "paper"}:
+        return None
+    if carrier not in _QUAD_MODELS:
+        path = _quad_model_path(carrier)
+        try:
+            _QUAD_MODELS[carrier] = (
+                QuadRegressor.from_checkpoint(path) if path is not None else None
+            )
+        except (OSError, RuntimeError, ValueError):
+            _QUAD_MODELS[carrier] = None
+    return _QUAD_MODELS[carrier]
+
+
+def _predict_quad(
+    model: QuadRegressor, image: np.ndarray, *, max_edge: int = 1280
+) -> DocumentQuad | None:
+    """在训练同款长边上预测，再把角点映射回当前图像。"""
+    height, width = image.shape[:2]
+    scale = min(1.0, max_edge / float(max(height, width)))
+    resized = image
+    if scale < 1.0:
+        resized = cv2.resize(
+            image,
+            (max(1, int(round(width * scale))), max(1, int(round(height * scale)))),
+            interpolation=cv2.INTER_AREA,
+        )
+    quad = model.predict(resized)
+    if quad is None:
+        return None
+    if scale < 1.0:
+        points = quad.points / scale
+    else:
+        points = quad.points
+    try:
+        quad = DocumentQuad(
+            points,
+            area_ratio=quad_area_ratio(points, width, height),
+            method="quad",
+        )
+    except (RectifyError, ValueError):
+        return None
+    if not 0.10 <= quad.area_ratio <= 0.99:
+        return None
+    return quad
+
+
 def model_status() -> dict:
     """返回双分支模型可用性，供 /api/health 与页面提示使用。"""
     carrier = _carrier_gate_path()
@@ -296,6 +400,12 @@ def model_status() -> dict:
         "carrier_gate": str(carrier) if carrier else None,
         "paper_models": [str(path) for path in paper],
         "ppt_model": str(ppt) if ppt else None,
+        "quad_policy": _quad_policy(),
+        "quad_display": _quad_display_enabled(),
+        "quad_models": {
+            "ppt": str(_quad_model_path("ppt")) if _quad_model_path("ppt") else None,
+            "paper": str(_quad_model_path("paper")) if _quad_model_path("paper") else None,
+        },
         "routing_ready": bool(carrier and paper and ppt),
         "gate_threshold": _gate_threshold(),
         "gate_tta": _gate_tta_enabled(),
@@ -306,6 +416,7 @@ _MODEL: ClassicClassifier | None = None
 _CARRIER_GATE: ScreenGate | None = None
 _PAPER_MODELS: list[CnnClassifier] | None = None
 _PPT_MODEL: CnnClassifier | None = None
+_QUAD_MODELS: dict[str, QuadRegressor | None] = {}
 
 
 def _classifier() -> ClassicClassifier | None:
@@ -381,21 +492,32 @@ def _cnn_scores(
     return max(scores, key=scores.get), scores
 
 
+def _carrier_info(
+    original: np.ndarray,
+) -> tuple[str | None, dict[str, float] | None]:
+    """在原图上运行载体门控，供拉正选参和分类分支复用。"""
+    gate = _carrier_gate()
+    if gate is None:
+        return None, None
+    gate_probabilities = _gate_probabilities(gate, original)
+    carrier = "ppt" if gate_probabilities[1] >= _gate_threshold() else "paper"
+    return carrier, {
+        "paper": float(gate_probabilities[0]),
+        "ppt": float(gate_probabilities[1]),
+    }
+
+
 def _classify(
-    original: np.ndarray, array: np.ndarray
+    original: np.ndarray,
+    array: np.ndarray,
+    carrier_info: tuple[str | None, dict[str, float] | None] | None = None,
 ) -> tuple[str | None, dict[str, float] | None, dict]:
     """载体门控 → 纸质稿集成 / PPT CNN → SVM 兜底。"""
-    carrier = None
-    carrier_probabilities = None
+    if carrier_info is None:
+        carrier, carrier_probabilities = _carrier_info(original)
+    else:
+        carrier, carrier_probabilities = carrier_info
     branch = "classic-svm"
-    gate = _carrier_gate()
-    if gate is not None:
-        gate_probabilities = _gate_probabilities(gate, original)
-        carrier = "ppt" if gate_probabilities[1] >= _gate_threshold() else "paper"
-        carrier_probabilities = {
-            "paper": float(gate_probabilities[0]),
-            "ppt": float(gate_probabilities[1]),
-        }
 
     routed = None
     if carrier == "paper":
@@ -407,7 +529,7 @@ def _classify(
         model = _ppt_model()
         if model is not None:
             routed = _cnn_scores([model], array)
-            branch = "ppt-cnn-exp-cnn-05"
+            branch = "ppt-cnn"
 
     if routed is None:
         routed = _classic_scores(array)
@@ -425,14 +547,32 @@ def _classify(
     }
 
 
-def _apply_rectify(array: np.ndarray) -> tuple[np.ndarray, DocumentQuad | None, str]:
-    quad = detect_document(
-        array,
-        canny_low=int(CONFIG["rectify"]["canny_low"]),
-        canny_high=int(CONFIG["rectify"]["canny_high"]),
-        min_area_ratio=float(CONFIG["rectify"]["min_area_ratio"]),
-        max_area_ratio=float(CONFIG["rectify"]["max_area_ratio"]),
-    )
+def _apply_rectify(
+    array: np.ndarray, carrier: str | None = None
+) -> tuple[np.ndarray, DocumentQuad | None, str]:
+    policy = _quad_policy()
+    model = _quad_model(carrier) if policy != "off" else None
+    quad = None
+    if policy == "primary" and model is not None:
+        quad = _predict_quad(model, array)
+    if quad is None:
+        low = int(CONFIG["rectify"]["canny_low"])
+        high = int(CONFIG["rectify"]["canny_high"])
+        if carrier == "ppt":
+            low = int(CONFIG["rectify"].get("ppt_canny_low", low))
+            high = int(CONFIG["rectify"].get("ppt_canny_high", high))
+        elif carrier == "paper":
+            low = int(CONFIG["rectify"].get("paper_canny_low", low))
+            high = int(CONFIG["rectify"].get("paper_canny_high", high))
+        quad = detect_document(
+            array,
+            canny_low=low,
+            canny_high=high,
+            min_area_ratio=float(CONFIG["rectify"]["min_area_ratio"]),
+            max_area_ratio=float(CONFIG["rectify"]["max_area_ratio"]),
+        )
+    if quad is None and policy == "fallback" and model is not None:
+        quad = _predict_quad(model, array)
     if quad is None:
         return array, None, "rectify_failed"
     return (
@@ -560,6 +700,12 @@ def _save_result(
     label: str | None,
     probabilities: dict[str, float] | None,
     routing: dict | None,
+    suggested_quad: list[list[float]] | None = None,
+    display_quad: bool = False,
+    classifier_status: str | None = None,
+    classifier_rectified: np.ndarray | None = None,
+    scan_opencv: np.ndarray | None = None,
+    opencv_view_available: bool = False,
     runtime_ms: float,
     rectify: bool,
     enhance: bool,
@@ -572,6 +718,12 @@ def _save_result(
     cv2.imwrite(str(directory / "rectified.png"), rectified)
     cv2.imwrite(str(directory / "enhanced.png"), enhanced)
     cv2.imwrite(str(directory / "scan.png"), scan)
+    if classifier_rectified is not None:
+        cv2.imwrite(str(directory / "rectified_opencv.png"), classifier_rectified)
+        cv2.imwrite(
+            str(directory / "scan_opencv.png"),
+            scan_opencv if scan_opencv is not None else _apply_scan(classifier_rectified),
+        )
     metadata = {
         "result_id": result_id,
         "status": status,
@@ -582,6 +734,14 @@ def _save_result(
         "carrier": (routing or {}).get("carrier", "unknown"),
         "carrier_probabilities": (routing or {}).get("carrier_probabilities"),
         "branch": (routing or {}).get("branch", "classic-svm"),
+        "uncertain": bool((routing or {}).get("uncertain", False)),
+        "selected_confidence": (routing or {}).get("selected_confidence"),
+        "gate_margin": (routing or {}).get("gate_margin"),
+        "carrier_override": bool((routing or {}).get("carrier_override", False)),
+        "suggested_quad": suggested_quad,
+        "display_quad": bool(display_quad),
+        "classifier_status": classifier_status or status,
+        "opencv_view_available": bool(opencv_view_available),
         "runtime_ms": round(runtime_ms, 2),
         "rectify": rectify,
         "enhance": enhance,
@@ -597,12 +757,101 @@ def _save_result(
     return metadata
 
 
+def analyze_pipeline(
+    original: np.ndarray,
+    *,
+    rectify: bool = True,
+    enhance: bool = False,
+    carrier_override: str | None = None,
+) -> dict:
+    """门控 → 按载体拉正/分类；门控不确定时只标记，由前端决定是否重试。"""
+    carrier, carrier_probabilities = _carrier_info(original)
+    override = carrier_override in {"ppt", "paper"}
+    if override:
+        carrier = carrier_override
+    if rectify:
+        classifier_rectified, classifier_quad, status = _apply_rectify(
+            original, carrier
+        )
+    else:
+        classifier_rectified, classifier_quad, status = original, None, "ok"
+    enhanced = (
+        _apply_enhance(classifier_rectified) if enhance else classifier_rectified
+    )
+    label, probabilities, routing = _classify(
+        original, enhanced, (carrier, carrier_probabilities)
+    )
+
+    # 显示 / 导出用学习四角拉正；分类仍走 OpenCV 视图，避免分布偏移。
+    rectified = classifier_rectified
+    quad = classifier_quad
+    display_quad = False
+    if rectify and _quad_display_enabled() and carrier in {"ppt", "paper"}:
+        model = _quad_model(carrier)
+        if model is not None:
+            suggestion = _predict_quad(model, original)
+            if suggestion is not None:
+                rectified = warp_document(
+                    original,
+                    suggestion,
+                    output_long_edge=int(
+                        CONFIG["rectify"]["output_long_edge"]
+                    ),
+                )
+                quad = suggestion
+                display_quad = True
+
+    suggested_quad = None
+    if (
+        status == "rectify_failed"
+        and not display_quad
+        and carrier in {"ppt", "paper"}
+        and classifier_quad is None
+    ):
+        model = _quad_model(carrier)
+        if model is not None:
+            suggestion = _predict_quad(model, original)
+            if suggestion is not None:
+                suggested_quad = suggestion.points.tolist()
+
+    if carrier in {"ppt", "paper"} and probabilities:
+        gate_ppt = (carrier_probabilities or {}).get("ppt", 0.5)
+        uncertain = abs(gate_ppt - _gate_threshold()) <= _gate_margin()
+        low_confidence = max(probabilities.values()) < _branch_low_confidence()
+        routing["uncertain"] = bool(uncertain or low_confidence)
+        routing["selected_confidence"] = float(max(probabilities.values()))
+        routing["gate_margin"] = float(abs(gate_ppt - _gate_threshold()))
+        routing["carrier_override"] = bool(override)
+
+    scan = _apply_scan(rectified)
+    scan_opencv = scan if rectified is classifier_rectified else _apply_scan(
+        classifier_rectified
+    )
+    return {
+        "rectified": rectified,
+        "quad": quad,
+        "status": status,
+        "enhanced": enhanced,
+        "scan": scan,
+        "label": label,
+        "probabilities": probabilities,
+        "routing": routing,
+        "suggested_quad": suggested_quad,
+        "display_quad": display_quad,
+        "classifier_status": status,
+        "classifier_rectified": classifier_rectified,
+        "scan_opencv": scan_opencv,
+        "opencv_view_available": bool(display_quad),
+    }
+
+
 def analyze_array(
     original: np.ndarray,
     *,
     rectify: bool = True,
     enhance: bool = False,
     source: str = "upload",
+    carrier_override: str | None = None,
 ) -> dict:
     if original.ndim == 2:
         original = cv2.cvtColor(original, cv2.COLOR_GRAY2BGR)
@@ -611,30 +860,40 @@ def analyze_array(
     # 手机原图可能远超网页演示所需；先限制长边，避免检测/扫描阶段
     # 在容器内申请过大内存导致整机卡死。
     original = _limit_long_edge(original, 2000)
+    with _ANALYZE_SLOTS:
+        return _analyze_limited(
+            original,
+            rectify=rectify,
+            enhance=enhance,
+            source=source,
+            carrier_override=carrier_override,
+        )
+
+
+def _analyze_limited(
+    original: np.ndarray,
+    *,
+    rectify: bool,
+    enhance: bool,
+    source: str,
+    carrier_override: str | None = None,
+) -> dict:
     started = time.perf_counter()
-    if rectify:
-        rectified, quad, status = _apply_rectify(original)
-    else:
-        rectified, quad, status = original, None, "ok"
-    enhanced = _apply_enhance(rectified) if enhance else rectified
-    scan = _apply_scan(rectified)
-    label, probabilities, routing = _classify(original, enhanced)
+    result = analyze_pipeline(
+        original,
+        rectify=rectify,
+        enhance=enhance,
+        carrier_override=carrier_override,
+    )
     runtime = (time.perf_counter() - started) * 1000
     return _save_result(
         result_id=uuid.uuid4().hex,
         original=original,
-        quad=quad,
-        rectified=rectified,
-        enhanced=enhanced,
-        scan=scan,
-        status=status,
-        label=label,
-        probabilities=probabilities,
-        routing=routing,
         runtime_ms=runtime,
         rectify=rectify,
         enhance=enhance,
         source=source,
+        **result,
     )
 
 
@@ -642,24 +901,55 @@ def _decode_upload(data: bytes) -> np.ndarray | None:
     """按 EXIF 方向转正后解码上传图像，避免电脑原图与手机转码图方向不一致。"""
     try:
         with Image.open(BytesIO(data)) as image:
+            if image.width * image.height > MAX_DECODE_PIXELS:
+                raise WebError("图片像素过大，请先缩小后再上传", status=413)
+            # JPEG 先按 DCT 缩放解码，避免解出全尺寸位图后再缩小造成内存峰值。
+            image.draft("RGB", (2400, 2400))
             image = ImageOps.exif_transpose(image)
             image = image.convert("RGB")
             rgb = np.asarray(image, dtype=np.uint8)
+    except WebError:
+        raise
     except (OSError, ValueError):
         return None
     return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
 
 
-def analyze_upload(data: bytes, *, rectify: bool = True, enhance: bool = False) -> dict:
-    array = _decode_upload(data)
+def analyze_upload(
+    data: bytes,
+    *,
+    rectify: bool = True,
+    enhance: bool = False,
+    carrier_override: str | None = None,
+) -> dict:
+    with _DECODE_SLOTS:
+        array = _decode_upload(data)
     if array is None:
         raise WebError("无法解码上传图像")
-    return analyze_array(array, rectify=rectify, enhance=enhance, source="upload")
+    return analyze_array(
+        array,
+        rectify=rectify,
+        enhance=enhance,
+        source="upload",
+        carrier_override=carrier_override,
+    )
 
 
-def analyze_sample(sample_id: str, *, rectify: bool = True, enhance: bool = False) -> dict:
+def analyze_sample(
+    sample_id: str,
+    *,
+    rectify: bool = True,
+    enhance: bool = False,
+    carrier_override: str | None = None,
+) -> dict:
     array = load_image(sample_path(sample_id), max_long_edge=1280).image
-    return analyze_array(array, rectify=rectify, enhance=enhance, source=sample_id)
+    return analyze_array(
+        array,
+        rectify=rectify,
+        enhance=enhance,
+        source=sample_id,
+        carrier_override=carrier_override,
+    )
 
 
 def get_result(result_id: str) -> dict:
@@ -718,13 +1008,20 @@ def reprocess(result_id: str, points: list[tuple[float, float]]) -> dict:
         rectify=True,
         enhance=bool(metadata["enhance"]),
         source=metadata.get("source", "upload"),
+        classifier_rectified=rectified,
+        scan_opencv=scan,
+        opencv_view_available=False,
     )
 
 
-def build_pdf(result_ids: list[str], mode: str = "scan") -> BytesIO:
-    """把多个结果页导出为 PDF；mode 取 scan/rectified/original。"""
+def build_pdf(
+    result_ids: list[str], mode: str = "scan", view: str = "quad"
+) -> BytesIO:
+    """把多个结果页导出为 PDF；mode 取 scan/rectified/original，view 取 quad/opencv。"""
     if mode not in {"scan", "rectified", "original"}:
         raise WebError("PDF 模式非法", status=400)
+    if view not in {"quad", "opencv"}:
+        raise WebError("PDF 视图非法", status=400)
     if not result_ids:
         raise WebError("至少需要一个结果", status=400)
     if len(result_ids) > 50:
@@ -732,7 +1029,10 @@ def build_pdf(result_ids: list[str], mode: str = "scan") -> BytesIO:
     pages: list[Image.Image] = []
     for result_id in result_ids:
         directory = _result_dir(result_id)
-        path = directory / f"{mode}.png"
+        suffix = "_opencv" if view == "opencv" else ""
+        path = directory / f"{mode}{suffix}.png"
+        if not path.is_file():
+            path = directory / f"{mode}.png"
         if not path.is_file():
             raise WebError(f"结果页缺失: {result_id}/{mode}", status=404)
         with Image.open(path) as image:
@@ -913,6 +1213,11 @@ def _auto_points(sample_id: str) -> tuple[tuple[float, float], ...] | None:
         min_area_ratio=float(CONFIG["rectify"]["min_area_ratio"]),
         max_area_ratio=float(CONFIG["rectify"]["max_area_ratio"]),
     )
+    if quad is None:
+        carrier = "ppt" if sample["file"].startswith(("01_", "02_")) else "paper"
+        model = _quad_model(carrier)
+        if model is not None:
+            quad = _predict_quad(model, loaded.image)
     if quad is None:
         return None
     points = rescale_points(

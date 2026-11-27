@@ -20,16 +20,16 @@ web/
 
 1. 两个入口添加图片：拍照上传与“从相册或文件选择”（手机合并为一个系统选择器；电脑端为“从文件选择”），支持拖拽与多选。无摄像头时禁用拍照入口。
 2. 展示原图、四角标注、矫正图、扫描件。扫描件自动区分深色黑板与浅色纸面：黑板反相去噪后二值化，纸面锐化后二值化；CLAHE 增强保留在离线评估与兼容接口中，不再作为页面并列预览。
-2.1 主链路先跑载体门控，再按分支分类：纸质稿 → 3 个种子的 CNN 集成；PPT → exp-cnn-05；门控或分支缺失 → SVM 兜底。结果卡显示“载体 / 分支”徽标。
+2.1 主链路先跑载体门控，再按分支分类：纸质稿 → 3 个种子的 CNN 集成；PPT → exp-cnn-ppt-dedup-fw；门控或分支缺失 → SVM 兜底。结果卡显示“载体 / 分支”徽标。分类使用 OpenCV 拉正视图；矫正图/扫描件/PDF 使用学习四角拉正（`quad_display`），两者解耦。
 3. 四角或整体框体拖拽后点击“应用四角”重新计算；自动检出成功时可直接拖动，手动四点需先应用一次再微调。
-4. 矫正开关与 PDF 模式选择；分类模型由后端按验证集表现自动选择。矫正图与扫描件可点击放大。
+4. 矫正开关与 PDF 模式选择；结果卡可在“学习四角 / OpenCV”两种拉正显示间切换，仅影响显示与 PDF，不改变分类。矫正图与扫描件可点击放大。
 5. 显示类别概率、处理耗时与检测方式。
 6. 训练集标签校正：逐张选择文字或公式，写入独立标注文件，显示进度。
 7. 训练集四角：自动建议四角，拖动控制点后确认保存；训练时自动检测失败才回退使用，见 ADR-0015。
 8. 顶部标注人下拉框：按分配筛选个人队列，显示已分配、已保存四角与已校正标签数量。
 9. 标注检查：按成员与状态查看全部四角记录，叠加轮廓逐条发回重标；退回原因回到成员队列，见 ADR-0014。
 10. 批量队列：横向滑动缩略图，逐张分析、切换校准与失败状态。
-11. PDF 导出：支持当前单张、选中项（复选框/区间/离散）与全部队列一起导出，可选扫描件、矫正图或原图。
+11. PDF 导出：支持当前单张、选中项（复选框/区间/离散）与全部队列一起导出，可选扫描件、矫正图或原图；多页导出前需逐页点“应用四角”完成校准。
 
 ## 模型加载与分支
 
@@ -37,7 +37,7 @@ web/
 |---|---|---|
 | 载体门控 | `runs/carrier-gate-01/screen_gate.pt` | `DOCNORM_CARRIER_GATE` |
 | 纸质稿集成 | `runs/paper-cnn-extctl-01/43/44/paper_cnn.pt` | `DOCNORM_PAPER_MODELS`（`:` 分隔） |
-| PPT 分类 | `runs/exp-cnn-05/cnn.pt` | `DOCNORM_PPT_MODEL` |
+| PPT 分类 | `runs/exp-cnn-ppt-dedup-fw/cnn.pt` | `DOCNORM_PPT_MODEL` |
 | SVM 兜底 | `runs/exp-*/svm.joblib` 中验证集最佳 | `DOCNORM_CLASSIC_MODEL` |
 
 模型权重不进入版本控制。门控/分支缺失或加载失败时自动回退 SVM，不阻断分析；`/api/health` 的 `routing` 字段报告模型路径、`routing_ready`、`gate_threshold` 与 `gate_tta`。门控默认启用 -12/0/12 度旋转 TTA 与 0.3 阈值，可用 `DOCNORM_GATE_TTA=0`、`DOCNORM_GATE_THRESHOLD=0.5` 回退。
@@ -47,7 +47,7 @@ web/
 ```text
 carrier: ppt | paper | unknown
 carrier_probabilities: {paper: float, ppt: float} | null
-branch: paper-cnn-ensemble-N | ppt-cnn-exp-cnn-05 | classic-svm
+branch: paper-cnn-ensemble-N | ppt-cnn | classic-svm
 ```
 
 ## 主要接口

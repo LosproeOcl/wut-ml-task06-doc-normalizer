@@ -75,7 +75,7 @@ def main() -> int:
         ROOT / "data/manifests/sample_manifest.csv",
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    split = assign_samples(load_split(ROOT / "data/splits/split_v3.json"), loaded)
+    split = assign_samples(load_split(ROOT / "data/splits/split_v4.json"), loaded)
     for sample in loaded:
         if split.get(sample.sample_id) != "train":
             continue

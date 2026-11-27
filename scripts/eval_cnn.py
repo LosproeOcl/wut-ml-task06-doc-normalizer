@@ -39,6 +39,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--run", type=Path, required=True, help="runs/exp-* 目录")
     parser.add_argument("--config", type=Path, default=ROOT / "configs/default.yaml")
     parser.add_argument("--split", type=Path, default=None)
+    parser.add_argument(
+        "--carrier",
+        choices=("all", "ppt", "paper"),
+        default="all",
+        help="只评估某一载体，默认全部",
+    )
     parser.add_argument("--no-rectify", action="store_true")
     parser.add_argument("--enhance", action="store_true")
     parser.add_argument(
@@ -52,7 +58,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def val_items(config: dict, split_path: Path):
+def val_items(config: dict, split_path: Path, carrier: str = "all"):
     samples = load_manifest(
         ROOT / config["data"]["manifest"],
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
@@ -65,6 +71,8 @@ def val_items(config: dict, split_path: Path):
         if assignment.get(sample.sample_id) != "val":
             continue
         if sample.content_label is None:
+            continue
+        if carrier != "all" and not (sample.label or "").startswith(carrier + "_"):
             continue
         items.append(
             {
@@ -159,7 +167,7 @@ def main() -> int:
     classifier = CnnClassifier.load(model_path, device="cpu")
     size = args.input_size or classifier.input_size
     load_size = max(1280, size * 5)
-    items = val_items(config, split_path)
+    items = val_items(config, split_path, args.carrier)
     if not items:
         raise SystemExit("验证集为空")
 

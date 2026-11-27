@@ -36,6 +36,13 @@ def test_order_quad_normalizes_corner_order():
     assert np.allclose(ordered, POINTS)
 
 
+def test_order_quad_accepts_non_cyclic_click_order():
+    # 破坏方式：手工按“左上→右下→右上→左下”点击会被误判为凹四边形
+    bowtie = POINTS[[0, 2, 1, 3]]
+    ordered = order_quad(bowtie)
+    assert np.allclose(ordered, POINTS)
+
+
 def test_order_quad_rejects_duplicate_points():
     # 破坏方式：重复顶点会让变换矩阵奇异，输出全黑
     bad = np.array([[10, 10], [10, 10], [100, 10], [100, 100]], dtype=np.float32)
