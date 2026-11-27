@@ -21,6 +21,7 @@
 - 新增外部预训练权重零样本评估：在自采 340 张真实数据上，`pretrain-external-01` 与 `pretrain-external-small` 均为 54.41%，等于全判 text 的多数类基线，formula 召回 0%/2.58%，确认不能直接使用。
 - 新增外部文本对照：外部数据只保留 SmartDoc + Tobacco Scientific，平衡类别权重下三个种子为 80.00%–86.67%，均值 83.33%；关闭类别权重后，该组与全部外部数据组的种子 42 均为 66.67%，说明增益来自公式类权重，不能归因于数据来源本身。
 - 网页主链路接入载体门控与双分支分类：paper → 纸质稿 CNN 集成，ppt → PPT CNN，模型缺失回退 SVM；响应新增 `carrier`/`branch`，健康检查新增 `routing`。验证集路由 88.24% / 宏 F1 88.01%。
+- 修复上传解码未处理 EXIF 方向：电脑原图可能带旋转元数据、手机相册入口常已转正，导致同一文件两端分析效果不同；现在上传先 `exif_transpose` 再进入矫正/分类。
 - 新增 6 张多维度评估图（PNG 300 dpi + SVG）：路由对比、种子稳定性、权重消融、混淆矩阵、分召回、概率迁移。
 - 运行索引增加 `gate` 与 `paper` 家族；新增 `carrier_gate_curves.png`、`paper_model_curves.png` 两张诊断图。
 - 相关提交：`8227066`、`dcdf4aa`。

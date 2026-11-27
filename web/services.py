@@ -17,7 +17,7 @@ import cv2
 import numpy as np
 import torch
 import yaml
-from PIL import Image
+from PIL import Image, ImageOps
 
 from docnorm.classify.classic import ClassicClassifier
 from docnorm.classify.cnn import CLASSES as CNN_CLASSES, CnnClassifier
@@ -605,8 +605,20 @@ def analyze_array(
     )
 
 
+def _decode_upload(data: bytes) -> np.ndarray | None:
+    """按 EXIF 方向转正后解码上传图像，避免电脑原图与手机转码图方向不一致。"""
+    try:
+        with Image.open(BytesIO(data)) as image:
+            image = ImageOps.exif_transpose(image)
+            image = image.convert("RGB")
+            rgb = np.asarray(image, dtype=np.uint8)
+    except (OSError, ValueError):
+        return None
+    return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
+
+
 def analyze_upload(data: bytes, *, rectify: bool = True, enhance: bool = False) -> dict:
-    array = cv2.imdecode(np.frombuffer(data, dtype=np.uint8), cv2.IMREAD_COLOR)
+    array = _decode_upload(data)
     if array is None:
         raise WebError("无法解码上传图像")
     return analyze_array(array, rectify=rectify, enhance=enhance, source="upload")

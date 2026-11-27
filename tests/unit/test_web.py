@@ -93,6 +93,25 @@ def test_corner_update_accepts_manual_points():
     assert updated["quad"] == points
 
 
+def test_upload_applies_exif_orientation():
+    # 破坏方式：电脑原图带 EXIF 旋转，后端按未转正像素处理，方向与手机不一致
+    image = Image.new("RGB", (480, 360), (245, 245, 245))
+    draw = ImageDraw.Draw(image)
+    draw.rectangle((40, 30, 440, 330), outline=(20, 20, 20), width=6)
+    exif = Image.Exif()
+    exif[274] = 6
+    buffer = BytesIO()
+    image.save(buffer, format="JPEG", exif=exif)
+    response = client.post(
+        "/api/analyze",
+        files={"file": ("rotated.jpg", buffer.getvalue(), "image/jpeg")},
+        data={"rectify": "false", "enhance": "false"},
+    )
+    assert response.status_code == 200
+    result = response.json()
+    assert (result["width"], result["height"]) == (360, 480)
+
+
 def test_invalid_upload_rejected():
     # 破坏方式：非图像内容进入解码链路会返回 500
     response = client.post(
