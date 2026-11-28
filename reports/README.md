@@ -56,7 +56,7 @@ reports/
 | `pretrained_zero_shot.md` | 外部预训练权重在 340 张真实数据上的零样本评估 | `reports/pretrained_zero_shot.json` |
 | `external_control.md` | 外部文本对照：仅 SmartDoc + Tobacco Scientific | `runs/paper-cnn-extctl-*` |
 | `web_integration.md` | 网页载体门控 + 双分支分类接入与评估 | `reports/routed_pipeline.json`、`reports/figures/eval_*` |
-| `final_test.md` | 测试集一次性评估、95% CI、McNemar 与错误分析（M3 未通过） | `reports/final_test.json`、`reports/final_test_predictions.csv` |
+| `final_test.md` | v4 测试集一次性评估、95% CI、McNemar 与错误分析（v4 历史，M3 未通过） | `reports/final_test.json`、`reports/final_test_predictions.csv` |
 | `test_failure_analysis.md` | 测试失败根因：分格退化、PPT 过拟合、标签边界与门控/拉正影响 | `reports/final_test.json` |
 | `hard_cases_val.csv` | 验证集错误与低置信样本清单，用于定向补采/复核（不使用测试集） | `reports/eval_paper/routed_val.csv` |
 | `cv_oof.md` | 5 折分组 CV、3 种子、OOF 校准/阈值/融合与验证集检查 | `reports/cv_oof.json`、`reports/cv_oof_predictions.csv` |
@@ -69,10 +69,10 @@ reports/
 | `manual_4x3_sample.md` | 只用 4:3 人工四角标注的 16 组合成示例 | `reports/manual_4x3_*.jpg`、`data/synthetic/manual_4x3_demo/manifest.csv` |
 | `synth_ppt_v3_training.md` | 严格 4:3 背景的 v3 160 组、5 折结果与 v2 对照 | `reports/synth_ppt_v3_cv.json`、`runs/exp-cnn-ppt-synth-v3-*` |
 | `synth_ppt_test.md` | 合成模型测试集复验：CV 增益未迁移，v2/v3 不接入 | `reports/synth_test_eval.json`、`reports/synth_test_eval.csv` |
-| `repro_check.md` | 冻结提交上的测试复现核验（结果一致，指标未达标） | `reports/final_test_repro.json` |
+| `repro_check.md` | v4 冻结提交上的测试复现核验（v4 历史，结果一致，指标未达标） | `reports/final_test_repro.json` |
 | `ppt_quad.md` | 人工四角标签训练的 PPT 四角回归与 OpenCV 对比 | `runs/quad-ppt-01/quad_ppt.pt` |
 | `quad_localization.md` | PPT/纸质分载体四角模型、端到端接入评估与门控审计 | `runs/quad-ppt-02`、`runs/quad-paper-01`、`reports/quad_routing_eval.json` |
-| `stage_audit.md` | M2/M3/M4 阶段门禁审计、文档/数据/模型一致性核查 | `reports/model_manifest.csv`、`reports/stage_audit.md` |
+| `stage_audit.md` | v5 最终阶段门禁审计（M1–M4 通过）与 v4 历史审计、文档/数据/模型一致性核查 | `reports/model_manifest.csv`、`reports/stage_audit.md` |
 | `model_manifest.csv` | 线上模型路径、大小、SHA-256 与验证指标 | `runs/` 权重 |
 | `docs/15-空间偏度优化调研.md` | 不新增样本的合成偏度压力测试与门控优化 | `reports/spatial_skew*.json`、`reports/figures/spatial_skew_*` |
 | `run_index.csv` | 全部运行的一行摘要，供报告引用 | `scripts/index_runs.py` |

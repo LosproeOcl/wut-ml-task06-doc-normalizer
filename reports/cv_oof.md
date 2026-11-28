@@ -1,3 +1,5 @@
+> 本文件为 v4 历史 OOF 分析；v5 当前指标见 `reports/final_test_v5.md`。
+
 # 5 折分组交叉验证与 OOF 汇总
 
 | 项目 | 内容 |

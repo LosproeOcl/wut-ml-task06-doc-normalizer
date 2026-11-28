@@ -163,32 +163,56 @@ def annotation_overview() -> None:
     print("saved annotation_examples_overview.png", canvas.size)
 
 
-def record_gallery() -> None:
-    items = [
-        ("训练集四角（退回重标）", "人工标注过程记录 1.png"),
-        ("训练集标签（模糊化）", "人工标注过程 2.png"),
-        ("标注检查（按人筛选）", "标注检查页面.png"),
-        ("单图识别（PPT 文字）", "测试识别 PPT-text1-正面.png"),
-        ("单图识别（PPT 公式）", "测试识别 PPT-text2-正面.png"),
-        ("单图识别（纸质文字）", "测试识别 paper-text.png"),
-    ]
-    cell_w, cell_h, label_h, gap = 900, 720, 46, 12
-    cols = 2
+def _record_grid(items, out_name: str, cols: int, cell_w: int, cell_h: int) -> None:
+    """把 record-img 截图按固定网格拼成带标签的画廊。"""
+    label_h, gap = 46, 12
     rows = (len(items) + cols - 1) // cols
-    canvas = Image.new("RGB", (cols * cell_w + (cols + 1) * gap, rows * (cell_h + label_h) + (rows + 1) * gap), "white")
+    canvas = Image.new(
+        "RGB",
+        (cols * cell_w + (cols + 1) * gap, rows * (cell_h + label_h) + (rows + 1) * gap),
+        "white",
+    )
     draw = ImageDraw.Draw(canvas)
     font = ImageFont.truetype(PIL_FONT, 24)
     for index, (label, name) in enumerate(items):
         with Image.open(ROOT / "docs/record-img" / name) as raw:
             image = contain(raw, (cell_w - 16, cell_h - 8))
         row, col = divmod(index, cols)
-        x = gap + col * (cell_w + gap)
+        row_items = min(cols, len(items) - row * cols)
+        offset = (cols - row_items) * (cell_w + gap) // 2
+        x = gap + offset + col * (cell_w + gap)
         y = gap + row * (cell_h + label_h + gap)
-        canvas.paste(image, (x + (cell_w - image.width) // 2, y + label_h + (cell_h - image.height) // 2))
+        canvas.paste(
+            image,
+            (x + (cell_w - image.width) // 2, y + label_h + (cell_h - image.height) // 2),
+        )
         draw.text((x + 6, y + 8), label, fill=(20, 20, 20), font=font)
-        draw.rectangle([x, y, x + cell_w - 1, y + cell_h + label_h - 1], outline=(210, 210, 210), width=2)
-    canvas.save(OUT / "record_img_gallery.png", quality=90)
-    print("saved record_img_gallery.png", canvas.size)
+        draw.rectangle(
+            [x, y, x + cell_w - 1, y + cell_h + label_h - 1],
+            outline=(210, 210, 210),
+            width=2,
+        )
+    canvas.save(OUT / out_name, quality=90)
+    print(f"saved {out_name}", canvas.size)
+
+
+def record_gallery() -> None:
+    early = [
+        ("训练集四角（退回重标）", "人工标注过程记录 1.png"),
+        ("训练集标签（模糊化）", "人工标注过程 2.png"),
+        ("标注检查（按人筛选）", "标注检查页面.png"),
+        ("早期单图识别 1（PPT 文字）", "测试识别 PPT-text1-正面.png"),
+        ("早期单图识别 2（PPT 文字）", "测试识别 PPT-text2-正面.png"),
+        ("早期偏度样本（不达预期）", "测试识别 PPT-text3-偏度-不达预期.png"),
+        ("早期单图识别 3（纸质文字）", "测试识别 paper-text.png"),
+    ]
+    current = [
+        ("v5 复验 1（PPT 公式）", "测试识别-v5-图 1.png"),
+        ("v5 复验 2（纸质公式）", "测试识别-v5-图 2.png"),
+        ("v5 复验 3（纸质文字）", "测试识别-v5-图 3.png"),
+    ]
+    _record_grid(early, "record_img_gallery_early.png", 3, 900, 720)
+    _record_grid(current, "record_img_gallery_v5.png", 3, 700, 900)
 
 
 def box(ax, xy, width, height, text, face, edge="#4a5a6a", size=11):

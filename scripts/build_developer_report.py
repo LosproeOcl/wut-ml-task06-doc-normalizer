@@ -313,7 +313,7 @@ def cover(doc):
     for text, size in [
         ("武汉理工大学《机器学习》课程实践", 14),
         ("第六组 · Task 06", 12),
-        ("报告版本：v1.5（v5 口径，评审修订）", 11),
+        ("报告版本：v1.6（v5 口径，评审修订）", 11),
         ("2026 年 11 月 28 日", 11),
     ]:
         paragraph = doc.add_paragraph()
@@ -441,7 +441,7 @@ def section_intro(doc):
                 "以 tag、repro_check 记录与提交包为证据。")
     body(
         doc,
-        "本报告对应的判定：M1 于 2026-11-26 通过（v3 冻结），M2 于 2026-11-26 通过（验证 86.27%，高于 82%），"
+        "本报告对应的判定：M1 于 2026-11-26 通过（v3 冻结），M2 于 2026-11-27 通过（验证 86.27%，高于 82%），"
         "M3 于 2026-11-28 通过（v5 测试集合计 93.06%，附基准变更与置信区间披露），M4 于 2026-11-28 通过"
         "（恢复重建权重已复现验证集路由 84.31%，测试复评 90.28% 并单独披露）。"
     )
@@ -1076,13 +1076,19 @@ def section_screenshots(doc):
     heading(doc, "7.1  早期批量队列与单张结果页", 2)
     body(
         doc,
-        "图 13 汇总 6 张过程截图：上排为训练集四角标注（含一次“只用 PPT 白色区域”的退回重标）与训练集标签"
-        "校正；中排为标注检查页与早期 PPT 文字页识别结果；下排为 PPT 公式页与纸质文字页的单图分析。截图保留"
-        "了当时的批量队列、逐张完成状态、原图/矫正图/扫描件三栏、四角拖动、PDF 模式与导出按钮；载体徽标、"
-        "双路径显示切换和手动载体重试是后续版本补充的。"
+        "图 13 汇总 docs/record-img/ 的全部 10 张过程截图，按阶段分为 (a) 早期版本 7 张与 (b) v5 当前版本 3 张。"
+        "图 13(a) 包含训练集四角标注（含一次“只用 PPT 白色区域”的退回重标）、训练集标签校正、标注检查页，"
+        "以及早期版本的四张单图/批量结果页。截图保留了当时的批量队列、逐张完成状态、"
+        "原图/矫正图/扫描件三栏、四角拖动、PDF 模式与导出按钮；载体徽标、双路径显示切换和手动载体重试"
+        "是后续版本补充的。"
     )
     doc.add_page_break()
-    figure(doc, "record_img_gallery.png", "图 13  record-img 过程截图：训练集四角与标签（上排）、标注检查与 PPT 文字识别（中排）、PPT 公式与纸质文字识别（下排）；人脸与个人信息已模糊处理", 13.0)
+    figure(
+        doc,
+        "record_img_gallery_early.png",
+        "图 13(a)  早期版本过程截图（7 张）：训练集四角与标签、标注检查、早期 PPT/纸质单图与偏度样本；人脸与个人信息已模糊处理",
+        15.8,
+    )
     body(
         doc,
         "从截图可以看到，早期结果的矫正图与扫描件已经能把幕布内容拉正，但界面信息密度较高，"
@@ -1104,7 +1110,7 @@ def section_screenshots(doc):
         doc,
         "当前版本在结果卡新增“拉正显示：学习四角 / OpenCV”切换。切换只改变矫正图、扫描件和 PDF 的视图，"
         "分类结果仍由 OpenCV 视图决定；OpenCV 未检出时切到 OpenCV 视图会显示原图，并提示原因。"
-        "表 12 记录当前双路径接口与文件证据。"
+        "表 12 记录当前双路径接口与文件证据；图 13(b) 为 v5 当前版本的三张复验截图。"
     )
     table(
         doc,
@@ -1118,6 +1124,18 @@ def section_screenshots(doc):
         "表 12  当前双路径接口与产物证据",
         widths=[4.0, 11.0],
         align_center=False,
+    )
+    body(
+        doc,
+        "图 13(b) 汇总 v5 当前版本的三张复验截图：PPT 公式页、纸质公式页与纸质文字页。"
+        "三张图均展示载体门控、命中分支、文字/公式概率、四角拖动、矫正图与扫描件，"
+        "并保留“学习四角 / OpenCV”显示切换；与图 13(a) 的早期版本对照，可以直观看到信息块与交互的演进。"
+    )
+    figure(
+        doc,
+        "record_img_gallery_v5.png",
+        "图 13(b)  v5 当前版本复验截图（3 张）：PPT 公式、纸质公式、纸质文字；含载体门控、分支概率、四角与扫描件",
+        15.8,
     )
     body(
         doc,
@@ -1511,12 +1529,12 @@ def appendix_c(doc):
             ["reports/repro_check_v5.md", "v5 复现核验（逐样本一致）"],
             ["reports/error_cases_v5.md", "错误案例四类归因"],
             ["reports/final_test.md、repro_check.md", "v4 历史评估与复现（对照）"],
-            ["reports/web_integration.md、external_control.md、stage_audit.md、cv_oof.md", "网页接入、外部对照、阶段审计、OOF"],
+            ["reports/web_integration.md、external_control.md、stage_audit.md、cv_oof.md", "v4 历史网页接入、外部对照与 OOF；stage_audit.md 另含 v5 最终审计"],
             ["reports/figures/（含 eval_v5_*）", "全部评估与报告图（300dpi PNG+SVG）"],
             ["reports/run_index.csv、model_manifest.csv", "193 条运行索引；v5 模型 SHA-256 清单"],
             ["data/manifests/、data/splits/、data/annotations/", "清单、冻结划分 v1–v5、标注与排除表"],
             ["data/splits/cv_v5/、data/manifests/cv_v5/", "v5 五折交叉验证折与纸质折清单"],
-            ["src/、scripts/、web/、tests/、configs/", "源代码、41 个脚本、网页、104 项测试、配置（含 legacy/v4）"],
+            ["src/、scripts/、web/、tests/、configs/", "源代码、61 个脚本、网页、104 项测试、配置（含 legacy/v4）"],
         ],
         "表 C1  产出文档索引",
         widths=[7.6, 7.4],
