@@ -35,7 +35,7 @@ python3 scripts/build_synth_ppt_pages.py \
 | 标签 | 由版式生成器确定，`text` / `formula` |
 | 训练清单 | `data/manifests/synth_ppt_v2_train.csv`（含背景组，CV 时用于跳过验证组） |
 | 背景清单 | `data/manifests/synth_backgrounds_v1.csv` |
-| 说明 | 只作为**训练候选**，尚未进入验证/测试；训练结果见后续报告 |
+| 说明 | 只作为**训练候选**，不进入验证/测试；5 折 CV 结果见 `reports/synth_ppt_training.md` |
 
 重新生成：
 
@@ -48,6 +48,8 @@ python3 scripts/build_synth_train_manifest.py   --manifest data/synthetic/ppt_pr
 ```
 
 `train_cnn.py` 通过 `--extra-train-manifest` 把合成样本追加到训练集；若合成背景所属 `doc_page_id` 在当前 CV 折的验证组内，会自动跳过，避免背景场景泄漏。合成图 `rectify=0`，训练时不再重复拉正。
+
+5 折 × 3 种子结果：准确率 **70.44% → 78.25%（+7.81pp）**，宏 F1 **67.25% → 76.07%**，OOF **71.71% → 77.56%**；测试集未使用。fold5 仅 +0.81pp，fold3 种子波动仍大，详见 `reports/synth_ppt_training.md`。
 
 ## 边界
 
