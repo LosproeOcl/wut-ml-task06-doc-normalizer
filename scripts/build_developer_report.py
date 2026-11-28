@@ -1463,11 +1463,11 @@ def appendix_d(doc):
         doc,
         "自采数据集（442 张，约 1.05 GiB）以加密 ZIP 形式发布在仓库 Release 页："
         "https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/releases/tag/dataset-self-v5，"
-        "资产名 06-自采数据集-442张-加密.zip，SHA-256 为 f2a5489d3463bedc0cdfece75b7df917d8c6c6b384c3797ee43c5b2280d2e597。"
+        "资产名 dataset-self-442-encrypted.zip（显示标签：自采数据集 442 张（加密）），SHA-256 为 f2a5489d3463bedc0cdfece75b7df917d8c6c6b384c3797ee43c5b2280d2e597。"
         "解压口令按课程约定经微信群单独发送给任课教师，不写入任何公开文件。下载与解压：",
     )
     _cmd(doc, "gh release download dataset-self-v5 --repo LosproeOcl/wut-ml-task06-doc-normalizer")
-    _cmd(doc, "unzip -P <口令> 06-自采数据集-442张-加密.zip -d data/raw_samples/")
+    _cmd(doc, "unzip -P <口令> dataset-self-442-encrypted.zip -d data/raw_samples/")
     body(
         doc,
         "解压后得到 01_ppt_text、02_ppt_formula、03_paper_text、04_paper_formula 四个目录，"
