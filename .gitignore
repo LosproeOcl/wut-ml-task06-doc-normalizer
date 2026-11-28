@@ -68,3 +68,4 @@ data/synthetic/**/gallery.html
 web/results/
 web/tmp/
 .tmp_font.ttf
+.~*
