@@ -30,7 +30,7 @@
 
   <main>
     <section id="analyze-panel">
-      <p class="hint">
+      <p class="hint" id="analyze-hint">
         本页面仅在本机运行。上传的图片只写入临时目录，默认一小时后清理，不发送到外部服务。
       </p>
 
@@ -49,11 +49,11 @@
 
       <div id="batch-actions" class="toolbar hidden">
         <span id="batch-stats" class="hint"></span>
-        <label class="hint">第
+        <label class="hint"><span id="range-prefix">第</span>
           <input id="pdf-range-start" type="number" min="1" value="1" />
-          到
+          <span id="range-mid">到</span>
           <input id="pdf-range-end" type="number" min="1" value="1" />
-          张
+          <span id="range-suffix">张</span>
         </label>
         <button id="pdf-select-range" type="button">选中区间</button>
         <button id="pdf-select-all" type="button">全选</button>
@@ -64,7 +64,7 @@
       <div id="batch-list" class="batch-list hidden"></div>
 
       <div class="toolbar">
-        <label><input id="rectify" type="checkbox" checked /> 拉正</label>
+        <label><input id="rectify" type="checkbox" checked /> <span id="rectify-label">拉正</span></label>
         <button id="analyze-btn" class="primary">分析队列</button>
         <span id="status" class="hint"></span>
       </div>
@@ -96,7 +96,7 @@
         <button id="pdf-selected" disabled>导出选中</button>
         <button id="pdf-all" disabled>导出全部</button>
       </div>
-      <p class="hint">导出多页 PDF 前需逐页校准：点击下方卡片，调整四角后点“应用四角”。</p>
+      <p class="hint" id="pdf-hint">导出多页 PDF 前需逐页校准：点击下方卡片，调整四角后点“应用四角”。</p>
 
       <div id="result-card" class="card hidden">
         <h2>分类结果</h2>

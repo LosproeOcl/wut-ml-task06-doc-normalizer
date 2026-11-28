@@ -21,6 +21,8 @@ const state = {
   cornerMoveOriginal: null,
   person: "",
   annotationEnabled: true,
+  lang: "zh",
+  health: null,
   reviewItems: [],
   reviewOffset: 0,
   reviewTotal: 0,
@@ -45,6 +47,21 @@ const I18N = {
     nav_review: "标注检查",
     camera: "拍照上传",
     pick: "从文件选择",
+    pick_mobile: "从相册或文件选择",
+    top_hint: "本页面仅在本机运行。上传的图片只写入临时目录，默认一小时后清理，不发送到外部服务。",
+    rectify: "拉正",
+    range_prefix: "第",
+    range_mid: "到",
+    range_suffix: "张",
+    select_range: "选中区间",
+    select_all: "全选",
+    select_none: "清空选择",
+    pdf_hint: "导出多页 PDF 前需逐页校准：点击下方卡片，调整四角后点“应用四角”。",
+    footer: '武汉理工大学《机器学习》课程实践 · 第六组 · 服务器演示 <span class="footer-sep">·</span> <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>',
+    health_ready: "双分支模型已加载",
+    health_fallback: "分类模型已加载（使用兜底分支）",
+    health_none: "未找到分类模型，仅展示预处理",
+    health_unknown: "服务状态未知",
     drop: "也可以把图片拖到这里。支持相册多选或连续拍照，单张最大 15 MB；可重复点击继续添加。",
     analyze: "分析队列",
     clear: "清空队列",
@@ -79,6 +96,21 @@ const I18N = {
     nav_review: "Review",
     camera: "Camera upload",
     pick: "Choose file",
+    pick_mobile: "Album or file",
+    top_hint: "This page runs on the server. Uploaded images are written to a temporary directory and removed after one hour by default; they are not sent to external services.",
+    rectify: "Rectify",
+    range_prefix: "Page",
+    range_mid: "to",
+    range_suffix: "",
+    select_range: "Select range",
+    select_all: "Select all",
+    select_none: "Clear selection",
+    pdf_hint: "Calibrate every page before exporting a multi-page PDF: click a card, adjust the corners, then click “Apply corners”.",
+    footer: 'Wuhan University of Technology · Machine Learning Engineering Practice · Group 06 · Server demo <span class="footer-sep">·</span> <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub</a>',
+    health_ready: "Dual-branch models loaded",
+    health_fallback: "Classifier loaded (fallback branch)",
+    health_none: "No classifier found; preprocessing only",
+    health_unknown: "Service status unknown",
     drop: "You can also drop images here. Multi-select or take photos; max 15 MB each.",
     analyze: "Analyze queue",
     clear: "Clear queue",
@@ -114,6 +146,7 @@ function setHTML(selector, html) {
 
 function applyLanguage(lang) {
   const t = I18N[lang] || I18N.zh;
+  state.lang = lang === "en" ? "en" : "zh";
   document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
   document.title = t.title;
   setText(".site-title a", t.site_title);
@@ -124,7 +157,18 @@ function applyLanguage(lang) {
   setText('[data-tab="corners"]', t.nav_corners);
   setText('[data-tab="review"]', t.nav_review);
   setText("#camera-btn", t.camera);
-  setText("#pick-files", t.pick);
+  const mobile = window.matchMedia("(pointer: coarse)").matches || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  setText("#pick-files", mobile ? t.pick_mobile : t.pick);
+  setText("#analyze-hint", t.top_hint);
+  setText("#rectify-label", t.rectify);
+  setText("#range-prefix", t.range_prefix);
+  setText("#range-mid", t.range_mid);
+  setText("#range-suffix", t.range_suffix);
+  setText("#pdf-select-range", t.select_range);
+  setText("#pdf-select-all", t.select_all);
+  setText("#pdf-select-none", t.select_none);
+  setText("#pdf-hint", t.pdf_hint);
+  setHTML(".site-footer", t.footer);
   setText("#drop-zone p", t.drop);
   setText("#analyze-btn", t.analyze);
   setText("#clear-batch", t.clear);
@@ -160,6 +204,7 @@ function applyLanguage(lang) {
   const button = $("lang-toggle");
   if (button) button.textContent = t.lang_button;
   localStorage.setItem("t06-lang", lang);
+  renderHealth();
 }
 const canvas = $("canvas");
 const ctx = canvas.getContext("2d");
@@ -810,19 +855,31 @@ function applyPublicMode() {
   $("analyze-panel").classList.remove("hidden");
 }
 
+function renderHealth() {
+  const t = I18N[state.lang] || I18N.zh;
+  if (!state.health) {
+    $("health").textContent = t.health_unknown;
+    return;
+  }
+  const health = state.health;
+  $("health").textContent = health.routing?.routing_ready
+    ? t.health_ready
+    : health.model_ready
+      ? t.health_fallback
+      : t.health_none;
+}
+
 async function loadHealth() {
   try {
     const health = await fetchJSON("/api/health");
+    state.health = health;
     state.annotationEnabled = health.annotation_enabled !== false;
     applyPublicMode();
-    $("health").textContent = health.routing?.routing_ready
-      ? "双分支模型已加载"
-      : health.model_ready
-        ? "分类模型已加载（使用兜底分支）"
-        : "未找到分类模型，仅展示预处理";
+    renderHealth();
     return health;
   } catch (_) {
-    $("health").textContent = "服务状态未知";
+    state.health = null;
+    renderHealth();
     return null;
   }
 }
@@ -1469,10 +1526,14 @@ async function setupDeviceButtons() {
   }
 }
 
-applyLanguage(localStorage.getItem("t06-lang") || "zh");
+const queryLang = new URLSearchParams(location.search).get("lang");
 bindUI();
 setupDeviceButtons();
+applyLanguage(queryLang || localStorage.getItem("t06-lang") || "zh");
 loadHealth().then(() => {
+  if (location.hash === "#about") {
+    document.querySelector('[data-tab="about"]')?.click();
+  }
   if (state.annotationEnabled) {
     loadAnnotators().then(() => loadAnnotations());
   }
