@@ -201,6 +201,10 @@ def main() -> int:
         f"人工四角策略 {args.corners_policy}，训练集可用 {len(corners)} 条"
     )
     started = time.perf_counter()
+    # 只提取训练/验证样本特征，测试集（含未随包分发的外部测试图）不参与训练
+    samples = [
+        sample for sample in samples if assignment.get(sample.sample_id) in {"train", "val"}
+    ]
     features, labels, ids, failures = build_features(
         samples,
         config,

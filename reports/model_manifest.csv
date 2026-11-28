@@ -1,8 +1,8 @@
 role,path,bytes,sha256,metrics
-carrier_gate,runs/carrier-gate-v5-01/screen_gate.pt,4432511,8d7deb596ec68d4a29de8205d29b9fde316b99c3c7c0d5c01626ff0049c09115,gate 外部val 1000/1000；test 69/72（兜底纠正）
-ppt_classifier,runs/exp-cnn-ppt-v5/cnn.pt,6199151,6a00bc2297a1b0271fd33a48194a1c3b76307aa6adcfca44eb27379355f47c52,PPT val 95.24% / F1 92.93%
-paper_classifier_45,runs/paper-cnn-v5-s45/paper_cnn.pt,6210699,a69429e8a5155ee877807012001bab9941f1cd3e2d4799318cbf6c19666a78a9,paper val 73.33%；二模型集成 76.67%
-paper_classifier_47,runs/paper-cnn-v5-s47/paper_cnn.pt,6210699,19795f5503b249218b01ed25f338c8984965f25064fad670f320b542c5b78fb8,paper val 73.33%；二模型集成 76.67%
-classic_svm,runs/exp-svm-v5/svm.joblib,4973405,2a866299720c2d6ba032568d8ded5c248a14e7537c079731c4962a1fce150385,SVM val 72.55% / F1 71.21%
-quad_ppt,runs/quad-ppt-02/quad_ppt.pt,4437777,e0096a68a2dbffdad5c9b8c28dabdadb88befdfeb1cfd0a293b8aed03c067bb0,PPT 显示四角 52/52；L2 0.1314
-quad_paper,runs/quad-paper-01/quad_ppt.pt,4437777,dc90c79a3b03e9de42e69297a4ac2ac4b1c13f4e7bacecc64c7c9ed34543506e,纸质显示四角 29/29；L2 0.1347
+carrier_gate,runs/carrier-gate-v5-01/screen_gate.pt,4432511,c8fc2564d1bf3e92f4cbbe8a09c8ef29a2be6138e6981897675ee1dcc128c971,gate 外部val 900/900（恢复清单）；恢复权重
+ppt_classifier,runs/exp-cnn-ppt-v5/cnn.pt,6199151,6a00bc2297a1b0271fd33a48194a1c3b76307aa6adcfca44eb27379355f47c52,PPT val 95.24% / F1 92.93%；恢复权重（与冻结一致）
+paper_classifier_45,runs/paper-cnn-v5-s45/paper_cnn.pt,6210699,3dc98ec50540e3ec8ac1254f762aa3f4af57061d23c7c08002b9125424f030b0,paper val 80.00%；恢复权重（Tobacco 镜像差异）
+paper_classifier_47,runs/paper-cnn-v5-s47/paper_cnn.pt,6210699,7ae38f16795d2616088c30a64aa7d75f683c448cac683238345876c89ac330e9,paper val 83.33%；恢复权重（Tobacco 镜像差异）
+classic_svm,runs/exp-svm-v5/svm.joblib,4973405,2a866299720c2d6ba032568d8ded5c248a14e7537c079731c4962a1fce150385,SVM val 72.55% / F1 71.21%；恢复权重（与冻结一致）
+quad_ppt,runs/quad-ppt-02/quad_ppt.pt,4437777,e0096a68a2dbffdad5c9b8c28dabdadb88befdfeb1cfd0a293b8aed03c067bb0,PPT 显示四角 L2 0.1314（复现）
+quad_paper,runs/quad-paper-01/quad_ppt.pt,4437777,dc90c79a3b03e9de42e69297a4ac2ac4b1c13f4e7bacecc64c7c9ed34543506e,纸质显示四角 L2 0.1347（复现）
