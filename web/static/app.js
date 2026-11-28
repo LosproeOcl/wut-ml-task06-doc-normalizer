@@ -26,9 +26,16 @@ const state = {
   batchFiles: [],
   batchResults: [],
   displayMode: localStorage.getItem("t06-display-mode") || "quad",
+  modalReturnFocus: null,
 };
 
 const REVIEW_PAGE_SIZE = 12;
+const PANEL_IDS = {
+  analyze: "analyze-panel",
+  annotate: "annotate-panel",
+  corners: "corner-panel",
+  review: "review-panel",
+};
 
 const $ = (id) => document.getElementById(id);
 const canvas = $("canvas");
@@ -482,6 +489,7 @@ function clearSelection() {
 async function analyzeBatch() {
   const button = $("analyze-btn");
   button.disabled = true;
+  button.setAttribute("aria-busy", "true");
   state.batchFiles.forEach((item) => {
     item.status = "待分析";
     item.error = "";
@@ -517,6 +525,7 @@ async function analyzeBatch() {
     }
   } finally {
     button.disabled = false;
+    button.removeAttribute("aria-busy");
     renderBatch();
   }
 }
@@ -614,11 +623,13 @@ async function downloadAllPdf() {
 }
 
 function openImageModal(src, alt) {
+  state.modalReturnFocus = document.activeElement;
   $("image-modal-img").src = src;
   $("image-modal-img").alt = alt || "查看大图";
   $("image-modal-img").title = "点击切换 1:1 查看";
   $("image-modal").classList.remove("hidden", "is-zoomed");
   $("image-modal-img").classList.remove("zoomed");
+  $("image-modal-close").focus();
 }
 
 function closeImageModal() {
@@ -626,6 +637,11 @@ function closeImageModal() {
   $("image-modal").classList.remove("is-zoomed");
   $("image-modal-img").classList.remove("zoomed");
   $("image-modal-img").removeAttribute("src");
+  const returnFocus = state.modalReturnFocus;
+  state.modalReturnFocus = null;
+  if (returnFocus && document.contains(returnFocus)) {
+    returnFocus.focus();
+  }
 }
 
 function toggleImageZoom() {
@@ -636,6 +652,7 @@ function toggleImageZoom() {
 }
 
 async function analyze() {
+  if ($("analyze-btn").disabled) return;
   if (!state.batchFiles.length) {
     setStatus("请先拍照或选择图片。", true);
     return;
@@ -1163,27 +1180,47 @@ async function retryCarrier(carrier) {
   }
 }
 
+function activateTab(target) {
+  document.querySelectorAll(".tab").forEach((item) => {
+    const active = item.dataset.tab === target;
+    item.classList.toggle("active", active);
+    item.setAttribute("aria-selected", active ? "true" : "false");
+    item.tabIndex = active ? 0 : -1;
+  });
+  Object.entries(PANEL_IDS).forEach(([key, id]) => {
+    $(id).classList.toggle("hidden", key !== target);
+  });
+  $("person-bar").classList.toggle("hidden", target === "analyze" || target === "review");
+  if (target === "annotate") loadAnnotations();
+  if (target === "corners") loadCorners();
+  if (target === "review") loadReview(true);
+}
+
 function bindUI() {
-  document.querySelectorAll(".tab").forEach((tab) => {
+  const tabs = [...document.querySelectorAll(".tab")];
+  tabs.forEach((tab, index) => {
     tab.addEventListener("click", (event) => {
       event.preventDefault();
-      document.querySelectorAll(".tab").forEach((item) => item.classList.remove("active"));
-      tab.classList.add("active");
-      const target = tab.dataset.tab;
-      const panels = {
-        analyze: "analyze-panel",
-        annotate: "annotate-panel",
-        corners: "corner-panel",
-        review: "review-panel",
-      };
-      Object.entries(panels).forEach(([key, id]) => {
-        $(id).classList.toggle("hidden", key !== target);
-      });
-      $("person-bar").classList.toggle("hidden", target === "analyze" || target === "review");
-      if (target === "annotate") loadAnnotations();
-      if (target === "corners") loadCorners();
-      if (target === "review") loadReview(true);
+      activateTab(tab.dataset.tab);
     });
+    tab.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      let next = index;
+      if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length;
+      if (event.key === "ArrowRight") next = (index + 1) % tabs.length;
+      if (event.key === "Home") next = 0;
+      if (event.key === "End") next = tabs.length - 1;
+      tabs[next].focus();
+      activateTab(tabs[next].dataset.tab);
+    });
+  });
+  document.addEventListener("paste", (event) => {
+    const files = Array.from(event.clipboardData?.files || []).filter(isImageFile);
+    if (!files.length) return;
+    event.preventDefault();
+    activateTab("analyze");
+    addFiles(files);
   });
   $("analyze-btn").addEventListener("click", analyze);
   $("apply-corners").addEventListener("click", applyCorners);
@@ -1288,6 +1325,15 @@ function bindUI() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !$("image-modal").classList.contains("hidden")) {
       closeImageModal();
+      return;
+    }
+    if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) {
+      const modalOpen = !$("image-modal").classList.contains("hidden");
+      const analyzeVisible = !$("analyze-panel").classList.contains("hidden");
+      if (!modalOpen && analyzeVisible) {
+        event.preventDefault();
+        analyze();
+      }
       return;
     }
     if ($("annotate-panel").classList.contains("hidden")) return;

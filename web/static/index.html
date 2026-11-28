@@ -11,11 +11,11 @@
   <header class="site-header">
     <h1 class="site-title"><a href="/">斜拍文档规范化</a></h1>
     <p class="site-description">定位 · 拉正 · 扫描件 · 内容分类</p>
-    <nav class="site-nav">
-      <a href="#" class="tab active" data-tab="analyze">图片扫描</a>
-      <a href="#" class="tab" data-tab="annotate">训练集标签</a>
-      <a href="#" class="tab" data-tab="corners">训练集四角</a>
-      <a href="#" class="tab" data-tab="review">标注检查</a>
+    <nav class="site-nav" role="tablist" aria-label="功能导航">
+      <a href="#" class="tab active" data-tab="analyze" role="tab" aria-selected="true" aria-controls="analyze-panel" tabindex="0">图片扫描</a>
+      <a href="#" class="tab" data-tab="annotate" role="tab" aria-selected="false" aria-controls="annotate-panel" tabindex="-1">训练集标签</a>
+      <a href="#" class="tab" data-tab="corners" role="tab" aria-selected="false" aria-controls="corner-panel" tabindex="-1">训练集四角</a>
+      <a href="#" class="tab" data-tab="review" role="tab" aria-selected="false" aria-controls="review-panel" tabindex="-1">标注检查</a>
     </nav>
     <div class="person-bar hidden" id="person-bar">
       <label for="person-select">标注人</label>
@@ -27,7 +27,7 @@
   </header>
 
   <main>
-    <section id="analyze-panel">
+    <section id="analyze-panel" role="tabpanel" aria-label="图片扫描">
       <p class="hint">
         本页面仅在本机运行。上传的图片只写入临时目录，默认一小时后清理，不发送到外部服务。
       </p>
@@ -42,7 +42,7 @@
       <input id="file-input" type="file" accept="image/*" multiple hidden />
 
       <div id="drop-zone" class="drop-zone">
-        <p class="hint">也可以把图片拖到这里。支持相册多选或连续拍照，单张最大 15 MB；可重复点击继续添加。</p>
+        <p class="hint">也可以把图片拖到这里，或直接粘贴剪贴板中的图片。支持相册多选或连续拍照，单张最大 15 MB；可重复点击继续添加。</p>
       </div>
 
       <div id="batch-actions" class="toolbar hidden">
@@ -64,7 +64,8 @@
       <div class="toolbar">
         <label><input id="rectify" type="checkbox" checked /> 拉正</label>
         <button id="analyze-btn" class="primary">分析队列</button>
-        <span id="status" class="hint"></span>
+        <span class="hint">Ctrl / Cmd + Enter</span>
+        <span id="status" class="hint" role="status" aria-live="polite"></span>
       </div>
 
       <div class="stages">
@@ -96,7 +97,7 @@
       </div>
       <p class="hint">导出多页 PDF 前需逐页校准：点击下方卡片，调整四角后点“应用四角”。</p>
 
-      <div id="result-card" class="card hidden">
+      <div id="result-card" class="card hidden" role="region" aria-live="polite" aria-label="分类结果">
         <h2>分类结果</h2>
         <p><strong id="label"></strong></p>
         <div id="routing" class="routing"></div>
@@ -116,7 +117,7 @@
       </div>
     </section>
 
-    <section id="annotate-panel" class="hidden">
+    <section id="annotate-panel" class="hidden" role="tabpanel" aria-label="训练集标签">
       <p class="hint">
         仅允许校正训练集标签。标注写入独立文件，不修改样本清单与冻结划分。
       </p>
@@ -140,7 +141,7 @@
       </div>
     </section>
 
-    <section id="corner-panel" class="hidden">
+    <section id="corner-panel" class="hidden" role="tabpanel" aria-label="训练集四角">
       <p class="hint">
         拖动四个控制点贴合文档四边，点击“确认四角”保存。自动检测结果仅作为初始建议，保存后用于训练时的拉正覆盖。
       </p>
@@ -163,7 +164,7 @@
       </div>
     </section>
 
-    <section id="review-panel" class="hidden">
+    <section id="review-panel" class="hidden" role="tabpanel" aria-label="标注检查">
       <p class="hint">
         查看全部成员的已保存四角，确认不合规可发回；退回后进入该成员待标注队列，原坐标保留在审计文件中。
       </p>
