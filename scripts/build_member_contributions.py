@@ -30,12 +30,12 @@ LATIN_FONT = "Times New Roman"
 MEMBERS = [
     ("余青阳", "LosproeOcl", "项目负责人 · 架构与算法主责 · 数据与标注 · 部署与交付"),
     ("张毅卓", "qingwu0731", "数据负责人 · 清单与划分 · 排除表复核 · 外部 PR 贡献者"),
-    ("任万东", "待补", "矫正与增强 · 检测调参 · 学习四角"),
-    ("王康琦", "待补", "传统机器学习 · 特征工程与传统基线"),
-    ("蒋翔恒", "待补", "轻量深度学习 · MobileNetV3 迁移学习与训练"),
-    ("张艺萧", "待补", "评估 · 指标实现 · 交叉验证与统计检验"),
-    ("孔泽宇", "待补", "可视化与报告 · 图表组 · 报告排版"),
-    ("李念", "待补", "工程与复现 · 容器 · 持续集成 · 复现核验"),
+    ("任万东", "RenWandong", "矫正与增强 · 检测调参 · 学习四角"),
+    ("王康琦", "qywkq", "传统机器学习 · 特征工程与传统基线"),
+    ("蒋翔恒", "Jiang-Xiangheng", "轻量深度学习 · MobileNetV3 迁移学习与训练"),
+    ("张艺萧", "zhangyixiao123", "评估 · 指标实现 · 交叉验证与统计检验"),
+    ("孔泽宇", "jsindkdneksn", "可视化与报告 · 图表组 · 报告排版"),
+    ("李念", "hanss0090", "工程与复现 · 容器 · 持续集成 · 复现核验"),
 ]
 
 
@@ -387,7 +387,7 @@ def main() -> int:
         [
             ["项目仓库", "https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer"],
             ["线上演示", "https://ml-proj.losproeocl.cn（Basic Auth，口令由组长保管；承诺维护至 2027-01-01）"],
-            ["成员主页", "余青阳 github.com/LosproeOcl；张毅卓 github.com/qingwu0731；其余成员主页待补"],
+            ["成员 GitHub 主页", "余青阳 github.com/LosproeOcl；张毅卓 github.com/qingwu0731；任万东 github.com/RenWandong；王康琦 github.com/qywkq；蒋翔恒 github.com/Jiang-Xiangheng；张艺萧 github.com/zhangyixiao123；孔泽宇 github.com/jsindkdneksn；李念 github.com/hanss0090"],
             ["数据集归档", "GitHub Release（自采 442 张加密压缩包，口令经微信群单独发送）"],
         ],
         "表 3  在线资源",

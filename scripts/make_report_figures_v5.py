@@ -84,6 +84,55 @@ def compose(panels, labels, columns: int, out: Path, label_height: int = 46) -> 
     print(f"saved {out.name} size={canvas.size}")
 
 
+def fig_overview() -> None:
+    """数据总览缩略图：每类抽样 6 张，共 24 张（随机种子 42）。"""
+    import random
+
+    import sys
+
+    sys.path.insert(0, str(ROOT / "src"))
+    sys.path.insert(0, str(ROOT))
+    from docnorm.data.loader import load_image
+
+    excluded = {r["sample_id"] for r in _read_csv(ROOT / "data/manifests/exclusions.csv")}
+    rows = [
+        r
+        for r in _read_csv(ROOT / "data/manifests/sample_manifest_v5.csv")
+        if r["sample_id"] not in excluded and r["label"] in {
+            "ppt_text", "ppt_formula", "paper_text", "paper_formula"
+        }
+    ]
+    rng = random.Random(42)
+    picked = []
+    for label in ("ppt_text", "ppt_formula", "paper_text", "paper_formula"):
+        pool = [r for r in rows if r["label"] == label]
+        picked.extend(rng.sample(pool, min(6, len(pool))))
+    thumbs = []
+    for row in picked:
+        loaded = load_image(ROOT / "data/raw_samples" / row["file"], max_long_edge=340)
+        thumbs.append(to_pil(loaded.image, long_edge=340))
+    cols, tw, th, gap = 6, 340, 260, 6
+    canvas = Image.new(
+        "RGB",
+        (cols * tw + (cols + 1) * gap, 4 * th + 5 * gap),
+        "#fbfbf8",
+    )
+    for index, thumb in enumerate(thumbs):
+        row, col = divmod(index, cols)
+        x = gap + col * (tw + gap)
+        y = gap + row * (th + gap)
+        canvas.paste(thumb, (x + (tw - thumb.width) // 2, y + (th - thumb.height) // 2))
+    canvas.save(OUT / "dataset_overview.png", quality=90)
+    print(f"saved dataset_overview.png size={canvas.size}")
+
+
+def _read_csv(path: Path):
+    import csv
+
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        return list(csv.DictReader(stream))
+
+
 def main() -> int:
     import sys
 
@@ -92,6 +141,7 @@ def main() -> int:
     from docnorm.data.loader import load_image
     from web import services
 
+    fig_overview()
     panels, labels = [], []
     for rel, label in SAMPLES:
         loaded = load_image(ROOT / "data/raw_samples" / rel, max_long_edge=900)
