@@ -359,7 +359,8 @@ def section_intro(doc):
         "清单与原理简述；第 4 章给出最终模型架构、架构迭代过程与各模块的排布；第 5 章按版本记录参数"
         "选择与变化、指标变化和上线取舍；第 6 章归纳开发中遇到的问题与解决方案；第 7 章结合版本截图"
         "说明产物演进；第 8 章给出当前上线状态与阶段审计结论；第 9 章给出小组分工与量化贡献；"
-        "第 10 章总结可复用的经验。"
+        "第 10 章总结可复用的经验；附录 A–D 提供复现命令、模型清单、文档索引，以及面向检查者的"
+        "部署、测试、使用与数据集获取指南。"
     )
 
     heading(doc, "1.3  符号与约定", 2)
@@ -1377,6 +1378,122 @@ def appendix_c(doc):
     )
 
 
+def appendix_d(doc):
+    heading(doc, "附录 D  部署、测试、使用与数据集获取（检查者指南）", 1)
+    body(
+        doc,
+        "本附录面向检查者，按“部署 → 测试 → 使用 → 数据集获取”四步组织；所有命令均可在提交包根目录"
+        "（或克隆 GitHub 仓库后）直接执行。推荐环境：Docker Desktop（arm64 或 amd64 均可）与 git。"
+    )
+
+    heading(doc, "D.1  部署：构建镜像并启动网页服务", 2)
+    body(
+        doc,
+        "第一步构建 CPU 镜像（Apple Silicon 用 arm64，Intel/服务器用 amd64，二者代码一致）："
+    )
+    _cmd(doc, "docker build --platform linux/arm64 -f env/Dockerfile -t docnorm:cpu-arm64 .")
+    _cmd(doc, "docker build --platform linux/amd64 -f env/Dockerfile -t docnorm:cpu-amd64 .")
+    body(doc, "第二步启动网页服务（挂载仓库目录运行，包含 v5 默认模型权重 runs/）：")
+    _cmd(
+        doc,
+        "docker run -d --name t06-web --restart unless-stopped -p 127.0.0.1:54312:54312 "
+        '-v "$PWD:/app" -w /app -e PYTHONPATH=/app/src:/app docnorm:cpu-arm64 '
+        "uvicorn web.app:app --host 0.0.0.0 --port 54312",
+    )
+    body(doc, "第三步健康检查：返回 JSON 中 routing_ready=true 表示载体门控、纸质集成与 PPT 分支全部就绪；")
+    _cmd(doc, "curl -s http://127.0.0.1:54312/api/health")
+    body(
+        doc,
+        "线上演示地址为 https://ml-proj.losproeocl.cn（Nginx Basic Auth，用户名 t06，口令由组长经微信"
+        "单独提供；承诺维护至 2027 年 1 月 1 日）。检查者也可仅用本机 127.0.0.1:54312 完成全部功能验收，"
+        "两者运行同一份代码与模型。",
+    )
+
+    heading(doc, "D.2  测试：数据契约、单元/集成与一次性评估复现", 2)
+    body(doc, "数据契约校验（清单、排除表、冻结划分与磁盘文件四者一致）：")
+    _cmd(doc, "python scripts/check_manifest.py data/manifests/sample_manifest_v5.csv --json")
+    _cmd(doc, "python scripts/check_dataset.py data/manifests/sample_manifest_v5.csv --json")
+    body(
+        doc,
+        "单元与集成测试共 104 项（含 v4/v5 数据契约、划分互斥、哈希校验、网页接口契约）。"
+        "网页契约测试需要 httpx2，可在容器内执行：",
+    )
+    _cmd(doc, "docker run --rm -v \"$PWD:/app\" -w /app -e PYTHONPATH=/app/src:/app docnorm:cpu-arm64 sh -c \"pip install -q httpx2 && python -m pytest -q\"")
+    body(
+        doc,
+        "预期输出 104 passed。挂载数据集后，数据契约测试会额外核对 472 张合格样本的文件存在性与哈希；"
+        "未挂载数据时该子集自动跳过（requires_dataset 标记），其余测试不受影响。"
+    )
+    body(doc, "v5 测试集一次性评估复现（与 reports/final_test_v5.md 第 6 节完全相同的命令）：")
+    _cmd(
+        doc,
+        "DOCNORM_CARRIER_GATE=runs/carrier-gate-v5-01/screen_gate.pt "
+        "DOCNORM_PPT_MODEL=runs/exp-cnn-ppt-v5/cnn.pt "
+        "DOCNORM_PAPER_MODELS=runs/paper-cnn-v5-s45/paper_cnn.pt:runs/paper-cnn-v5-s47/paper_cnn.pt "
+        "python scripts/eval_final_test.py --manifest data/manifests/sample_manifest_v5.csv "
+        "--split data/splits/split_v5.json --cnn-model runs/exp-cnn-v5/cnn.pt "
+        "--classic-model runs/exp-svm-v5/svm.joblib --out reports/final_test_v5_recheck.json",
+    )
+    body(
+        doc,
+        "预期结果：准确率 93.06% / 宏 F1 92.65%，混淆矩阵 [[42,0],[5,25]]，与 "
+        "reports/final_test_v5.json 及 repro_check_v5.md 逐样本一致（CPU 约 3 分钟）。"
+        "该命令只做推理，不改任何文件。",
+    )
+
+    heading(doc, "D.3  使用：网页功能与命令行", 2)
+    body(
+        doc,
+        "网页入口提供三类上传方式（手机：拍照 / 相册或文件合并选择；电脑：拍照 / 从文件选择，"
+        "无摄像头时自动禁用拍照）。上传后每张图进入横向批量队列，可逐张查看原图、四角、矫正图、"
+        "扫描件四个阶段；支持拖拽四角校准、点击放大、按载体手动重试；“扫描件”模式输出白底黑字的"
+        "自适应二值化结果；PDF 导出支持当前单张、区间/离散多选与全部队列三种方式，未校准页会被拦截。"
+        "分类结果卡展示载体门控概率、命中分支与文字/公式两类概率；门控不确定或分支低置信时自动"
+        "尝试另一分支比较置信度，模型缺失时回退 SVM 兜底。",
+    )
+    body(
+        doc,
+        "命令行等价能力见附录 A：样本校验（check_manifest/check_dataset）、批量矫正、训练与评估脚本、"
+        "路由评估（eval_routed_pipeline.py）。全部脚本支持 --json 输出，退出码 0/2/3 分别表示成功、"
+        "输入错误与处理失败。",
+    )
+
+    heading(doc, "D.4  数据集获取：Release 加密包与放置路径", 2)
+    body(
+        doc,
+        "自采数据集（442 张，约 1.05 GiB）以加密 ZIP 形式发布在仓库 Release 页："
+        "https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/releases/tag/dataset-self-v5，"
+        "资产名 06-自采数据集-442张-加密.zip，SHA-256 为 f2a5489d3463bedc0cdfece75b7df917d8c6c6b384c3797ee43c5b2280d2e597。"
+        "解压口令按课程约定经微信群单独发送给任课教师，不写入任何公开文件。下载与解压：",
+    )
+    _cmd(doc, "gh release download dataset-self-v5 --repo LosproeOcl/wut-ml-task06-doc-normalizer")
+    _cmd(doc, "unzip -P <口令> 06-自采数据集-442张-加密.zip -d data/raw_samples/")
+    body(
+        doc,
+        "解压后得到 01_ppt_text、02_ppt_formula、03_paper_text、04_paper_formula 四个目录，"
+        "与仓库内 data/raw_samples/README.md 的目录约定一致；数据集自身的元数据"
+        "（拍摄者、设备、场景、光照、分辨率、拍摄时间）已在 data/manifests/sample_manifest_v5.csv "
+        "逐张登记，划分见 data/splits/split_v5.json。外部公开数据集（SmartDoc 2015、SCB-Dataset、"
+        "Tobacco-3482、IM2LaTeX-100K、IAM）按各自动态下载或从原发布页获取，来源与许可见 "
+        "docs/13-外部数据使用说明.md 与 data/manifests/external_aux.csv。",
+    )
+    body(
+        doc,
+        "获取数据集后，可重跑的完整证据链依次为：数据契约测试（D.2）→ 5 折分组 CV（data/splits/cv_v5/，"
+        "复现 reports/final_test_v5.md 第 7 节）→ 验证集路由评估（eval_routed_pipeline.py，84.31%）→ "
+        "测试集一次性评估（D.2 命令，93.06%）。除测试集评估外均不涉及 reports/final_test_v5.json 的口径。",
+    )
+
+
+def _cmd(doc, text):
+    paragraph = doc.add_paragraph()
+    paragraph.paragraph_format.left_indent = Pt(12)
+    paragraph.paragraph_format.first_line_indent = Pt(0)
+    paragraph.paragraph_format.space_after = Pt(3)
+    run = paragraph.add_run("$ " + text)
+    set_run_font(run, size=9.5, east="Menlo", latin="Menlo")
+
+
 def main():
     doc = setup_document()
     cover(doc)
@@ -1395,6 +1512,7 @@ def main():
     references(doc)
     appendix(doc)
     appendix_c(doc)
+    appendix_d(doc)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     doc.save(OUTPUT)
     print("saved", OUTPUT)
