@@ -367,6 +367,15 @@ def section_data(doc):
     heading(doc, "2.1  数据来源与采集口径", 2)
     body(
         doc,
+        "数据集全部为组员实地实拍：投影幕布拍摄于教室课堂，纸质/板书拍摄于教室、宿舍桌面与户外，"
+        "每张样本在清单中逐张登记拍摄者（shooter）、设备、场景、光照、分辨率与拍摄时间，"
+        "清单与图像一一对应并可复核，因此数据集本身即构成采数留证；组内 2026-11-28 决定以"
+        "“实拍数据集 + 逐张元数据”作为留证口径，不再单独提交现场过程照片。"
+        "自采合格样本 442 张；另引入 SmartDoc 2015 的 30 张外部实拍作为外部测试子集。"
+        "自采数据集以加密压缩包形式归档于 GitHub Release（口令经微信群单独发送，不写入任何公开文件）。"
+    )
+    body(
+        doc,
         "自采数据全部来自校内教室、宿舍和自习场景，按“载体 × 内容”划分为四个归档格："
         "PPT/幕布文字、PPT/幕布公式、纸质/板书文字、纸质/板书公式。采集时要求文档四角完整入画、"
         "主体内容可辨认，避免路人正脸、学号和姓名等个人信息；含个人信息的样本统一进入排除表，"
@@ -428,7 +437,7 @@ def section_data(doc):
         "常见尺寸包括 4032×3024、3072×4096、4096×3072、1279×1706 和 5712×4284。"
         "分辨率差异较大，因此训练与推理统一先按长边缩放，再进入检测或分类。"
     )
-    figure(doc, "dataset_examples.png", "图 1  四类样本示例（PPT 文字/公式为原始拍摄，纸质/板书示例带人工四角）", 15.2)
+    figure(doc, "dataset_examples.png", "图 1  四类代表性样本（上排：PPT 幕布文字/公式；下排：A4 纸质文字/公式。数据集全部为实地实拍，逐张登记拍摄者、时间、场景与光照，本身即为采数留证）", 15.2)
 
     heading(doc, "2.3  清洗、分组与划分", 2)
     body(
@@ -618,9 +627,9 @@ def section_architecture(doc):
     )
     figure(
         doc,
-        "rectify_compare.png",
-        "图 6  拉正前后对比（左：斜拍原图；右：自动拉正结果）",
-        15.2,
+        "rectify_scan_ppt.png",
+        "图 6  正面 PPT 的三联并排：原图 / OpenCV 拉正（Canny 50/150，效果良好版本）/ 扫描件（自适应二值化）",
+        15.4,
     )
 
     heading(doc, "4.5  部署结构", 2)
@@ -1061,8 +1070,46 @@ def section_status(doc):
     )
 
 
+def section_team(doc):
+    heading(doc, "9  小组分工与量化贡献", 1)
+    body(
+        doc,
+        "本组 8 名成员按“数据—模型—评估—工程—交付”五条线分工，贡献采用计数制量化："
+        "只统计可在仓库内复核的客观条目（采集样本数、四角标注数、实验运行组数、文档与提交数等），"
+        "不使用评分制，也不使用百分比。完整的逐人详述、口径与数据来源见"
+        "《小组成员及其分工》（docs/18-小组成员及其分工.docx），本节复述其结论。"
+    )
+    table(
+        doc,
+        ["成员", "角色", "采集样本", "四角标注", "实验与工程（组/项）", "其他关键产出"],
+        [
+            ["余青阳", "负责人/架构/算法/交付", "189", "70", "57+193（统筹）", "97 次提交；18+ 份文档；部署与域名维护"],
+            ["张毅卓", "数据负责人", "30", "30", "数据脚本 6；划分 5 版", "排除表 36 条；复核 11 张；PR #1"],
+            ["任万东", "矫正与增强", "40", "61", "调参 2 轮；四角模型 2；消融 3", "按载体 Canny 参数；显示四角"],
+            ["王康琦", "传统机器学习", "36", "61", "传统基线 44；特征选择 1", "1,836 维特征；tune_classic 分支"],
+            ["蒋翔恒", "轻量深度学习", "37", "29", "CNN 80；LSTM 3；集成 2", "PPT 去重+权重 0.5 模型；合成增训"],
+            ["张艺萧", "评估", "38", "29", "评估脚本 9；CV 10 折；检验 2 种", "OOF 报告；阶段审计"],
+            ["孔泽宇", "可视化与报告", "35", "29", "图表脚本 5；图表 40+ 张", "报告排版（DOCX/PDF）"],
+            ["李念", "工程与复现", "37", "29", "复现核验 2；CI 2；CLI 8", "容器镜像；运行索引 193 条"],
+        ],
+        "表 11  小组分工与量化贡献总表（计数制）",
+        widths=[1.7, 2.6, 1.5, 1.5, 4.2, 4.5],
+        font_size=9.0,
+        align_center=False,
+    )
+    body(
+        doc,
+        "量化口径说明：采集样本按 sample_manifest_v5.csv 的 shooter 列统计（自采 442 张，外部 30 张不计入成员）；"
+        "四角标注按 manual_corners.csv 的 annotator 列统计（338 条）；实验组数按 run_index.csv 的脚本归类"
+        "（CNN 训练 80、传统基线 44、纸质分支 41、门控 5、LSTM/集成 5、外部预训练 2、屏幕检测 2、其余 7、评估脚本 9 个）；"
+        "提交次数按 git 记录统计。项目负责人余青阳另承担 338 条四角标注的分配与逐条复核、四次里程碑验收判定、"
+        "线上服务 ml-proj.losproeocl.cn 的部署与维护（承诺至 2027-01-01）。"
+        "其余成员贡献分布在各自条线、均不低于同线平均工作量，不存在异常偏低的情况。"
+    )
+
+
 def section_conclusion(doc):
-    heading(doc, "9  结论", 1)
+    heading(doc, "10  结论", 1)
     body(
         doc,
         "这次开发给出的最重要经验是：在数据规模有限、部署资源有限的课程项目中，模型结构的选择必须和"
@@ -1157,6 +1204,61 @@ def appendix(doc):
     )
 
 
+def appendix_c(doc):
+    heading(doc, "附录 C  产出文档索引与在线资源", 1)
+    body(
+        doc,
+        "下表列出本仓库全部过程与交付文档在提交包中的路径，以及在线资源地址，"
+        "用于体现项目的工程化与可追溯程度。提交包内路径以压缩包根目录为基准。"
+    )
+    table(
+        doc,
+        ["路径", "内容"],
+        [
+            ["README.md / CHANGELOG.md / CONTRIBUTORS.md", "项目总览、变更记录、贡献者与 PR 处理"],
+            ["docs/03-架构设计.md", "架构、数据契约与接口"],
+            ["docs/04-数据采集与标注规范.md", "采集与标注规范、质量清单"],
+            ["docs/05-项目计划与分工.md", "里程碑计划与分工"],
+            ["docs/06-评估与验收方案.md", "指标口径、实验矩阵与验收清单"],
+            ["docs/07 至 docs/09", "协作流程、环境复现、风险登记"],
+            ["docs/10 至 docs/15", "参考调研、部署、运行日志、外部数据、屏幕检测、偏度调研"],
+            ["docs/16-开发者视角开发历程报告.docx/.pdf", "本报告"],
+            ["docs/17-合成投影PPT试点.md", "合成数据试点"],
+            ["docs/18-小组成员及其分工.docx", "小组分工与量化贡献（本报告第 9 节的完整版）"],
+            ["docs/adr/0001 至 0018", "架构决策记录 18 篇"],
+            ["docs/assets、docs/record-img", "留证与过程截图素材"],
+            ["reports/final_test_v5.md / .json / 预测 CSV", "v5 测试集一次性评估"],
+            ["reports/repro_check_v5.md", "v5 复现核验（逐样本一致）"],
+            ["reports/error_cases_v5.md", "错误案例四类归因"],
+            ["reports/final_test.md、repro_check.md", "v4 历史评估与复现（对照）"],
+            ["reports/web_integration.md、external_control.md、stage_audit.md、cv_oof.md", "网页接入、外部对照、阶段审计、OOF"],
+            ["reports/figures/（含 eval_v5_*）", "全部评估与报告图（300dpi PNG+SVG）"],
+            ["reports/run_index.csv、model_manifest.csv", "193 条运行索引；v5 模型 SHA-256 清单"],
+            ["data/manifests/、data/splits/、data/annotations/", "清单、冻结划分 v1–v5、标注与排除表"],
+            ["data/splits/cv_v5/、data/manifests/cv_v5/", "v5 五折交叉验证折与纸质折清单"],
+            ["src/、scripts/、web/、tests/、configs/", "源代码、41 个脚本、网页、104 项测试、配置（含 legacy/v4）"],
+        ],
+        "表 C1  产出文档索引",
+        widths=[7.6, 7.4],
+        font_size=9.0,
+        align_center=False,
+    )
+    table(
+        doc,
+        ["资源", "地址"],
+        [
+            ["项目仓库（GitHub）", "https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer"],
+            ["线上演示", "https://ml-proj.losproeocl.cn（承诺维护至 2027 年 1 月 1 日）"],
+            ["成员主页", "余青阳 github.com/LosproeOcl；张毅卓 github.com/qingwu0731；任万东、王康琦、蒋翔恒、张艺萧、孔泽宇、李念主页待补"],
+            ["自采数据集归档", "GitHub Release：自采 442 张加密压缩包（口令经微信群单独发送，不写入公开文件）"],
+        ],
+        "表 C2  在线资源与成员主页",
+        widths=[4.2, 10.8],
+        font_size=9.5,
+        align_center=False,
+    )
+
+
 def main():
     doc = setup_document()
     cover(doc)
@@ -1170,9 +1272,11 @@ def main():
     section_problems(doc)
     section_screenshots(doc)
     section_status(doc)
+    section_team(doc)
     section_conclusion(doc)
     references(doc)
     appendix(doc)
+    appendix_c(doc)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     doc.save(OUTPUT)
     print("saved", OUTPUT)

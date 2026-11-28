@@ -67,3 +67,4 @@ data/synthetic/**/gallery.html
 # 网页临时结果
 web/results/
 web/tmp/
+.tmp_font.ttf
