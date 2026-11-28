@@ -134,6 +134,39 @@ python3 scripts/build_synth_ppt_pages.py \
 
 脚本固定随机种子 `--seed 2026`；每张图的透视/光照/噪声种子写入 `manifest.csv`。
 
-## 8. 结论
+## 8. v2 训练集（2026-11-28）
+
+评审通过后，在 v1 基础上生成 v2，改用**自采 train PPT 照片**做背景，减少 K12 教室的域差。
+
+| 项目 | v2 |
+|---|---|
+| 数量 | 160 组（文字 80 / 公式 80） |
+| 模板×类别 | 深紫/米白/白底/深青 × 文字/公式，各 20 张 |
+| 背景 | 57 个：47 张自采 train PPT（人工四角，按 `doc_page_id` 去重）+ 10 张 SCB 教室图 |
+| 背景来源 | `data/manifests/synth_backgrounds_v1.csv` |
+| 训练清单 | `data/manifests/synth_ppt_v2_train.csv` |
+| 训练入口 | `scripts/train_cnn.py --extra-train-manifest ...` |
+| 评估 | 只评估真实 PPT 验证折，合成样本不进入 val/test |
+
+关键约束：
+
+1. 背景只取 `split_v4` 的 **train** 分组，val/test 不进入背景池；
+2. 训练时若合成背景的 `doc_page_id` 落在当前 CV 折的验证组，该合成样本会被跳过，避免背景场景泄漏；
+3. 合成图 `rectify=0`，避免对已经裁好的图再次拉正；
+4. 模板与类别完全交叉平衡，防止模型把模板颜色当成类别捷径。
+
+生成命令：
+
+```bash
+PYTHONPATH=src python scripts/build_synth_backgrounds.py   --out data/manifests/synth_backgrounds_v1.csv --per-class 24
+
+python3 scripts/build_synth_ppt_pages.py   --out data/synthetic/ppt_projection_v2 --n-per-class 80   --background-manifest data/manifests/synth_backgrounds_v1.csv   --id-prefix syn-ppt-v2
+
+python3 scripts/build_synth_train_manifest.py   --manifest data/synthetic/ppt_projection_v2/manifest.csv   --out data/manifests/synth_ppt_v2_train.csv
+```
+
+训练协议：先跑 fold1 × 3 种子，与 fold1 基线 **77.08%**（79.17/81.25/70.83）比较；若均值提升 ≥ 2pp 且种子方向一致，再跑剩余 4 折 × 3 种子，对照全量 PPT CV **70.44% ± 8.24**。结果待训练完成后补入本报告。
+
+## 9. 结论
 
 这条路线**可以生成足够像真实投影课件的示例**，版式与投影退化都达到了可评审水平；但当前背景与版式多样性不足，且模板与类别存在相关，不能直接拿来重训。下一步应先由课程组评审这 24 组，确认“真实感”和“标签边界”后，再决定是否扩到 200–300 组做 5 折对照。

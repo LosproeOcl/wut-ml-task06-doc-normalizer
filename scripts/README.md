@@ -42,7 +42,9 @@
 
 | 脚本 | 用途 |
 |---|---|
-| `build_synth_ppt_pages.py` | 生成“SCB 教室背景 + 课程课件 + 投影退化”的合成 PPT 示例；输出 1280×960 成对图、manifest 与画廊，图像不入库 |
+| `build_synth_backgrounds.py` | 从自采 train PPT（人工四角）与 SCB 教室图构建合成背景清单；每个 doc_page_id 只保留一张 |
+| `build_synth_ppt_pages.py` | 生成“真实教室背景 + 课程课件 + 投影退化”的合成 PPT；支持模板×类别平衡、自采/SCB 背景、成对图与 manifest |
+| `build_synth_train_manifest.py` | 把合成产物转成 `train_cnn --extra-train-manifest` 清单，写入背景组与 `rectify=0` |
 
 `check_manifest.py` 与 `check_dataset.py` 基于 PR #1 的校验思路、按当前数据契约重写；贡献记录见 `CONTRIBUTORS.md`。
 

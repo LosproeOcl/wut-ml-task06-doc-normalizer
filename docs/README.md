@@ -66,6 +66,8 @@
 | [`reports/test_failure_analysis.md`](../reports/test_failure_analysis.md) | 测试失败根因核查与分格退化分析 |
 | [`reports/test_quality_analysis.md`](../reports/test_quality_analysis.md) | 测试集清晰度/分辨率与错误关系核查 |
 | [`reports/synth_ppt_pilot.md`](../reports/synth_ppt_pilot.md) | 合成投影 PPT 24 组示例、核查与重训门槛 |
+| [`reports/synth_ppt_training.md`](../reports/synth_ppt_training.md) | 合成 v2 160 组、5 折 CV 与 fold1 结果 |
+| [`reports/manual_synth_sample.md`](../reports/manual_synth_sample.md) | 训练集人工四角背景的 16 组合成示例 |
 | [`reports/cv_oof.md`](../reports/cv_oof.md) | 5 折分组交叉验证、OOF 校准/阈值与融合结果 |
 | [`reports/cross_carrier.md`](../reports/cross_carrier.md) | 纸质模型直接验证 PPT 样本的跨载体结果 |
 | [`reports/test_label_audit/README.md`](../reports/test_label_audit/README.md) | 测试标签双人盲审规则、第一遍结果与第二遍材料 |

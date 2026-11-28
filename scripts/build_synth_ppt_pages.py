@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import csv
 import html
+import json
 import math
 import random
 import re
@@ -37,6 +38,7 @@ from matplotlib.mathtext import MathTextParser
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUT = ROOT / "data/synthetic/ppt_projection_v1"
 SCB_MANIFEST = ROOT / "data/manifests/scb_screen.csv"
+DEFAULT_BG_MANIFEST = ROOT / "data/manifests/synth_backgrounds_v1.csv"
 
 W, H = 1280, 960
 MARGIN = 76
@@ -314,14 +316,16 @@ def draw_table(
     line_fill,
     row_height: int = 48,
     header_height: int = 50,
+    header_text_fill=None,
 ) -> int:
     total = sum(widths)
     xs = [x]
     for w in widths:
         xs.append(xs[-1] + int(w / total * 1050))
     draw.rectangle([xs[0], y, xs[-1], y + header_height], fill=header_fill)
+    header_text_fill = header_text_fill or fill
     for i, h in enumerate(headers):
-        draw.text(((xs[i] + xs[i + 1]) / 2, y + header_height / 2), h, font=f, fill=fill, anchor="mm")
+        draw.text(((xs[i] + xs[i + 1]) / 2, y + header_height / 2), h, font=f, fill=header_text_fill, anchor="mm")
     y2 = y + header_height
     for r in rows:
         for i, cell in enumerate(r):
@@ -959,6 +963,7 @@ def render_text_slide(item: dict, rng: random.Random, page: int) -> Image.Image:
         f = body_font(tpl, 24)
         total_h = 58 + len(item["rows"]) * 58 + (50 if item.get("note") else 0)
         y = center_y(total_h, 190, 850)
+        dark = tpl in {"purple", "teal"}
         y = draw_table(
             d,
             MARGIN,
@@ -968,10 +973,11 @@ def render_text_slide(item: dict, rng: random.Random, page: int) -> Image.Image:
             item["widths"],
             f,
             pal["fg"],
-            header_fill=(235, 226, 208),
-            line_fill=(176, 165, 146),
+            header_fill=pal["accent"] if dark else (235, 226, 208),
+            line_fill=(176, 165, 146) if not dark else (*pal["muted"], 90),
             row_height=58,
             header_height=58,
+            header_text_fill=(28, 28, 28) if dark else pal["fg"],
         )
         if item.get("note"):
             d.text((MARGIN, y + 26), item["note"], font=hiragino(20), fill=pal["muted"])
@@ -1029,10 +1035,11 @@ def render_text_slide(item: dict, rng: random.Random, page: int) -> Image.Image:
                 table["widths"],
                 body_font(tpl, 20),
                 pal["fg"],
-                header_fill=(255, 255, 255, 24),
-                line_fill=(255, 255, 255, 90),
+                header_fill=pal["accent"],
+                line_fill=(*pal["muted"], 90),
                 row_height=46,
                 header_height=46,
+                header_text_fill=(28, 28, 28),
             )
             if item.get("caption"):
                 d.text((W / 2, ty + 34), item["caption"], font=hiragino(18), fill=(*pal["muted"], 220), anchor="ma")
@@ -1082,8 +1089,36 @@ def warp_slide(slide: Image.Image, quad: list[tuple[float, float]], size: tuple[
     return canvas.transform(size, Image.PERSPECTIVE, tuple(coeffs), resample=Image.BICUBIC)
 
 
-def _quad_from_bbox(bbox: tuple[float, float, float, float], size: tuple[int, int], rng: random.Random) -> list[tuple[float, float]]:
+def _quad_from_bbox(
+    bbox: tuple[float, float, float, float],
+    size: tuple[int, int],
+    rng: random.Random,
+    base_quad: list[tuple[float, float]] | None = None,
+) -> list[tuple[float, float]]:
     Wb, Hb = size
+    if base_quad is not None:
+        pts = [(float(x) * Wb, float(y) * Hb) for x, y in base_quad]
+        cx = sum(p[0] for p in pts) / 4
+        cy = sum(p[1] for p in pts) / 4
+        scale = rng.uniform(1.004, 1.014)
+        pts = [(cx + (x - cx) * scale, cy + (y - cy) * scale) for x, y in pts]
+        jx, jy = Wb * 0.0015, Hb * 0.002
+        pts = [
+            (min(max(x + rng.uniform(-jx, jx), 0), Wb - 1), min(max(y + rng.uniform(-jy, jy), 0), Hb - 1))
+            for x, y in pts
+        ]
+        x1, x2 = min(p[0] for p in pts), max(p[0] for p in pts)
+        y1, y2 = min(p[1] for p in pts), max(p[1] for p in pts)
+        if x1 <= 1.5:
+            pts = [(0.0 if x <= 1.5 else x, y) for x, y in pts]
+        if x2 >= Wb - 2.5:
+            pts = [(float(Wb - 1) if x >= Wb - 2.5 else x, y) for x, y in pts]
+        if y1 <= 1.5:
+            pts = [(x, 0.0 if y <= 1.5 else y) for x, y in pts]
+        if y2 >= Hb - 2.5:
+            pts = [(x, float(Hb - 1) if y >= Hb - 2.5 else y) for x, y in pts]
+        return pts
+
     x1, y1, x2, y2 = bbox
     x1, x2 = x1 * Wb, x2 * Wb
     y1, y2 = y1 * Hb, y2 * Hb
@@ -1145,6 +1180,7 @@ def project_slide(
     slide: Image.Image,
     quad: list[tuple[float, float]],
     rng: random.Random,
+    plate_bottom: float = 1.018,
 ) -> Image.Image:
     Wb, Hb = bg.size
     nrng = np.random.default_rng(rng.randrange(1 << 30))
@@ -1193,7 +1229,8 @@ def project_slide(
     cy = sum(p[1] for p in quad) / 4
     plate_pts = []
     for x, y in quad:
-        plate_pts.append((cx + (x - cx) * 1.018, cy + (y - cy) * 1.018))
+        sy = plate_bottom if y > cy else 1.018
+        plate_pts.append((cx + (x - cx) * 1.018, cy + (y - cy) * sy))
     plate_mask = Image.new("L", (Wb, Hb), 0)
     ImageDraw.Draw(plate_mask).polygon(plate_pts, fill=255)
     plate_mask = plate_mask.filter(ImageFilter.GaussianBlur(1.2))
@@ -1240,24 +1277,46 @@ def project_slide(
 # 主流程
 # ---------------------------------------------------------------------------
 
-def load_backgrounds() -> list[dict]:
+def load_backgrounds(path: Path | None = None) -> list[dict]:
+    if path is not None and path.is_file():
+        rows = []
+        with path.open(newline="", encoding="utf-8") as fh:
+            for row in csv.DictReader(fh):
+                p = Path(row["path"])
+                if not p.is_absolute():
+                    p = ROOT / p
+                if not p.is_file():
+                    continue
+                quad = None
+                if row.get("quad"):
+                    try:
+                        quad = [tuple(map(float, pt)) for pt in json.loads(row["quad"])]
+                    except (ValueError, TypeError):
+                        quad = None
+                rows.append(
+                    {
+                        "background_id": row["background_id"],
+                        "path": p,
+                        "bbox": (float(row["x1"]), float(row["y1"]), float(row["x2"]), float(row["y2"])),
+                        "quad": quad,
+                        "source": row.get("source", ""),
+                        "orig_label": row.get("orig_label", ""),
+                        "group": row.get("doc_page_id", ""),
+                    }
+                )
+        if len(rows) < 4:
+            raise SystemExit(f"背景清单可用行不足: {path} -> {len(rows)}")
+        return rows
+
     wanted = {
-        "111_000056.jpg",
-        "111_000060.jpg",
-        "111_000061.jpg",
-        "111_000952.jpg",
-        "111_000953.jpg",
-        "111_000954.jpg",
-        "111_001266.jpg",
-        "116_001726.jpg",
-        "132_001287.jpg",
-        "133_000892.jpg",
+        "111_000056.jpg", "111_000060.jpg", "111_000061.jpg",
+        "111_000952.jpg", "111_000953.jpg", "111_000954.jpg",
+        "111_001266.jpg", "116_001726.jpg", "132_001287.jpg", "133_000892.jpg",
     }
     rows = []
     with SCB_MANIFEST.open(newline="", encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
-            name = Path(row["path"]).name
-            if name not in wanted:
+            if Path(row["path"]).name not in wanted:
                 continue
             p = ROOT / row["path"]
             if not p.is_file():
@@ -1267,8 +1326,13 @@ def load_backgrounds() -> list[dict]:
                     continue
             rows.append(
                 {
+                    "background_id": Path(row["path"]).stem,
                     "path": p,
                     "bbox": (float(row["x1"]), float(row["y1"]), float(row["x2"]), float(row["y2"])),
+                    "quad": None,
+                    "source": "SCB-Dataset-teacher",
+                    "orig_label": "screen",
+                    "group": "",
                 }
             )
     rows.sort(key=lambda r: r["path"].name)
@@ -1330,13 +1394,20 @@ def build_gallery(out: Path, records: list[dict]) -> None:
     (out / "gallery.html").write_text(page, encoding="utf-8")
 
 
-def build_preview(out: Path, records: list[dict], name: str, cols: int = 4) -> Path:
-    thumb_w, thumb_h = 400, 300
+def preview_subset(records: list[dict], per_label: int = 12) -> list[dict]:
+    text = [r for r in records if r["label"] == "text"][:per_label]
+    formula = [r for r in records if r["label"] == "formula"][:per_label]
+    return text + formula
+
+
+def build_preview(out: Path, records: list[dict], name: str, cols: int = 6) -> Path:
+    picks = preview_subset(records)
+    thumb_w, thumb_h = 300, 225
     pad = 10
-    rows = math.ceil(len(records) / cols)
+    rows = math.ceil(len(picks) / cols)
     sheet = Image.new("RGB", (cols * (thumb_w + pad) + pad, rows * (thumb_h + 34) + pad), (28, 30, 36))
     d = ImageDraw.Draw(sheet)
-    for i, r in enumerate(records):
+    for i, r in enumerate(picks):
         with Image.open(out / r["path"]) as im:
             im = im.convert("RGB")
             im.thumbnail((thumb_w, thumb_h))
@@ -1351,7 +1422,7 @@ def build_preview(out: Path, records: list[dict], name: str, cols: int = 4) -> P
 
 
 def build_layout_sheet(out: Path, records: list[dict], name: str = "layouts.jpg") -> Path:
-    picks = records
+    picks = preview_subset(records)
     thumb_w, thumb_h = 400, 300
     pad = 10
     rows = math.ceil(len(picks) / 4)
@@ -1376,6 +1447,14 @@ def main() -> int:
     parser.add_argument("--seed", type=int, default=2026)
     parser.add_argument("--limit-text", type=int, default=0)
     parser.add_argument("--limit-formula", type=int, default=0)
+    parser.add_argument(
+        "--background-manifest",
+        type=Path,
+        default=None,
+        help="背景清单；缺省用内置 SCB 背景（兼容 v1）",
+    )
+    parser.add_argument("--id-prefix", default="syn-ppt", help="样本 ID 前缀")
+    parser.add_argument("--plate-bottom", type=float, default=1.018, help="底板向下扩展比例，用于盖住屏幕底部旧内容")
     args = parser.parse_args()
 
     rng = random.Random(args.seed)
@@ -1383,15 +1462,28 @@ def main() -> int:
     (out / "slides").mkdir(parents=True, exist_ok=True)
     (out / "projected").mkdir(parents=True, exist_ok=True)
 
-    backgrounds = load_backgrounds()
+    background_path = args.background_manifest
+    if background_path is not None and not background_path.is_absolute():
+        background_path = ROOT / background_path
+    backgrounds = load_backgrounds(background_path)
     text_items = TEXT_ITEMS[: args.limit_text or len(TEXT_ITEMS)]
     formula_items = FORMULA_ITEMS[: args.limit_formula or len(FORMULA_ITEMS)]
+
+    templates = ["purple", "paper", "white", "teal"]
+    if args.n_per_class % len(templates) != 0:
+        raise SystemExit("--n-per-class 必须能被 4 整除，才能做模板×类别平衡")
+    per_cell = args.n_per_class // len(templates)
     plan: list[tuple[str, dict]] = []
-    for i in range(args.n_per_class):
-        plan.append(("text", text_items[i % len(text_items)]))
-        plan.append(("formula", formula_items[i % len(formula_items)]))
+    for template in templates:
+        for label, items in (("text", text_items), ("formula", formula_items)):
+            for i in range(per_cell):
+                item = dict(items[i % len(items)])
+                item["template"] = template
+                plan.append((label, item))
     rng.shuffle(plan)
 
+    bg_pool = backgrounds[:]
+    rng.shuffle(bg_pool)
     records = []
     for idx, (label, item) in enumerate(plan):
         seed = rng.randrange(1, 10**9)
@@ -1401,14 +1493,15 @@ def main() -> int:
             slide = render_text_slide(item, local, page)
         else:
             slide = render_formula_slide(item, local, page)
-        sample_id = f"syn-ppt-v1-{idx:03d}"
+        sample_id = f"{args.id_prefix}-{idx:03d}"
         slide_rel = f"slides/{sample_id}.png"
         slide.save(out / slide_rel, optimize=True)
 
-        bg_info = backgrounds[idx % len(backgrounds)]
+        bg_info = bg_pool[idx % len(bg_pool)]
         bg = Image.open(bg_info["path"]).convert("RGB")
-        quad = _quad_from_bbox(bg_info["bbox"], bg.size, local)
-        projected = project_slide(bg, slide, quad, local)
+        bg.thumbnail((1920, 1440), Image.LANCZOS)
+        quad = _quad_from_bbox(bg_info["bbox"], bg.size, local, bg_info.get("quad"))
+        projected = project_slide(bg, slide, quad, local, plate_bottom=args.plate_bottom)
         proj_rel = f"projected/{sample_id}.jpg"
         projected.save(out / proj_rel, quality=local.randint(76, 90), optimize=True)
 
@@ -1421,7 +1514,10 @@ def main() -> int:
                 "content_id": item["id"],
                 "template": item["template"],
                 "background": bg_info["path"].name,
-                "background_source": "SCB-Dataset-teacher",
+                "background_id": bg_info["background_id"],
+                "background_source": bg_info["source"],
+                "background_orig_label": bg_info["orig_label"],
+                "background_group": bg_info.get("group", ""),
                 "image_source": "synthetic",
                 "label_source": "layout_generator",
                 "width": 1280,
@@ -1445,7 +1541,6 @@ def main() -> int:
     print(f"版式：{layouts}")
     print(f"画廊：{out / 'gallery.html'}")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())

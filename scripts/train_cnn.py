@@ -87,12 +87,15 @@ class DocumentDataset(Dataset):
 
     def __getitem__(self, index: int):
         item = self.items[index]
-        loaded = load_image(
-            ROOT / self.config["data"]["raw_dir"] / item["file"],
-            max_long_edge=self.load_size,
-        )
+        if item.get("path"):
+            image_path = Path(item["path"])
+            if not image_path.is_absolute():
+                image_path = ROOT / image_path
+        else:
+            image_path = ROOT / self.config["data"]["raw_dir"] / item["file"]
+        loaded = load_image(image_path, max_long_edge=self.load_size)
         image = loaded.image
-        if self.rectify:
+        if self.rectify and item.get("rectify", True):
             quad = None
             if self.quad_policy == "primary" and self.quad_model is not None:
                 quad = self.quad_model.predict(image)
@@ -253,6 +256,12 @@ def main() -> int:
         help="在自动类别权重上再乘公式类权重，缓解公式召回偏低",
     )
     parser.add_argument(
+        "--extra-train-manifest",
+        type=Path,
+        default=None,
+        help="额外训练清单（sample_id,path,label[,rectify]），只追加到 train，不参与验证",
+    )
+    parser.add_argument(
         "--load-size",
         type=int,
         default=None,
@@ -384,6 +393,46 @@ def main() -> int:
                     "label": label,
                 }
             )
+
+    n_extra = 0
+    if args.extra_train_manifest:
+        extra_path = args.extra_train_manifest
+        if not extra_path.is_absolute():
+            extra_path = ROOT / extra_path
+        if not extra_path.is_file():
+            raise SystemExit(f"额外训练清单不存在: {extra_path}")
+        seen_ids = {item["sample_id"] for group in items.values() for item in group}
+        val_groups = set(split.groups.get("val", []))
+        skipped_group = 0
+        with extra_path.open(newline="", encoding="utf-8") as fh:
+            for row in csv.DictReader(fh):
+                sample_id = (row.get("sample_id") or "").strip()
+                label = (row.get("label") or "").strip()
+                extra = (row.get("path") or row.get("file") or "").strip()
+                if not sample_id or not label or not extra:
+                    raise SystemExit(f"额外训练清单字段缺失: {row}")
+                if sample_id in seen_ids:
+                    raise SystemExit(f"额外训练清单 sample_id 重复: {sample_id}")
+                if label not in CLASSES:
+                    raise SystemExit(f"额外训练清单标签非法: {label}")
+                extra_group = (row.get("group") or "").strip()
+                if extra_group and extra_group in val_groups:
+                    skipped_group += 1
+                    continue
+                items["train"].append(
+                    {
+                        "sample_id": sample_id,
+                        "path": extra,
+                        "label": label,
+                        "rectify": (row.get("rectify") or "0").lower() not in {"0", "false"},
+                    }
+                )
+                seen_ids.add(sample_id)
+                n_extra += 1
+        print(
+            f"追加额外训练样本 {n_extra} 条: {extra_path}"
+            + (f"，跳过 {skipped_group} 条来自当前验证组的背景" if skipped_group else "")
+        )
 
     rectify = not args.no_rectify
     enhance = not args.no_enhance

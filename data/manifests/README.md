@@ -79,3 +79,14 @@ T06_P03_pptFormula_classroom_017,02_ppt_formula/T06_P03_pptFormula_classroom_017
 7. 排除表是否引用未知样本。
 
 划分重建使用 `scripts/rebuild_split.py`，测试见 `tests/unit` 与 `tests/integration`。
+
+## 合成投影 PPT 清单
+
+以下清单只服务于合成训练，不进入 `sample_manifest.csv`、`split_v4.json`、验证集或测试集。
+
+| 文件 | 内容 |
+|---|---|
+| `synth_backgrounds_v1.csv` | 合成背景池：自采 train PPT（人工四角，按 `doc_page_id` 去重）与 SCB 教室图；含归一化四角、来源与原始标签 |
+| `synth_ppt_v2_train.csv` | v2 合成训练清单：`sample_id,path,label,group,rectify`；`group` 用于 CV 时跳过当前验证组的背景，`rectify=0` 表示不再拉正 |
+
+`train_cnn.py` 通过 `--extra-train-manifest` 读取第二份清单，仅追加到 train；若 `group` 在 `split.groups["val"]` 中会跳过。图像本体在 `data/synthetic/`，已被 `.gitignore` 排除。
