@@ -1525,7 +1525,7 @@ def appendix_c(doc):
         doc,
         ["路径", "内容"],
         [
-            ["README.md / CHANGELOG.md / CONTRIBUTORS.md", "项目总览、变更记录、贡献者与 PR 处理"],
+            ["README.md / CHANGELOG.md / CONTRIBUTORS.md / LICENSE", "项目总览、变更记录、贡献者与 PR 处理；MIT 代码许可"],
             ["docs/03-架构设计.md", "架构、数据契约与接口"],
             ["docs/04-数据采集与标注规范.md", "采集与标注规范、质量清单"],
             ["docs/05-项目计划与分工.md", "里程碑计划与分工"],
@@ -1557,7 +1557,7 @@ def appendix_c(doc):
         doc,
         ["资源", "地址"],
         [
-            ["项目仓库（GitHub）", "https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer"],
+            ["项目仓库（GitHub）", "https://github.com/LosproeOcl/doc-normalizer"],
             ["线上演示", "https://ml-proj.losproeocl.cn（用户名 t06，口令 admin，公开；承诺维护至 2027 年 1 月 1 日）"],
             ["成员 GitHub 主页", "余青阳 github.com/LosproeOcl；张毅卓 github.com/qingwu0731；任万东 github.com/RenWandong；王康琦 github.com/qywkq；蒋翔恒 github.com/Jiang-Xiangheng；张艺萧 github.com/zhangyixiao123；孔泽宇 github.com/jsindkdneksn；李念 github.com/hanss0090"],
             ["自采数据集归档", "GitHub Release：自采 442 张加密压缩包（解压口令见随附 TXT，不随仓库上传）"],
@@ -1668,7 +1668,7 @@ def appendix_d(doc):
         align_center=False,
     )
     body(doc, "下载与解压命令：")
-    _cmd(doc, "gh release download dataset-self-v5 --repo LosproeOcl/wut-ml-task06-doc-normalizer")
+    _cmd(doc, "gh release download dataset-self-v5 --repo LosproeOcl/doc-normalizer")
     _cmd(doc, "unzip -P <口令> dataset-self-442-encrypted.zip -d data/raw_samples/")
     body(
         doc,

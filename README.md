@@ -1,9 +1,46 @@
 # 斜拍课堂文档自动拉正、去反光与内容归类系统
 
-[![CI](https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/actions/workflows/ci.yml)
-![Python](https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white)
-![Docker](https://img.shields.io/badge/docker-arm64%20%7C%20amd64-2496ED?logo=docker&logoColor=white)
-![Course](https://img.shields.io/badge/course-WUT%20ML-1f3a5f)
+<p align="center">
+  <a href="https://github.com/LosproeOcl/doc-normalizer/actions/workflows/ci.yml">
+    <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/LosproeOcl/doc-normalizer/ci.yml?branch=main&style=flat-square&label=CI">
+  </a>
+  <a href="LICENSE">
+    <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square">
+  </a>
+  <a href="https://github.com/LosproeOcl/doc-normalizer/releases">
+    <img alt="Release" src="https://img.shields.io/github/v/release/LosproeOcl/doc-normalizer?style=flat-square&label=release">
+  </a>
+  <a href="https://github.com/LosproeOcl/doc-normalizer/stargazers">
+    <img alt="Stars" src="https://img.shields.io/github/stars/LosproeOcl/doc-normalizer?style=flat-square">
+  </a>
+  <a href="https://github.com/LosproeOcl/doc-normalizer/network/members">
+    <img alt="Forks" src="https://img.shields.io/github/forks/LosproeOcl/doc-normalizer?style=flat-square">
+  </a>
+  <a href="https://github.com/LosproeOcl/doc-normalizer/commits/main">
+    <img alt="Last commit" src="https://img.shields.io/github/last-commit/LosproeOcl/doc-normalizer?style=flat-square">
+  </a>
+</p>
+
+<p align="center">
+  <img alt="Python" src="https://img.shields.io/badge/python-3.11-3776AB?style=flat-square&logo=python&logoColor=white">
+  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-2.x-EE4C2C?style=flat-square&logo=pytorch&logoColor=white">
+  <img alt="OpenCV" src="https://img.shields.io/badge/OpenCV-4.x-5C3EE8?style=flat-square&logo=opencv&logoColor=white">
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.11x-009688?style=flat-square&logo=fastapi&logoColor=white">
+  <img alt="Docker" src="https://img.shields.io/badge/docker-arm64%20%7C%20amd64-2496ED?style=flat-square&logo=docker&logoColor=white">
+</p>
+
+<p align="center">
+  <a href="https://ml-proj.losproeocl.cn">
+    <img alt="Online demo" src="https://img.shields.io/badge/demo-online-1f3a5f?style=flat-square">
+  </a>
+  <a href="docs/16-开发历程报告.pdf">
+    <img alt="Report" src="https://img.shields.io/badge/report-PDF-8B0000?style=flat-square">
+  </a>
+  <a href="https://github.com/LosproeOcl/doc-normalizer/releases/tag/dataset-self-v5">
+    <img alt="Dataset" src="https://img.shields.io/badge/dataset-encrypted%20release-2a9d8f?style=flat-square">
+  </a>
+  <img alt="Course" src="https://img.shields.io/badge/course-WUT%20ML-1f3a5f?style=flat-square">
+</p>
 
 武汉理工大学《机器学习》课程工程实践大作业，第六组，选题编号 Task 06。
 
@@ -111,6 +148,7 @@
 .
 ├── README.md                 项目说明与总索引
 ├── CHANGELOG.md              功能、实验与文档变更记录
+├── LICENSE                   MIT 开源许可（代码）
 ├── CONTRIBUTORS.md           贡献者与 PR #1 选择性采纳记录
 ├── CONTRIBUTING.md           协作约定
 ├── docs/                     阶段设计文档
@@ -186,7 +224,7 @@
 | 解压口令 | 见随附《项目访问与数据集口令.txt》，不随仓库上传 |
 
 ```bash
-gh release download dataset-self-v5 --repo LosproeOcl/wut-ml-task06-doc-normalizer
+gh release download dataset-self-v5 --repo LosproeOcl/doc-normalizer
 unzip -P <口令> dataset-self-442-encrypted.zip -d data/raw_samples/
 ```
 
@@ -259,9 +297,9 @@ unzip -P <口令> dataset-self-442-encrypted.zip -d data/raw_samples/
 - 外部数据仅用于预训练初始化或仅训练辅助，不进入自采验证/测试；报告中须声明来源、数量、许可与用途；
 - 引用他人代码或论文须注明出处。
 
-## 9. 使用范围
+## 9. 使用范围与开源许可
 
-本仓库内容仅用于本课程的学习与考核。
+本项目代码采用 [MIT License](LICENSE) 开源。`data/` 中的自采数据集与 `data/raw_samples/external-assets/` 中的公开数据集不适用 MIT：自采数据仅用于课程检查，公开数据集遵循各自原始许可（见 `docs/13-外部数据使用说明.md`）。
 
 ## 10. 文档修订记录
 

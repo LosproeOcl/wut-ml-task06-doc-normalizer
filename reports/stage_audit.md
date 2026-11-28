@@ -2,7 +2,7 @@
 
 | 项目 | 内容 |
 |---|---|
-| 审计对象 | `wut-ml-task06-doc-normalizer` 工作区（v5 口径，报告 v1.6） |
+| 审计对象 | `doc-normalizer` 工作区（v5 口径，报告 v1.6） |
 | 审计范围 | 数据、标注、模型、网页、测试、当前状态文档 |
 | 结论 | **M1–M4 全部通过（v5 口径，附基准变更与置信区间披露）** |
 | 证据 | `reports/final_test_v5.json`、`reports/repro_check_v5.md`、`reports/run_index.csv`、`reports/model_manifest.csv`、`docs/16-开发历程报告.docx`、`docs/18-小组成员及其分工.docx` |
@@ -21,7 +21,7 @@
 
 | 项目 | 内容 |
 |---|---|
-| 审计对象 | `wut-ml-task06-doc-normalizer` 工作区（HEAD `9ca3b85` + 未提交变更） |
+| 审计对象 | `doc-normalizer` 工作区（HEAD `9ca3b85` + 未提交变更） |
 | 审计范围 | 数据、标注、模型、网页、测试、全部当前状态文档 |
 | 结论 | **M2 通过；M3 已执行但未通过；M4 阻塞** |
 | 证据 | `reports/run_index.csv`、`reports/model_manifest.csv`、`reports/routed_pipeline.json`、`reports/annotation_audit.md`、`reports/quad_localization.md` |

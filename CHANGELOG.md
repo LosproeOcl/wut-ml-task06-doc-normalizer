@@ -4,6 +4,12 @@
 
 ## 2026-11-28
 
+### 仓库开源化
+
+- 仓库更名为 `doc-normalizer`；About 重写为项目简介与技术栈，homepage 指向在线演示，并增加 document-scanner、perspective-correction、OpenCV、PyTorch、FastAPI 等 topics。
+- 新增 MIT `LICENSE`（代码）；外部数据集保留各自原始许可，见 `docs/13-外部数据使用说明.md`。
+- README 增加 License、Release、Stars、Forks、Last commit、Python/PyTorch/OpenCV/FastAPI/Docker、Demo、Report、Dataset、Course 等 badges；仓库地址统一更新。
+
 ### split_v5 重建与外部测试集
 
 - 新增 `data/splits/split_v5.json`：自采 442 张 + 外部 30 张，train 349 / val 51 / test 72。测试集 = SmartDoc 2015 `03-captured-nexus` 30 张（全部 `paper_text`，只进 test）+ 从 v4 训练集按 `doc_page_id` 分层留出的 42 张自采样本（`ppt_text` 6 / `ppt_formula` 15 / `paper_text` 6 / `paper_formula` 15）。
