@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 STATIC = Path(__file__).resolve().parent / "static"
 MAX_UPLOAD = int(services.CONFIG["web"]["max_upload_mb"]) * 1024 * 1024
 
-app = FastAPI(title="T06 文档规范化演示", version="0.1.0")
+app = FastAPI(title="文档矫正与分类", version="0.1.0")
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
 PUBLIC_MODE = os.environ.get("DOCNORM_PUBLIC_MODE", "").lower() in {"1", "true", "yes", "on"}
@@ -46,6 +46,11 @@ async def web_error_handler(_, exc: services.WebError):
 @app.get("/")
 def index():
     return FileResponse(STATIC / "index.html")
+
+
+@app.get("/about")
+def about():
+    return FileResponse(STATIC / "about.html")
 
 
 @app.get("/api/health")
