@@ -551,3 +551,132 @@ code {
   .stages { grid-template-columns: 1fr; }
   .annotate { grid-template-columns: 1fr; }
 }
+
+/* Interaction, accessibility and responsive refinements */
+:root {
+  --focus-ring: #3354aa;
+  --focus-ring-soft: rgba(51, 84, 170, 0.16);
+}
+
+:is(a, button, select, input, .batch-item):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: #dfe7ff;
+  color: var(--text);
+}
+
+input[type="checkbox"] {
+  accent-color: var(--link);
+}
+
+button {
+  transition: border-color 0.15s ease, color 0.15s ease,
+    background-color 0.15s ease, transform 0.15s ease;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.site-nav a,
+.batch-item,
+.drop-zone {
+  transition: border-color 0.15s ease, background-color 0.15s ease,
+    color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.batch-item:hover {
+  border-color: #b9c4e6;
+  box-shadow: 0 2px 10px var(--focus-ring-soft);
+}
+
+.batch-item:focus-within {
+  border-color: var(--link);
+  box-shadow: 0 0 0 3px var(--focus-ring-soft);
+}
+
+.drop-zone:hover {
+  border-color: #b9c4e6;
+  background: #f4f7ff;
+}
+
+.image-modal-close:focus-visible {
+  outline-color: #ffffff;
+}
+
+@media (max-width: 780px) {
+  .toolbar {
+    gap: 8px;
+  }
+
+  .site-nav a {
+    margin-right: 16px;
+  }
+
+  .person-bar {
+    flex-wrap: wrap;
+  }
+
+  .corner-tool,
+  .review-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .batch-item {
+    flex-basis: 136px;
+  }
+
+  .image-modal {
+    padding: 12px;
+  }
+
+  .image-modal-close {
+    top: 10px;
+    right: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media print {
+  .site-nav,
+  .person-bar,
+  .toolbar,
+  .drop-zone,
+  .batch-list,
+  .site-footer,
+  .image-modal {
+    display: none !important;
+  }
+
+  body {
+    color: #000000;
+  }
+
+  .site-header,
+  main {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card {
+    break-inside: avoid;
+  }
+}
