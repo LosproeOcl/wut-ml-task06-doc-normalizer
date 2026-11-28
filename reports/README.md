@@ -37,6 +37,8 @@ reports/
 ├── manual_4x3_preview.jpg       16 组 4:3 人工四角合成预览
 ├── manual_4x3_pairs.jpg         4 组“原场景 / 合成”对照
 ├── manual_4x3_layouts.jpg       16 张 4:3 示例版式
+├── synth_ppt_v3_training.md     严格 4:3 背景的 v3 训练对照
+├── synth_ppt_v3_cv.json         v3 15 次运行、逐折与 OOF 指标
 └── experiments/                逐实验记录（按需创建）
 ```
 
@@ -63,6 +65,7 @@ reports/
 | `synth_ppt_pilot.md` | 合成投影 PPT 24 组示例、版式/投影核查与重训门槛 | `reports/synth_ppt_*.jpg`、`data/synthetic/ppt_projection_v1/manifest.csv` |
 | `synth_ppt_training.md` | 合成 v2 训练试点：160 组、5 折 CV 与 fold1 结果 | `reports/synth_ppt_cv.json`、`runs/exp-cnn-ppt-synth-v2-*` |
 | `manual_4x3_sample.md` | 只用 4:3 人工四角标注的 16 组合成示例 | `reports/manual_4x3_*.jpg`、`data/synthetic/manual_4x3_demo/manifest.csv` |
+| `synth_ppt_v3_training.md` | 严格 4:3 背景的 v3 160 组、5 折结果与 v2 对照 | `reports/synth_ppt_v3_cv.json`、`runs/exp-cnn-ppt-synth-v3-*` |
 | `repro_check.md` | 冻结提交上的测试复现核验（结果一致，指标未达标） | `reports/final_test_repro.json` |
 | `ppt_quad.md` | 人工四角标签训练的 PPT 四角回归与 OpenCV 对比 | `runs/quad-ppt-01/quad_ppt.pt` |
 | `quad_localization.md` | PPT/纸质分载体四角模型、端到端接入评估与门控审计 | `runs/quad-ppt-02`、`runs/quad-paper-01`、`reports/quad_routing_eval.json` |
