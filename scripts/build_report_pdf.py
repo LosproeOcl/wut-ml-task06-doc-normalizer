@@ -21,7 +21,7 @@ CSS = """
 table { border-collapse: collapse; border-top: 1.6pt solid #000; border-bottom: 1.6pt solid #000; margin: 8px auto; }
 thead th { border-bottom: 0.8pt solid #000 !important; }
 th, td { border: none !important; padding: 3px 8px; }
-tr { border: none !important; }
+tr { border: none !important; page-break-inside: avoid; break-inside: avoid; }
 p, li, td, th { text-align: left !important; }
 code, pre { white-space: pre-wrap; word-break: break-all; }
 blockquote { margin: 0; padding: 0; border: none; }

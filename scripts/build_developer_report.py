@@ -679,8 +679,8 @@ def section_architecture(doc):
     )
     figure(
         doc,
-        "carrier_gate_curves.png",
-        "图 7  载体门控训练曲线（v5 训练集 2,349 张 / 外部验证 1,000 张）",
+        "carrier_gate_curves_v5.png",
+        "图 7  载体门控训练曲线（v5 恢复重建版：2,149 训练 / 900 验证；原权重日志已丢失）",
         14.0,
     )
 
@@ -697,8 +697,8 @@ def section_architecture(doc):
     )
     figure(
         doc,
-        "paper_model_curves.png",
-        "图 8  纸质分支模型训练曲线（外部文本 + 自采 paper，平衡类权重）",
+        "paper_model_curves_v5.png",
+        "图 8  纸质分支训练曲线（v5 恢复重建版：s45 / s47 的验证准确率）",
         13.5,
     )
     table(
@@ -829,7 +829,7 @@ def section_versions(doc):
         widths=[1.4, 3.0, 7.0, 4.6, 4.2],
         font_size=9.0,
     )
-    figure(doc, "metrics.png", "图 10  验证集 51 张上的版本与分支准确率对比（v4 时期）", 14.5)
+    figure(doc, "val_metrics_v5.png", "图 10  v5 验证集指标与五折分组 CV 对比（左：验证/外部门控；右：CV 均值 ± 标准差）", 15.2)
     body(
         doc,
         "需要特别说明版本表中两组数值：V0 行随机森林的 72.55% 与 v5 SVM 的 72.55% 数值相同但实验不同"
@@ -906,7 +906,7 @@ def section_versions(doc):
         "取舍四：为什么门控不做自动跨分支切换？实测按“谁置信度高用谁”会把 4 张 PPT 误切到纸质，"
         "全链路降到 80.39%（v4 口径）。最终只做 uncertain 标记、质量兜底与手动“按 PPT/纸质重试”，v5 沿用该策略，测试集 3 张门控误判均被纠正。"
     )
-    figure(doc, "confusion.png", "图 11  v4 时期路由链路验证集混淆矩阵（文字/公式，历史口径）", 9.5)
+    figure(doc, "confusion_val_v5.png", "图 11  v5 验证集路由混淆矩阵（文字/公式，n=51，准确率 84.31%）", 10.5)
     body(
         doc,
         "单次 21 张验证集不足以支撑 PPT 分支选择，因此补充了 5 折分组交叉验证："
@@ -1200,6 +1200,12 @@ def section_status(doc):
         "表中冻结的 93.06% 是原权重的一次性评估记录，继续作为 M3 的正式结果保留；两套权重的差异来自"
         "Tobacco 镜像中 261 张文本页的内容与命名不一致，评估口径未变。提交包内为恢复权重，"
         "复评明细见 reports/final_test_v5_recovery.json。"
+    )
+    figure(
+        doc,
+        "test_recovery_compare.png",
+        "图 20  v5 测试集：正式冻结（原权重）与恢复权重复评的对照（合计/自采/外部）",
+        13.0,
     )
     figure(
         doc,
