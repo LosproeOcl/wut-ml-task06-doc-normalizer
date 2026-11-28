@@ -27,6 +27,10 @@ reports/
 ├── env_validation.md           环境验证
 ├── annotation_audit.md         标注审计
 ├── privacy_audit.csv           隐私复核审计记录
+├── synth_ppt_pilot.md          合成投影 PPT 试点示例与重训门槛
+├── synth_ppt_preview.jpg       24 组合成投影预览
+├── synth_ppt_layouts.jpg       24 张课件页版式
+├── synth_ppt_pairs.jpg         4 组“课件原图 / 投影合成”对照
 └── experiments/                逐实验记录（按需创建）
 ```
 
@@ -50,6 +54,7 @@ reports/
 | `test_set_paths.csv/.md/.txt` | 53 张测试集样本的绝对路径清单（只读） | `data/splits/split_v4.json` |
 | `test_set_links.md` / `test_set_gallery.html` | 测试集 53 张的可点击相对路径与缩略图画廊 | `reports/test_set_paths.csv` |
 | `test_quality_analysis.md` | 测试集清晰度/分辨率与错误关系核查 | `reports/final_test.json` |
+| `synth_ppt_pilot.md` | 合成投影 PPT 24 组示例、版式/投影核查与重训门槛 | `reports/synth_ppt_*.jpg`、`data/synthetic/ppt_projection_v1/manifest.csv` |
 | `repro_check.md` | 冻结提交上的测试复现核验（结果一致，指标未达标） | `reports/final_test_repro.json` |
 | `ppt_quad.md` | 人工四角标签训练的 PPT 四角回归与 OpenCV 对比 | `runs/quad-ppt-01/quad_ppt.pt` |
 | `quad_localization.md` | PPT/纸质分载体四角模型、端到端接入评估与门控审计 | `runs/quad-ppt-02`、`runs/quad-paper-01`、`reports/quad_routing_eval.json` |

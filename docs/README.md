@@ -21,6 +21,7 @@
 | 15 | [14-屏幕检测方案](14-屏幕检测方案.md) | 用 SCB-Dataset screen 框训练幕布检测器，失败时裁剪再分类；增补 PPT/纸质稿载体门控 | 开发成员、报告成员 |
 | 16 | [15-空间偏度优化调研](15-空间偏度优化调研.md) | 不新增样本的合成偏度压力测试、门控 TTA/阈值与增广结论 | 开发成员、报告成员 |
 | 17 | [16-开发者视角开发历程报告](16-开发者视角开发历程报告.docx) | 数据集、模型选择、架构、参数更迭、上线取舍、问题与截图（DOCX） | 全体成员、任课教师 |
+| 18 | [17-合成投影PPT试点](17-合成投影PPT试点.md) | 合成投影 PPT 的版式、投影退化、24 组示例核查与重训门槛 | 开发成员、报告成员 |
 
 ## 架构决策记录
 
@@ -64,6 +65,7 @@
 | [`reports/final_test.md`](../reports/final_test.md) | 测试集一次性评估、置信区间、McNemar 与错误分析 |
 | [`reports/test_failure_analysis.md`](../reports/test_failure_analysis.md) | 测试失败根因核查与分格退化分析 |
 | [`reports/test_quality_analysis.md`](../reports/test_quality_analysis.md) | 测试集清晰度/分辨率与错误关系核查 |
+| [`reports/synth_ppt_pilot.md`](../reports/synth_ppt_pilot.md) | 合成投影 PPT 24 组示例、核查与重训门槛 |
 | [`reports/cv_oof.md`](../reports/cv_oof.md) | 5 折分组交叉验证、OOF 校准/阈值与融合结果 |
 | [`reports/cross_carrier.md`](../reports/cross_carrier.md) | 纸质模型直接验证 PPT 样本的跨载体结果 |
 | [`reports/test_label_audit/README.md`](../reports/test_label_audit/README.md) | 测试标签双人盲审规则、第一遍结果与第二遍材料 |

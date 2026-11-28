@@ -38,6 +38,12 @@
 | `eval_gate_skew.py` | 载体门控在合成偏度下的阈值、TTA 与 AUC 评估 |
 | `make_skew_figures.py` | 生成空间偏度三张评估图 |
 
+## 2026-11-28 新增脚本
+
+| 脚本 | 用途 |
+|---|---|
+| `build_synth_ppt_pages.py` | 生成“SCB 教室背景 + 课程课件 + 投影退化”的合成 PPT 示例；输出 1280×960 成对图、manifest 与画廊，图像不入库 |
+
 `check_manifest.py` 与 `check_dataset.py` 基于 PR #1 的校验思路、按当前数据契约重写；贡献记录见 `CONTRIBUTORS.md`。
 
 ## 编写约定
