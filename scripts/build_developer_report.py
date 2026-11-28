@@ -92,6 +92,8 @@ def figure(doc, filename, cap, width_cm=15.0):
     paragraph.paragraph_format.space_before = Pt(8)
     paragraph.paragraph_format.space_after = Pt(2)
     paragraph.paragraph_format.first_line_indent = Pt(0)
+    paragraph.paragraph_format.keep_with_next = True
+    paragraph.paragraph_format.keep_together = True
     run = paragraph.add_run()
     run.add_picture(str(ASSETS / filename), width=Cm(width_cm))
     caption(doc, cap)
@@ -1377,9 +1379,27 @@ def section_team(doc):
             ["李念", "37", "58", "4", "24", "60", "0", "110", "373", "10.1%"],
             ["合计", "442", "676", "420", "312", "350", "240", "625", "3705", "100.0%"],
         ],
-        "表 17  贡献加权点数与占比（计算过程见表 18 与正文公式）",
+        "表 17  贡献加权点数与占比（计算过程见表 19 与正文公式）",
         widths=[2.0, 1.1, 1.1, 1.1, 1.1, 1.1, 1.3, 1.1, 1.4, 1.1],
         font_size=8.8,
+    )
+    table(
+        doc,
+        ["成员", "学号"],
+        [
+            ["余青阳", "4320261168"],
+            ["张毅卓", "4320261041"],
+            ["任万东", "4320261103"],
+            ["王康琦", "4320261146"],
+            ["蒋翔恒", "4320261037"],
+            ["张艺萧", "4320261058"],
+            ["孔泽宇", "4320261051"],
+            ["李念", "4320261057"],
+        ],
+        "表 18  小组成员学号",
+        widths=[3.0, 4.0],
+        font_size=9.2,
+        align_center=False,
     )
     table(
         doc,
@@ -1393,7 +1413,7 @@ def section_team(doc):
             ["里程碑/审计", "20 点/次", "12 次", "M1–M4 判定、标签审计、复现核验、合规抽查"],
             ["岗位责任分", "登记值", "625 点", "负责人 150、数据 80、矫正 75、传统 20、深度学习 20、评估 40、可视化 130、工程 110"],
         ],
-        "表 18  计算项、系数与原始计数",
+        "表 19  计算项、系数与原始计数",
         widths=[2.2, 1.8, 7.2, 4.4],
         font_size=8.8,
         align_center=False,

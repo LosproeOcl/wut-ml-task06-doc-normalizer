@@ -30,6 +30,8 @@ p, li, td, th { text-align: left !important; }
 code, pre { white-space: pre-wrap; word-break: break-all; }
 blockquote { margin: 0; padding: 0; border: none; }
 .toc p { margin: 0; line-height: 1.2; }
+.figure-block, .table-block { break-inside: avoid; page-break-inside: avoid; }
+.figure-block p:first-child, .table-block p:first-child { break-after: avoid; page-break-after: avoid; }
 """
 
 BREAK = '<div style="page-break-before: always; break-before: page;"></div>\n'
@@ -97,6 +99,19 @@ def build_html(toc_pages: dict[str, int] | None) -> str:
             page = toc_pages.get(key) or toc_pages.get(key + "（检查者指南）")
             if page:
                 text = pattern_plain.sub(f"<p>{title}　…… {page}</p>", text, count=1)
+    # 图/表与题注绑定，避免题注被分页到下一頁而图表留在上一页
+    text = re.sub(
+        r"(<p><img[^>]*></p>\s*<p>图\s*\d+[^<]*</p>)",
+        r'<div class="figure-block">\1</div>',
+        text,
+        flags=re.S,
+    )
+    text = re.sub(
+        r"(<p>表\s*\d+[^<]*</p>\s*<table>.*?</table>)",
+        r'<div class="table-block">\1</div>',
+        text,
+        flags=re.S,
+    )
     html_path.write_text(text)
     return str(html_path)
 

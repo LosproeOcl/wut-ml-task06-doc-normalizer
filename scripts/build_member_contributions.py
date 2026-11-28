@@ -28,14 +28,14 @@ HEAD_FONT = "黑体"
 LATIN_FONT = "Times New Roman"
 
 MEMBERS = [
-    ("余青阳", "LosproeOcl", "项目负责人 · 架构与算法主责 · 数据与标注 · 部署与交付"),
-    ("张毅卓", "qingwu0731", "数据负责人 · 清单与划分 · 排除表复核 · 外部 PR 贡献者"),
-    ("任万东", "RenWandong", "矫正与增强 · 检测调参 · 学习四角"),
-    ("王康琦", "qywkq", "传统机器学习 · 特征工程与传统基线"),
-    ("蒋翔恒", "Jiang-Xiangheng", "轻量深度学习 · MobileNetV3 迁移学习与训练"),
-    ("张艺萧", "zhangyixiao123", "评估 · 指标实现 · 交叉验证与统计检验"),
-    ("孔泽宇", "jsindkdneksn", "可视化与报告 · 图表组 · 报告排版"),
-    ("李念", "hanss0090", "工程与复现 · 容器 · 持续集成 · 复现核验"),
+    ("余青阳", "4320261168", "LosproeOcl", "项目负责人 · 架构与算法主责 · 数据与标注 · 部署与交付"),
+    ("张毅卓", "4320261041", "qingwu0731", "数据负责人 · 清单与划分 · 排除表复核 · 外部 PR 贡献者"),
+    ("任万东", "4320261103", "RenWandong", "矫正与增强 · 检测调参 · 学习四角"),
+    ("王康琦", "4320261146", "qywkq", "传统机器学习 · 特征工程与传统基线"),
+    ("蒋翔恒", "4320261037", "Jiang-Xiangheng", "轻量深度学习 · MobileNetV3 迁移学习与训练"),
+    ("张艺萧", "4320261058", "zhangyixiao123", "评估 · 指标实现 · 交叉验证与统计检验"),
+    ("孔泽宇", "4320261051", "jsindkdneksn", "可视化与报告 · 图表组 · 报告排版"),
+    ("李念", "4320261057", "hanss0090", "工程与复现 · 容器 · 持续集成 · 复现核验"),
 ]
 
 
@@ -238,11 +238,20 @@ def main() -> int:
     heading(doc, "2  成员与角色", 1)
     table(
         doc,
-        ["姓名", "GitHub 主页", "角色与分工"],
-        [[name, f"github.com/{handle}" if handle != "待补" else "（用户名待补）", role] for name, handle, role in MEMBERS],
+        ["姓名", "学号", "GitHub 主页", "角色与分工"],
+        [
+            [name, student_id, f"github.com/{handle}" if handle != "待补" else "（用户名待补）", role]
+            for name, student_id, handle, role in MEMBERS
+        ],
         "表 1  成员与角色分工",
-        widths=[2.2, 4.2, 8.6],
+        widths=[1.8, 2.4, 3.8, 7.4],
+        font_size=9.2,
         align_center=False,
+    )
+    body(
+        doc,
+        "技术点责任顺序：余青阳作为项目负责人参与全部 9 个技术点；在由其主责的技术点（载体门控、"
+        "网页交互与批量处理）列第一，其余技术点列第二；每个技术点另由 1–2 名成员共同负责。"
     )
 
     heading(doc, "3  贡献量化总表", 1)
