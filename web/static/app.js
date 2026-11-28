@@ -57,6 +57,15 @@ const I18N = {
     select_all: "全选",
     select_none: "清空选择",
     pdf_hint: "导出多页 PDF 前需逐页校准：点击下方卡片，调整四角后点“应用四角”。",
+    reload_anno: "重新载入",
+    label_text: "文字",
+    label_formula: "公式",
+    skip: "跳过",
+    confirm_corners: "确认四角",
+    reset_corners: "重选四角",
+    refresh: "刷新",
+    prev_page: "上一页",
+    next_page: "下一页",
     footer: '武汉理工大学《机器学习》课程实践 · 第六组 · 服务器演示 <span class="footer-sep">·</span> <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>',
     health_ready: "双分支模型已加载",
     health_fallback: "分类模型已加载（使用兜底分支）",
@@ -106,6 +115,15 @@ const I18N = {
     select_all: "Select all",
     select_none: "Clear selection",
     pdf_hint: "Calibrate every page before exporting a multi-page PDF: click a card, adjust the corners, then click “Apply corners”.",
+    reload_anno: "Reload",
+    label_text: "Text",
+    label_formula: "Formula",
+    skip: "Skip",
+    confirm_corners: "Confirm corners",
+    reset_corners: "Reset corners",
+    refresh: "Refresh",
+    prev_page: "Previous",
+    next_page: "Next",
     footer: 'Wuhan University of Technology · Machine Learning Engineering Practice · Group 06 · Server demo <span class="footer-sep">·</span> <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub</a>',
     health_ready: "Dual-branch models loaded",
     health_fallback: "Classifier loaded (fallback branch)",
@@ -168,6 +186,16 @@ function applyLanguage(lang) {
   setText("#pdf-select-all", t.select_all);
   setText("#pdf-select-none", t.select_none);
   setText("#pdf-hint", t.pdf_hint);
+  setText("#reload-anno", t.reload_anno);
+  setText('[data-label="text"]', t.label_text);
+  setText('[data-label="formula"]', t.label_formula);
+  setText("#anno-skip", t.skip);
+  setText("#corner-skip", t.skip);
+  setText("#corner-confirm", t.confirm_corners);
+  setText("#corner-reset", t.reset_corners);
+  setText("#review-reload", t.refresh);
+  setText("#review-prev", t.prev_page);
+  setText("#review-next", t.next_page);
   setHTML(".site-footer", t.footer);
   setText("#drop-zone p", t.drop);
   setText("#analyze-btn", t.analyze);
