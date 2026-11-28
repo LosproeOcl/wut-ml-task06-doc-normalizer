@@ -32,12 +32,12 @@ FONT_CANDIDATES = (
 )
 
 SAMPLES = [
-    ("01_ppt_text/IMG_5597.jpeg", "PPT 幕布 · 文字"),
-    ("02_ppt_formula/IMG_5541.jpg", "PPT 幕布 · 公式"),
+    ("01_ppt_text/IMG_6233.jpg", "PPT 幕布 · 文字"),
+    ("02_ppt_formula/IMG_6209.jpeg", "PPT 幕布 · 公式"),
     ("03_paper_text/IMG_20261125_232543.jpg", "A4 纸质 · 文字"),
     ("04_paper_formula/formula_05.jpg", "A4 纸质 · 公式"),
 ]
-RECTIFY_SAMPLE = "01_ppt_text/IMG_5597.jpeg"
+RECTIFY_SAMPLE = "01_ppt_text/IMG_6233.jpg"
 
 # 数据集总览固定抽样：每类 6 张，均已人工核对不含人脸与可识别个人信息。
 OVERVIEW_PICKS = {
