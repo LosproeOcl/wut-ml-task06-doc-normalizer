@@ -56,6 +56,21 @@ main,
   font-size: 14px;
 }
 
+.site-description a,
+.site-footer a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.site-description a:hover,
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+.footer-sep {
+  margin: 0 6px;
+}
+
 .site-nav {
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
