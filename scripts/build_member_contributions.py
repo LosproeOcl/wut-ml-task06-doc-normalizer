@@ -1,4 +1,4 @@
-"""生成《小组成员及其分工与技术点报告》DOCX（含贡献量化与逐人技术点）。
+"""生成《小组成员及其分工》DOCX（含贡献量化，计数制口径）。
 
 数据来源（均为仓库内可复核文件）：
 - data/manifests/sample_manifest_v5.csv + exclusions.csv（采集数量）
@@ -211,7 +211,7 @@ def main() -> int:
 
     title = doc.add_paragraph()
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = title.add_run("小组成员及其分工与技术点报告")
+    run = title.add_run("小组成员及其分工与贡献量化说明")
     set_run_font(run, size=16, bold=True, east=HEAD_FONT)
     sub = doc.add_paragraph()
     sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -284,10 +284,10 @@ def main() -> int:
         "工程交付 10 点/项（35 项）、里程碑/审计 20 点/次（12 次）。"
     )
 
-    heading(doc, "4  分成员技术点与贡献详述", 1)
+    heading(doc, "4  分成员分工与贡献详述", 1)
     body(
         doc,
-        "本节按成员列出承担的技术点、实现内容与可复核产物；贡献点数与占比的汇总见第 3 节，"
+        "本节按成员列出分工、实现内容与可复核产物；贡献点数与占比的汇总见第 3 节，"
         "完整运行记录见 reports/run_index.csv。"
     )
     details = [
@@ -299,7 +299,7 @@ def main() -> int:
                 "标签：训练集标签修正 2 条（manual_labels.csv），主持 11 张公式/文字标签的双人盲审复核；",
                 "实验：纸质分支 41 组、载体门控 5 组、外部预训练 2 组、屏幕检测 2 组及流程性运行 7 组，个人主责 57 组；另统筹全组 193 条运行记录；",
                 "工程：网页全链路（三入口上传、批量队列、双路径拉正、扫描件、多页 PDF）、载体门控接入、双分支路由、质量兜底；",
-                "文档：docs 下 18 份文档与全部 reports 报告的主笔与终审；开发历程报告（16 号）与《小组成员及其分工与技术点报告》（本文件）；",
+                "文档：docs 下 18 份文档与全部 reports 报告的主笔与终审；开发历程报告（16 号）与《小组成员及其分工》（本文件）；",
                 "交付：97 次 git 提交、GitHub 仓库与 CI 维护、M1–M4 验收判定、线上服务部署与维护承诺（至 2027-01-01）。",
             ],
         ),
