@@ -41,19 +41,22 @@ def fit_box(image: Image.Image, width: int, height: int) -> Image.Image:
 
 
 def build(rows, out_name: str, cell_w: int, cell_h: int, title: str) -> None:
-    font = ImageFont.truetype(FONT, 26)
-    label_h = 34
+    font = ImageFont.truetype(FONT, 24)
+    label_h = 26
+    row_title_h = 30
     width = cell_w * 3 + 40
-    height = 50 + len(rows) * (cell_h + label_h)
+    row_h = row_title_h + label_h + cell_h
+    height = 50 + len(rows) * row_h
     canvas = Image.new("RGB", (width, height), "white")
     draw = ImageDraw.Draw(canvas)
     draw.text((10, 8), title, fill="#1f3a5f", font=font)
     for r, (sample, panels) in enumerate(rows):
-        y = 50 + r * (cell_h + label_h)
+        y = 50 + r * row_h
+        draw.text((10, y), sample, fill="#1f3a5f", font=font)
         for c, (label, image) in enumerate(panels):
             x = 10 + c * cell_w
-            draw.text((x + 4, y), f"{sample} · {label}", fill="#333333", font=font)
-            canvas.paste(fit_box(image, cell_w - 20, cell_h - 6), (x, y + label_h - 4))
+            draw.text((x + 4, y + row_title_h), label, fill="#333333", font=font)
+            canvas.paste(fit_box(image, cell_w - 20, cell_h - 6), (x, y + row_title_h + label_h))
     canvas.save(OUT / out_name, quality=92)
     print("saved", out_name, canvas.size)
 
