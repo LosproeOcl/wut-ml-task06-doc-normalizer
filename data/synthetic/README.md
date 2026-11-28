@@ -58,6 +58,8 @@ python3 scripts/build_synth_train_manifest.py   --manifest data/synthetic/ppt_pr
 - 5 折 × 3 种子：**76.50% ± 6.85**，宏 F1 **74.74%**，OOF **78.05%**，公式召回 **81.0%**；折均值低于 v2，但定位更准、公式召回更高；
 - 清单 `synth_ppt_v3_train.csv`，说明见 `reports/synth_ppt_v3_training.md`。
 
+**测试集复验未通过**：固定阈值 0.5 下 PPT 分支冻结链路 62.50%，v2/v3 均为 45.83%；全测试 67.92% → 60.38%。CV 增益未迁移，v2/v3 不接入最终链路，详见 `reports/synth_ppt_test.md`。
+
 ## 边界
 
 1. 合成图只允许进入训练集，且必须在报告中披露生成方式、数量、模板与背景来源。
