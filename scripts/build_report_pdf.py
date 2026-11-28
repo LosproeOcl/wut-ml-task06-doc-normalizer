@@ -23,7 +23,8 @@ CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 CSS = """
 table { border-collapse: collapse; border-top: 1.6pt solid #000; border-bottom: 1.6pt solid #000; margin: 8px auto; }
 thead th { border-bottom: 0.8pt solid #000 !important; }
-th, td { border: none !important; padding: 3px 8px; }
+th, td { border: none !important; padding: 3px 8px; word-break: break-all; overflow-wrap: anywhere; }
+table { width: 100%; max-width: 100%; table-layout: fixed; }
 tr { border: none !important; page-break-inside: avoid; break-inside: avoid; }
 p, li, td, th { text-align: left !important; }
 code, pre { white-space: pre-wrap; word-break: break-all; }

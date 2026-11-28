@@ -180,12 +180,22 @@ def table(doc, headers, rows, cap, widths=None, font_size=10.5, align_center=Tru
                     paragraph.paragraph_format.keep_with_next = True
     table_obj.autofit = False
     if widths:
-        # 控制总宽不超过版心 15.6 cm，避免 PDF/Word 单元格裁切
+        # 控制总宽不超过版心 15.6 cm，并写入 tblGrid，避免长 URL 把表格撑出页面
         total = sum(widths)
         scale = min(1.0, 15.6 / total) if total else 1.0
+        scaled = [width * scale for width in widths]
         for row in table_obj.rows:
-            for index, width in enumerate(widths):
-                row.cells[index].width = Cm(width * scale)
+            for index, width in enumerate(scaled):
+                row.cells[index].width = Cm(width)
+        grid = table_obj._tbl.tblGrid
+        if grid is not None:
+            for col, width in zip(grid.gridCol_lst, scaled):
+                col.set(qn("w:w"), str(int(round(width * 567))))
+        tbl_pr = table_obj._tbl.tblPr
+        tbl_w = OxmlElement("w:tblW")
+        tbl_w.set(qn("w:w"), str(int(round(sum(scaled) * 567))))
+        tbl_w.set(qn("w:type"), "dxa")
+        tbl_pr.append(tbl_w)
     doc.add_paragraph().paragraph_format.space_after = Pt(2)
 
 
@@ -303,7 +313,7 @@ def cover(doc):
     for text, size in [
         ("武汉理工大学《机器学习》课程实践", 14),
         ("第六组 · Task 06", 12),
-        ("报告版本：v1.3（v5 口径，评审修订）", 11),
+        ("报告版本：v1.5（v5 口径，评审修订）", 11),
         ("2026 年 11 月 28 日", 11),
     ]:
         paragraph = doc.add_paragraph()
@@ -1357,12 +1367,6 @@ def section_team(doc):
         font_size=8.8,
         align_center=False,
     )
-    body(
-        doc,
-        "按上表计算，余青阳 27.5%，为次高者（蒋翔恒 11.1%）的约 2.5 倍；其余成员分布在 10.1%–11.1% 之间，"
-        "均不低于 10%，且差异来自实验组数与岗位责任分的实际承担量。以点数为权重而非直接按人次平均，"
-        "可以避免“重要但耗时”的交付（部署、验收、复现、报告）被低估，也避免把全组统筹重复计入个人。"
-    )
 
 
 def section_conclusion(doc):
@@ -1389,6 +1393,7 @@ def section_conclusion(doc):
 
 
 def references(doc):
+    doc.add_page_break()
     heading(doc, "参考文献", 1)
     refs = [
         "[1] Howard A, Sandler M, Chu G, et al. Searching for MobileNetV3[C]//Proceedings of the IEEE/CVF International Conference on Computer Vision. 2019: 1314-1324.",
@@ -1418,6 +1423,7 @@ def references(doc):
 
 
 def appendix(doc):
+    doc.add_page_break()
     heading(doc, "附录 A  关键复现命令", 1)
     commands = [
         ("数据校验", "python scripts/check_manifest.py data/manifests/sample_manifest_v5.csv && python scripts/check_dataset.py data/manifests/sample_manifest_v5.csv"),
@@ -1441,6 +1447,7 @@ def appendix(doc):
         run = paragraph.add_run(command)
         set_run_font(run, size=9.5, east="Menlo", latin="Menlo")
 
+    doc.add_page_break()
     heading(doc, "附录 B  线上模型清单", 1)
     body(
         doc,
@@ -1476,6 +1483,7 @@ def appendix(doc):
 
 
 def appendix_c(doc):
+    doc.add_page_break()
     heading(doc, "附录 C  产出文档索引与在线资源", 1)
     body(
         doc,
@@ -1531,6 +1539,7 @@ def appendix_c(doc):
 
 
 def appendix_d(doc):
+    doc.add_page_break()
     heading(doc, "附录 D  部署、测试、使用与数据集获取（检查者指南）", 1)
     body(
         doc,
@@ -1611,13 +1620,23 @@ def appendix_d(doc):
     )
 
     heading(doc, "D.4  数据集获取：Release 加密包与放置路径", 2)
-    body(
+    table(
         doc,
-        "自采数据集（442 张，约 1.05 GiB）以加密 ZIP 形式发布在仓库 Release 页："
-        "https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer/releases/tag/dataset-self-v5，"
-        "资产名 dataset-self-442-encrypted.zip（显示标签：自采数据集 442 张（加密）），SHA-256 为 f2a5489d3463bedc0cdfece75b7df917d8c6c6b384c3797ee43c5b2280d2e597。"
-        "解压口令按课程约定经微信群单独发送给任课教师，不写入任何公开文件。下载与解压：",
+        ["项目", "内容"],
+        [
+            ["Release", "GitHub Releases 页，tag dataset-self-v5"],
+            ["资产名", "dataset-self-442-encrypted.zip"],
+            ["显示标签", "自采数据集 442 张（加密）"],
+            ["大小", "1,126,447,306 字节（约 1.05 GiB）"],
+            ["SHA-256", "f2a5489d3463bedc0cdfece75b7df917d8c6c6b384c3797ee43c5b2280d2e597"],
+            ["解压口令", "经微信群单独发送给任课教师，不写入公开文件"],
+        ],
+        "表 D1  自采数据集 Release 信息与获取命令",
+        widths=[2.6, 12.0],
+        font_size=9.2,
+        align_center=False,
     )
+    body(doc, "下载与解压命令：")
     _cmd(doc, "gh release download dataset-self-v5 --repo LosproeOcl/wut-ml-task06-doc-normalizer")
     _cmd(doc, "unzip -P <口令> dataset-self-442-encrypted.zip -d data/raw_samples/")
     body(

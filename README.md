@@ -43,6 +43,14 @@
 | **v5 测试集一次性评估** | **93.06% / 宏 F1 92.65%**（CI 86.11%–98.61%）；自采 42 张 88.10%，外部 30 张 100% | 外部子集全部为文字类纸质页；公式召回 83.33%；已达 85% 门禁，见 `reports/final_test_v5.md` |
 
 完整变更见 [`CHANGELOG.md`](CHANGELOG.md)，全部运行索引见 `reports/run_index.csv`。多维度评估图见 `reports/figures/eval_*.png`（300 dpi）与同名 SVG，说明见 `reports/web_integration.md`。
+### 1.2 效果示例（原图 → OpenCV 拉正 → 扫描件）
+
+![投影幕布样例](docs/assets/readme_ppt_effect.png)
+
+![纸质/板书样例](docs/assets/readme_paper_effect.png)
+
+上图为测试集样本的实际链路输出：原图经载体门控进入对应分支，OpenCV 拉正（Canny 50/150）后输出扫描件（自适应二值化）。样例覆盖投影幕布文字/公式与纸质文字/公式四类；原图不纳入版本控制，效果图由 `scripts/make_readme_examples.py` 重新生成。更多过程截图见 `docs/record-img/`，完整评估图见 `reports/figures/`。
+
 
 ## 2. 与选题手册的对应关系
 

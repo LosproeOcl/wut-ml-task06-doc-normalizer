@@ -155,25 +155,35 @@ def main() -> int:
     assert status == "ok", f"rectify failed: {status}"
     scan = services._apply_scan(rectified)
     from PIL import ImageOps
-    def framed(image):
-        image = ImageOps.expand(image, border=10, fill="white")
-        draw = ImageDraw.Draw(image)
-        draw.rectangle([0, 0, image.width - 1, image.height - 1], outline="#cccccc")
-        return image
-    top = [framed(to_pil(original, long_edge=1100)), framed(to_pil(rectified, long_edge=1100))]
-    scan_img = framed(to_pil(scan, long_edge=2000))
+
+    def fit_box(image, width, height):
+        canvas = Image.new("RGB", (width, height), "white")
+        copy = image.copy()
+        copy.thumbnail((width - 8, height - 8), Image.LANCZOS)
+        canvas.paste(copy, ((width - copy.width) // 2, (height - copy.height) // 2))
+        draw = ImageDraw.Draw(canvas)
+        draw.rectangle([0, 0, width - 1, height - 1], outline="#cccccc")
+        return canvas
+
+    cell_w, cell_h = 1100, 820
+    top = [
+        fit_box(to_pil(original, long_edge=1100), cell_w, cell_h),
+        fit_box(to_pil(rectified, long_edge=1100), cell_w, cell_h),
+    ]
+    scan_src = to_pil(scan, long_edge=2000)
+    scan_h = int(round(scan_src.height * (cell_w * 2 + 10) / scan_src.width))
+    scan_img = fit_box(scan_src, cell_w * 2 + 10, scan_h)
     font = load_font(32)
     gap, label_h = 10, 40
-    width = max(top[0].width + top[1].width + gap, scan_img.width)
-    height = label_h + max(top[0].height, top[1].height) + gap + label_h + scan_img.height
+    width = cell_w * 2 + gap
+    height = label_h + cell_h + gap + label_h + scan_h
     canvas = Image.new("RGB", (width, height), "#fbfbf8")
     draw = ImageDraw.Draw(canvas)
-    x = 0
-    for image, label in zip(top, ["原图（正面 PPT）", "OpenCV 拉正（Canny 50/150）"]):
+    for index, (image, label) in enumerate(zip(top, ["原图（正面 PPT）", "OpenCV 拉正（Canny 50/150）"])):
+        x = index * (cell_w + gap)
         draw.text((x + 6, 4), label, fill="#1f3a5f", font=font)
         canvas.paste(image, (x, label_h))
-        x += image.width + gap
-    y2 = label_h + max(top[0].height, top[1].height) + gap
+    y2 = label_h + cell_h + gap
     draw.text((6, y2), "扫描件（自适应二值化）", fill="#1f3a5f", font=font)
     canvas.paste(scan_img, (0, y2 + label_h))
     canvas.save(OUT / "rectify_scan_ppt.png", quality=92)
