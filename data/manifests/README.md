@@ -1,6 +1,8 @@
 # 样本清单说明
 
-样本清单文件为 `sample_manifest.csv`，是样本元数据的唯一可信来源。清单本身纳入版本控制，对应的图像文件不纳入版本控制。
+样本清单文件为 `sample_manifest.csv`，是 v4 及以前样本元数据的唯一可信来源。v5 起使用 `sample_manifest_v5.csv`（自采 442 行 + 外部测试 30 行），它与 `data/splits/split_v5.json` 的 `manifest` 字段绑定。两份清单本身纳入版本控制，对应的图像文件不纳入版本控制。
+
+`sample_manifest.csv` 与 `split_v4.json` 保持冻结，供历史复现；`sample_manifest_v5.csv` 只服务 v5。两份文件表头与字段定义相同。
 
 ## 字段定义
 
@@ -56,6 +58,7 @@ T06_P03_pptFormula_classroom_017,02_ppt_formula/T06_P03_pptFormula_classroom_017
 
 | 清单 | 用途 | 关键字段 |
 |---|---|---|
+| `external_nexus_test.csv` | v5 外部测试集（30 张，只进 test） | 与样本清单同表头 |
 | `external_aux.csv` | 外部预训练（2,400 张） | `path,label,source,license,usage` |
 | `external_aux_small.csv` | 小样本外部预训练（600 张） | 同上 |
 | `scb_screen.csv` | SCB 屏幕框检测训练/验证 | `path,label,split,source` |
@@ -82,7 +85,7 @@ T06_P03_pptFormula_classroom_017,02_ppt_formula/T06_P03_pptFormula_classroom_017
 
 ## 合成投影 PPT 清单
 
-以下清单只服务于合成训练，不进入 `sample_manifest.csv`、`split_v4.json`、验证集或测试集。
+以下清单只服务于合成训练，不进入 `sample_manifest_v5.csv`、`split_v5.json`、验证集或测试集。
 
 | 文件 | 内容 |
 |---|---|

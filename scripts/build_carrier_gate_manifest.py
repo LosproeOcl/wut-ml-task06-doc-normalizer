@@ -21,6 +21,16 @@ OUT = ROOT / "data/manifests/carrier_gate.csv"
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=OUT)
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=ROOT / "data/manifests/sample_manifest_v5.csv",
+    )
+    parser.add_argument(
+        "--split",
+        type=Path,
+        default=ROOT / "data/splits/split_v5.json",
+    )
     parser.add_argument("--screen-train", type=int, default=1000)
     parser.add_argument("--paper-train", type=int, default=1000)
     parser.add_argument("--val", type=int, default=500)
@@ -64,7 +74,6 @@ def main() -> int:
                 rows.append({"path": relative(path), "label": "other", "source": source, "split": split})
 
     # 自采 train：ppt -> screen，paper -> other；val 留给评估
-    samples = list(csv.DictReader(open(ROOT / "data/manifests/sample_manifest.csv", encoding="utf-8-sig")))
     # 使用项目 split 文件
     import sys
     sys.path.insert(0, str(ROOT / "src"))
@@ -72,10 +81,10 @@ def main() -> int:
     from docnorm.data.split import assign_samples, load_split
 
     loaded = load_manifest(
-        ROOT / "data/manifests/sample_manifest.csv",
+        args.manifest,
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    split = assign_samples(load_split(ROOT / "data/splits/split_v4.json"), loaded)
+    split = assign_samples(load_split(args.split), loaded)
     for sample in loaded:
         if split.get(sample.sample_id) != "train":
             continue

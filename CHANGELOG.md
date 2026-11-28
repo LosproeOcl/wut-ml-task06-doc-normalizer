@@ -4,6 +4,17 @@
 
 ## 2026-11-28
 
+### split_v5 重建与外部测试集
+
+- 新增 `data/splits/split_v5.json`：自采 442 张 + 外部 30 张，train 349 / val 51 / test 72。测试集 = SmartDoc 2015 `03-captured-nexus` 30 张（全部 `paper_text`，只进 test）+ 从 v4 训练集按 `doc_page_id` 分层留出的 42 张自采样本（`ppt_text` 6 / `ppt_formula` 15 / `paper_text` 6 / `paper_formula` 15）。
+- 新增 `data/manifests/sample_manifest_v5.csv`（472 张合格样本）与 `data/manifests/external_nexus_test.csv`（30 张外部测试清单）；v4 的 `sample_manifest.csv` 与 `split_v4.json` 保持冻结。
+- 新增 `scripts/build_external_nexus_manifest.py` 与 `scripts/build_split_v5.py`；`Split` 数据类增加可选 `manifest` 字段，评估脚本按该字段选择清单。
+- 新增 v5 派生清单 `paper_content_v5.csv`（902 训练 / 30 验证）与 `carrier_gate_v5.csv`（2349 训练 / 1000 验证）；`configs/default.yaml` 切到 v5，新增 `configs/legacy/v4.yaml`。
+- v5 重训：载体门控 `carrier-gate-v5-01`；PPT 模型 `exp-cnn-ppt-v5`（验证 95.24% / 宏 F1 92.93%）；纸质集成 `paper-cnn-v5-s45`/`s47`（单模型验证 73.33%，二模型集成 76.67%）；单模型 CNN `exp-cnn-v5`（68.63%）；SVM `exp-svm-v5`（72.55%）；双分支路由验证 84.31% / 宏 F1 83.81%。
+- v5 测试集一次性评估：**93.06% / 宏 F1 92.65%**，95% CI 86.11%–98.61%；自采 42 张 88.10%，外部 30 张 100%（外部仅含文字类页面，不覆盖公式）；公式召回 83.33%，错误 5 张全部为公式→文字。达到 85% 门禁。详见 `reports/final_test_v5.md`；网页默认模型已切换到 v5 权重。
+- v5 五折分组 CV（`data/splits/cv_v5/`，train 263–288 / val 61–86）：MobileNetV3-Small 77.00% ± 7.91；PPT 分支 73.73% ± 12.42；纸质分支 85.00% ± 9.23。SVM 折与路由 OOF 留待复现阶段补跑。
+- v5 测试集冻结前未运行任何评估，未据此调参；模型选择（含纸质二模型集成、自采-only 对照否决）全部只依据验证集。v4 的 67.92% 只作历史对照，不与 v5 混用。
+
 ### 合成数据试点
 
 - 新增合成投影 PPT 生成脚本 `scripts/build_synth_ppt_pages.py`：4 套课程模板、12 种文字版式、12 组公式推导，支持 SCB 屏幕透视贴图、投影亮度/反光/纹理/模糊/噪声退化与 4:3 近景裁切。

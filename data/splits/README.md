@@ -9,11 +9,14 @@ split_v1.json
 split_v2.json
 split_v3.json
 split_v4.json
+split_v5.json
 ```
 
 版本号递增。已冻结的划分文件不得修改。确需调整时创建新版本，并重跑全部实验。
 
-当前有效版本为 `split_v4.json`，2026-11-27 冻结，计数为训练 338、验证 51、测试 53，合格样本 442。v4 在 v3（340 张，236/51/53）基础上新增两批 PPT 幕布样本：首批 93 张按 48 组幻灯片聚合，第二批 9 张按 2 组幻灯片聚合，均只加入训练集；val/test 与 v3 完全一致。v3 的 340 张口径继续用于历史指标对照。v1 与 v2 仅保留作历史记录，不得用于训练或评估。
+当前有效版本为 `split_v5.json`，2026-11-28 冻结，计数为训练 349、验证 51、测试 72，合格样本 472（自采 442 + 外部 30）。v5 的测试集由两部分组成：SmartDoc 2015 Challenge 1 的 `03-captured-nexus` 30 张（全部 `paper_text`，只进测试集），以及从 v4 训练集按 `doc_page_id` 分层留出的 42 张自采样本（`ppt_text` 6、`ppt_formula` 15、`paper_text` 6、`paper_formula` 15）。v4 验证集 51 张继续作为 v5 验证集；v4 测试集 53 张并入 v5 训练集。v4 的测试结果 67.92% 保留为历史结果，不得与 v5 结果混用。
+
+v4（2026-11-27 冻结，338/51/53，合格 442）继续保留为历史版本。v4 在 v3（340 张，236/51/53）基础上新增两批 PPT 幕布样本：首批 93 张按 48 组幻灯片聚合，第二批 9 张按 2 组幻灯片聚合，均只加入训练集；val/test 与 v3 完全一致。v3 的 340 张口径继续用于历史指标对照。v1 与 v2 仅保留作历史记录，不得用于训练或评估。
 
 2026-11-27 数据负责人在复核中发现 11 张样本的公式/文字归档位置需要修正，已同步更新 `sample_manifest.csv` 的 `file` 与 `label`，并重算 `manifest_sha256`；分层分组归属与 train/val/test 计数保持不变。此前基于旧标签的训练指标需在修正后的清单上重跑后再比较。
 
@@ -30,18 +33,28 @@ split_v4.json
 
 ```json
 {
-  "version": "v2",
-  "seed": 42,
+  "version": "v5",
+  "seed": 43,
   "group_key": "doc_page_id",
   "ratio": {"train": 0.7, "val": 0.15, "test": 0.15},
   "groups": {"train": [], "val": [], "test": []},
   "counts": {"train": 0, "val": 0, "test": 0},
   "frozen_at": "YYYY-MM-DD",
+  "manifest": "data/manifests/sample_manifest_v5.csv",
   "manifest_sha256": "清单文件哈希"
 }
 ```
 
+`manifest` 为可选字段，指向该版本使用的样本清单；缺省时使用 `data/manifests/sample_manifest.csv`。v5 使用 `sample_manifest_v5.csv`（含外部测试样本），v4 继续保持原清单与 CRLF 字节口径，避免历史哈希失效。
+
 `manifest_sha256` 用于校验划分与清单是否对应，口径为清单文件原始字节的 SHA-256（`hashlib.sha256(path.read_bytes())`，不做换行或编码转换）。两者不一致时评估脚本须终止执行。注意：仓库 `.gitattributes` 可能在检出时转换换行导致哈希变化，跨平台核验须以字节级一致为准。
+
+## v5 重建说明
+
+1. 外部 `03-captured-nexus` 30 张只进入测试集，不参与训练、验证或阈值选择；清单来源、许可与用途见 `docs/13-外部数据使用说明.md`。
+2. 自采测试样本从 v4 训练集按 `doc_page_id` 分层留出，目标为 42 张；选择脚本为 `scripts/build_split_v5.py`，随机种子 43，分层单元为载体×内容。
+3. v4 测试集并入 v5 训练集，原因是 v5 是完整重建版本，旧测试集不再承担 v5 的留出职责；v4 指标只作历史对照。
+4. 全部 v5 实验须从零重训；不得把 v4 模型直接用于 v5 测试集，因为 v4 训练集包含 v5 测试样本。
 
 ## 冻结流程
 

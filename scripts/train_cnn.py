@@ -198,6 +198,12 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=ROOT / "configs/default.yaml")
     parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=None,
+        help="覆盖配置中的样本清单（v5 使用 sample_manifest_v5.csv）",
+    )
+    parser.add_argument(
         "--split",
         type=Path,
         default=None,
@@ -331,12 +337,14 @@ def main() -> int:
         notes="CNN 训练；数据、参数与环境见 run.json",
     )
     logger.log(f"实验 {exp_id} 开始")
+    manifest_path = args.manifest or ROOT / config["data"]["manifest"]
+    split_path = args.split or ROOT / config["data"]["split"]
     samples = load_manifest(
-        ROOT / config["data"]["manifest"],
+        manifest_path,
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    split = load_split(args.split or ROOT / config["data"]["split"])
-    check_manifest_hash(split, ROOT / config["data"]["manifest"])
+    split = load_split(split_path)
+    check_manifest_hash(split, manifest_path)
     assignment = assign_samples(split, samples)
     overrides = {
         sample_id: label
@@ -565,7 +573,8 @@ def main() -> int:
 
     result = {
         "exp_id": exp_id,
-        "split": Path(config["data"]["split"]).name,
+        "split": split_path.name,
+        "manifest": str(manifest_path),
         "n_train": len(train_dataset),
         "n_val": len(val_dataset),
         "rectify": rectify,

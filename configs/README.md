@@ -53,4 +53,6 @@
 | `runtime.num_threads` | 计算线程数，正式评估固定为 1 |
 | `runtime.num_workers` | 数据加载进程数，评估阶段固定为 0 |
 
-`configs/default.yaml` 为基线配置示例。其他实验在此基础上覆盖差异项。
+`configs/default.yaml` 为当前版本（v5）配置。`configs/legacy/v4.yaml` 保留 v4 的 `data.manifest` 与 `data.split`，用于历史复现；不得把 v4 配置用于 v5 评估。
+
+当前 `data.manifest` 为 `data/manifests/sample_manifest_v5.csv`，`data.split` 为 `data/splits/split_v5.json`。v5 清单包含 30 张外部测试样本，只进 test，不参与训练与验证；详见 `docs/13-外部数据使用说明.md`。

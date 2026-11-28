@@ -18,13 +18,19 @@ sys.path.insert(0, str(ROOT))
 from docnorm.classify.cnn import CLASSES  # noqa: E402
 from docnorm.data.loader import load_image  # noqa: E402
 from docnorm.data.manifest import load_manifest  # noqa: E402
-from docnorm.data.split import assign_samples, load_split  # noqa: E402
+from docnorm.data.split import (  # noqa: E402
+    assign_samples,
+    check_manifest_hash,
+    load_split,
+)
 from web import services  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--split", default="val")
+    parser.add_argument("--manifest", type=Path, default=None)
+    parser.add_argument("--split-file", type=Path, default=None)
     parser.add_argument("--json-out", type=Path, default=ROOT / "reports/routed_pipeline.json")
     parser.add_argument(
         "--predictions",
@@ -36,11 +42,18 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    import yaml
+
+    config = yaml.safe_load((ROOT / "configs/default.yaml").read_text(encoding="utf-8"))
+    manifest_path = args.manifest or ROOT / config["data"]["manifest"]
+    split_path = args.split_file or ROOT / config["data"]["split"]
     samples = load_manifest(
-        ROOT / "data/manifests/sample_manifest.csv",
+        manifest_path,
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    assignment = assign_samples(load_split(ROOT / "data/splits/split_v4.json"), samples)
+    split = load_split(split_path)
+    check_manifest_hash(split, manifest_path)
+    assignment = assign_samples(split, samples)
     rows = []
     labels = []
     predictions = []

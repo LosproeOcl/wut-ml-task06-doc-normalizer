@@ -44,6 +44,7 @@ LABELS = ["text", "formula"]
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=ROOT / "configs/default.yaml")
+    parser.add_argument("--manifest", type=Path, default=None)
     parser.add_argument("--split", type=Path, default=None)
     parser.add_argument("--exp-id", default=None)
     parser.add_argument("--no-rectify", action="store_true")
@@ -157,12 +158,13 @@ def main() -> int:
     args = parse_args()
     config = yaml.safe_load(args.config.read_text(encoding="utf-8"))
     split_path = args.split or ROOT / config["data"]["split"]
+    manifest_path = args.manifest or ROOT / config["data"]["manifest"]
     samples = load_manifest(
-        ROOT / config["data"]["manifest"],
+        manifest_path,
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
     split = load_split(split_path)
-    check_manifest_hash(split, ROOT / config["data"]["manifest"])
+    check_manifest_hash(split, manifest_path)
     assignment = assign_samples(split, samples)
     exp_id = args.exp_id or f"exp-{datetime.now():%Y%m%d-%H%M}"
     out_dir = ROOT / "runs" / exp_id
@@ -226,6 +228,7 @@ def main() -> int:
     results = {
         "exp_id": exp_id,
         "split": split_path.name,
+        "manifest": str(manifest_path),
         "feature_dim": FEATURE_DIM,
         "n_train": int(len(train_index)),
         "n_val": int(len(val_index)),

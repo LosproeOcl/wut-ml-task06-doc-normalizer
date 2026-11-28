@@ -1,0 +1,103 @@
+# T06 基线配置示例
+# 本文件为配置结构说明，阶段一实现的程序读取同名配置键。
+
+data:
+  manifest: data/manifests/sample_manifest.csv
+  split: data/splits/split_v4.json
+  raw_dir: data/raw_samples
+  image_size: 1280          # 输入图像长边像素数
+  classes:                  # 归档标签（四格），评估标签由 classify.label_map 映射
+    - ppt_text
+    - ppt_formula
+    - paper_text
+    - paper_formula
+
+rectify:
+  enabled: true
+  min_area_ratio: 0.15      # 四边形面积占画面比例下限（置信门槛）
+  max_area_ratio: 0.98      # 四边形面积占画面比例上限
+  canny_low: 50
+  canny_high: 150
+  # 2026-11-27 用 338 张人工四角调参：PPT 幕布在更高阈值下检出率更高，
+  # 纸质稿仍用低阈值保留弱边缘。见 runs/rectify-tune-*。
+  # 90/250 仅用于检测实验；分类仍用 50/150，与 exp-cnn-ppt-dedup-fw 训练一致。
+  ppt_canny_low: 50
+  ppt_canny_high: 150
+  paper_canny_low: 50
+  paper_canny_high: 150
+  # 学习四角：按载体加载；off/fallback/primary 可切换，模型缺失时自动回退 OpenCV。
+  quad_policy: off
+  quad_display: true
+  quad_ppt_model: runs/quad-ppt-02/quad_ppt.pt
+  quad_paper_model: runs/quad-paper-01/quad_ppt.pt
+  output_long_edge: 1600
+
+enhance:
+  enabled: true
+  method: clahe
+  clahe_clip: 2.0
+  clahe_grid: 8
+  correct_shadows: true      # 大尺度背景估计，抑制侧向阴影与光照不均
+  shadow_kernel: 61
+  shadow_strength: 0.8
+  denoise: true
+
+classify:
+  model: cnn                # classic_svm | classic_rf | cnn
+  label_map:                # 归档标签 → 评估标签，内容二分类，见 ADR-0008
+    ppt_text: text
+    paper_text: text
+    ppt_formula: formula
+    paper_formula: formula
+  class_weight: balanced    # 内容类别类权重，缓解残余不均衡
+  backbone: mobilenet_v3_small
+  input_size: 224
+  batch_size: 32
+  epochs_stage1: 10
+  epochs_stage2: 30
+  lr_stage1: 0.001
+  lr_stage2: 0.0001
+  early_stop_patience: 5
+  low_conf_threshold: 0.55
+  augmentation:
+    random_perspective: 0.2
+    rotation_deg: 10
+    brightness: 0.2
+    contrast: 0.2
+    horizontal_flip: false  # 公式页翻转会破坏符号语义
+
+privacy:
+  enabled: false            # D-01：自动打码能力取消开发（自设扩展功能），数据清洗已完成
+  face_detector: yunet      # yunet | haar
+  qr_detector: opencv       # opencv，备选 zxing
+  yunet_model: models/face_detection_yunet_2023mar.onnx
+  detect_faces: true
+  detect_qr: true
+  method: fill              # fill | pixelate，不使用高斯模糊
+  fill_color: [0, 0, 0]
+  pixelate_block: 16
+  expand_ratio: 0.15        # 区域外扩比例，防止边缘残留
+  strip_exif: true
+  require_manual_review: true
+  max_document_coverage: 0.05  # 覆盖文档主体超过该比例时，样本不进入测试集
+
+web:
+  host: 127.0.0.1
+  port: 54312
+  max_upload_mb: 15
+  result_ttl_seconds: 3600
+  max_concurrency: 2
+  static_dir: web/static
+  # 空间偏度优化：门控在 -12/0/12 度旋转上平均，阈值 0.3；可用环境变量覆盖
+  gate_threshold: 0.3
+  # 门控质量兜底：阈值附近或分支置信度低时，尝试另一载体分支并比较置信度。
+  gate_margin: 0.15
+  branch_low_confidence: 0.60
+  gate_tta: true
+
+runtime:
+  seed: 42
+  device: cpu               # 正式评估统一使用中央处理器
+  num_threads: 1
+  num_workers: 0
+  output_dir: reports

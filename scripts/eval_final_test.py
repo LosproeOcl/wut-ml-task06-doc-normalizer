@@ -20,6 +20,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
+import yaml
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,7 +31,11 @@ from docnorm.classify.classic import ClassicClassifier  # noqa: E402
 from docnorm.classify.cnn import CLASSES, CnnClassifier  # noqa: E402
 from docnorm.data.loader import load_image  # noqa: E402
 from docnorm.data.manifest import load_manifest  # noqa: E402
-from docnorm.data.split import assign_samples, load_split  # noqa: E402
+from docnorm.data.split import (  # noqa: E402
+    assign_samples,
+    check_manifest_hash,
+    load_split,
+)
 from scripts.train_classic import build_features  # noqa: E402
 from web import services  # noqa: E402
 
@@ -77,14 +82,28 @@ def main() -> int:
     parser.add_argument(
         "--predictions", type=Path, default=ROOT / "reports/final_test_predictions.csv"
     )
+    parser.add_argument("--manifest", type=Path, default=None)
+    parser.add_argument("--split", type=Path, default=None)
+    parser.add_argument(
+        "--cnn-model", type=Path, default=ROOT / "runs/exp-cnn-05/cnn.pt"
+    )
+    parser.add_argument(
+        "--classic-model",
+        type=Path,
+        default=ROOT / "runs/exp-20261126-08/svm.joblib",
+    )
     parser.add_argument("--bootstrap", type=int, default=1000)
     args = parser.parse_args()
 
+    config = yaml.safe_load((ROOT / "configs/default.yaml").read_text(encoding="utf-8"))
+    manifest_path = args.manifest or ROOT / config["data"]["manifest"]
+    split_path = args.split or ROOT / config["data"]["split"]
     samples = load_manifest(
-        ROOT / "data/manifests/sample_manifest.csv",
+        manifest_path,
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    split = load_split(ROOT / "data/splits/split_v4.json")
+    split = load_split(split_path)
+    check_manifest_hash(split, manifest_path)
     assignment = assign_samples(split, samples)
     test = [
         sample
@@ -95,8 +114,8 @@ def main() -> int:
     if not test:
         raise SystemExit("测试集为空")
 
-    cnn = CnnClassifier.load(ROOT / "runs/exp-cnn-05/cnn.pt", device="cpu")
-    classic = ClassicClassifier.load(ROOT / "runs/exp-20261126-08/svm.joblib")
+    cnn = CnnClassifier.load(args.cnn_model, device="cpu")
+    classic = ClassicClassifier.load(args.classic_model)
     classic_features, classic_labels, classic_ids, _failures = build_features(
         test,
         services.CONFIG,
@@ -124,11 +143,13 @@ def main() -> int:
         trad_label = classic_pred.get(sample.sample_id)
         true_label = sample.content_label
         carrier = (sample.label or "").split("_")[0]
+        source = "external" if sample.shooter == "external" else "self"
         rows.append(
             {
                 "sample_id": sample.sample_id,
                 "true_label": true_label,
                 "carrier": carrier,
+                "source": source,
                 "carrier_pred": result["routing"].get("carrier", "unknown"),
                 "carrier_override": bool(result["routing"].get("carrier_override")),
                 "gate_uncertain": bool(result["routing"].get("uncertain")),
@@ -148,10 +169,12 @@ def main() -> int:
             }
         )
 
-    def metrics(key: str) -> dict:
-        y = [row["true_label"] for row in rows]
-        p = [row[key] for row in rows]
+    def metrics(key: str, subset: list[dict] | None = None) -> dict:
+        subset = rows if subset is None else subset
+        y = [row["true_label"] for row in subset]
+        p = [row[key] for row in subset]
         return {
+            "n": len(subset),
             "accuracy": float(accuracy_score(y, p)),
             "macro_f1": float(f1_score(y, p, average="macro")),
             "confusion_matrix": confusion_matrix(y, p, labels=list(CLASSES)).tolist(),
@@ -164,6 +187,8 @@ def main() -> int:
             },
         }
 
+    self_rows = [row for row in rows if row["source"] == "self"]
+    external_rows = [row for row in rows if row["source"] == "external"]
     final_correct = [int(row["final_pred"] == row["true_label"]) for row in rows]
     cnn_correct = [int(row["cnn_pred"] == row["true_label"]) for row in rows]
     classic_correct = [int(row["classic_pred"] == row["true_label"]) for row in rows]
@@ -172,13 +197,28 @@ def main() -> int:
         key = row["carrier"]
         carrier_stats[key]["n"] += 1
         carrier_stats[key]["correct"] += int(row["final_pred"] == row["true_label"])
+    label_stats = defaultdict(lambda: {"n": 0, "correct": 0})
+    for row in rows:
+        key = row["true_label"]
+        label_stats[key]["n"] += 1
+        label_stats[key]["correct"] += int(row["final_pred"] == row["true_label"])
 
     payload = {
         "split": "test",
+        "split_version": split.version,
+        "manifest": str(manifest_path),
+        "models": {
+            "single_cnn": str(args.cnn_model),
+            "classic_svm": str(args.classic_model),
+        },
         "n": len(rows),
+        "n_self": len(self_rows),
+        "n_external": len(external_rows),
         "final": metrics("final_pred"),
         "single_cnn": metrics("cnn_pred"),
         "classic_svm": metrics("classic_pred"),
+        "final_self": metrics("final_pred", self_rows),
+        "final_external": metrics("final_pred", external_rows),
         "final_per_carrier": {
             name: {
                 "n": value["n"],
@@ -186,7 +226,18 @@ def main() -> int:
             }
             for name, value in carrier_stats.items()
         },
+        "final_per_label": {
+            name: {
+                "n": value["n"],
+                "accuracy": value["correct"] / value["n"],
+            }
+            for name, value in label_stats.items()
+        },
         "final_accuracy_ci95": bootstrap_ci(final_correct, args.bootstrap),
+        "final_self_accuracy_ci95": bootstrap_ci(
+            [int(row["final_pred"] == row["true_label"]) for row in self_rows],
+            args.bootstrap,
+        ),
         "mcnemar_final_vs_single_cnn": mcnemar_exact(final_correct, cnn_correct),
         "mcnemar_final_vs_classic_svm": mcnemar_exact(final_correct, classic_correct),
         "status_counts": {
@@ -212,6 +263,15 @@ def main() -> int:
             f"{name}: acc={m['accuracy']:.4f} f1={m['macro_f1']:.4f} "
             f"conf={m['confusion_matrix']}"
         )
+    print(
+        f"self: n={len(self_rows)} acc={payload['final_self']['accuracy']:.4f} "
+        f"f1={payload['final_self']['macro_f1']:.4f}"
+    )
+    print(
+        f"external: n={len(external_rows)} "
+        f"acc={payload['final_external']['accuracy']:.4f} "
+        f"f1={payload['final_external']['macro_f1']:.4f}"
+    )
     print(f"final CI95={payload['final_accuracy_ci95']}")
     print(f"mcnemar vs CNN={payload['mcnemar_final_vs_single_cnn']}")
     print(f"mcnemar vs SVM={payload['mcnemar_final_vs_classic_svm']}")

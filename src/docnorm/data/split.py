@@ -24,6 +24,7 @@ class Split:
     counts: dict[str, int]
     frozen_at: str
     manifest_sha256: str
+    manifest: str | None = None
 
 
 class HasGroup(Protocol):
@@ -53,6 +54,7 @@ def load_split(path: Path) -> Split:
         counts=doc["counts"],
         frozen_at=doc["frozen_at"],
         manifest_sha256=doc["manifest_sha256"],
+        manifest=doc.get("manifest"),
     )
 
 

@@ -1,6 +1,6 @@
 # 合成投影 PPT 试点数据
 
-本目录存放**合成训练候选**，不属于自采样本，不进入 `sample_manifest.csv`、`split_v4.json`、验证集或测试集。
+本目录存放**合成训练候选**，不属于自采样本，不进入 `sample_manifest_v5.csv`、`split_v5.json`、验证集或测试集。
 
 ## 版本 v1
 

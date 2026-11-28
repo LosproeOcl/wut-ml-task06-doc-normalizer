@@ -12,8 +12,8 @@
 ```text
 上传原图
   ├─ 载体门控 carrier-gate-01
-  │    ├─ paper → 纸质稿 CNN 集成（paper-cnn-extctl-01/43/44）
-  │    ├─ ppt   → PPT CNN（exp-cnn-ppt-dedup-fw）
+  │    ├─ paper → 纸质稿 CNN 集成（paper-cnn-v5-s45/s47）
+  │    ├─ ppt   → PPT CNN（exp-cnn-ppt-v5）
   │    └─ 门控缺失 → 传统 SVM
   └─ 拉正 / 增强 → 分支分类 → 类别与概率
 ```
@@ -30,9 +30,9 @@
 
 | 用途 | 默认路径 | 环境变量 |
 |---|---|---|
-| 载体门控 | `runs/carrier-gate-01/screen_gate.pt` | `DOCNORM_CARRIER_GATE` |
-| 纸质稿集成 | `runs/paper-cnn-extctl-01/paper_cnn.pt`、`-43`、`-44` | `DOCNORM_PAPER_MODELS`（`:` 分隔） |
-| PPT 分类 | `runs/exp-cnn-ppt-dedup-fw/cnn.pt` | `DOCNORM_PPT_MODEL` |
+| 载体门控 | `runs/carrier-gate-v5-01/screen_gate.pt` | `DOCNORM_CARRIER_GATE` |
+| 纸质稿集成 | `runs/paper-cnn-v5-s45/paper_cnn.pt`、`runs/paper-cnn-v5-s47/paper_cnn.pt` | `DOCNORM_PAPER_MODELS`（`:` 分隔） |
+| PPT 分类 | `runs/exp-cnn-ppt-v5/cnn.pt` | `DOCNORM_PPT_MODEL` |
 | SVM 兜底 | `runs/exp-*/svm.joblib` 中验证集最佳 | `DOCNORM_CLASSIC_MODEL` |
 
 模型权重不进入版本控制；部署时必须挂载包含 `runs/` 的仓库目录。
@@ -84,10 +84,14 @@
 
 生成需要中文字体；容器内挂载 `/fonts/cjk.ttc` 或设置 `CJK_FONT`。
 
-## 5. 限制
+## 6. v5 切换（2026-11-28）
 
-1. 51 张验证集与 30 张纸质验证集样本量小；86.27% 的单点结果需结合置信区间解读，测试集评估前不宜外推。
-2. 门控在验证集 51/51，但训练使用了自采训练集与外部数据；测试集一次性评估 67.92%，未达 85%。
+`split_v5` 重建后，网页默认权重切换为 v5 模型：门控 `carrier-gate-v5-01`、PPT `exp-cnn-ppt-v5`、纸质 `paper-cnn-v5-s45`/`s47` 二模型集成（`DOCNORM_*` 环境变量仍可覆盖）。冻结配置在 v5 验证集上为 84.31% / 宏 F1 83.81%（PPT 95.24%、纸质 76.67%）；v5 测试集一次性评估 93.06% / 宏 F1 92.65%（自采 88.10%、外部 100%），见 `reports/final_test_v5.md`。v4 的 86.27% / 67.92% 为历史结果，不得与 v5 混用。样本索引改用 `sample_manifest_v5.csv` 与 `split_v5.json`；外部测试样本的 `shooter` 为 `external`，只出现在 test 筛选结果中，不参与网页标注训练流程。
+
+## 7. 限制
+
+1. 51 张验证集与 30 张纸质验证集样本量小；84.31%（v5）与 86.27%（v4 历史）的单点结果需结合置信区间解读，测试集评估前不宜外推。
+2. 门控在 v5 测试集判对 69/72，3 张门控错误由质量兜底纠正；训练使用了自采训练集与外部数据，不得据此宣称门控在全新场景稳定。
 3. 纸质分支的增益与类别权重相关，不能据此宣称数据来源本身更优，见 `reports/external_control.md`。
 4. 模型文件缺失时自动回退 SVM，此时 `branch=classic-svm`，网页仍可用但不再享受双分支收益。
 5. 首次分析需加载多个模型，冷启动比后续请求慢；生产部署可预热。

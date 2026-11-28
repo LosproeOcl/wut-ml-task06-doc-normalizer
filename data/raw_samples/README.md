@@ -7,9 +7,9 @@
 1. 拍摄完成后，将原始文件放入 `00_inbox/`。不要重命名，不要压缩，不要通过即时通讯软件传输。
 2. 按 `docs/04-数据采集与标注规范.md` 判定类别，归档至四个类别目录之一。
 3. 无法判定类别的样本放入 `99_unlabeled/`，并在组内说明理由。
-4. 在 `data/manifests/sample_manifest.csv` 中登记样本信息。
+4. 在 `data/manifests/sample_manifest.csv` 中登记样本信息；登记后由数据负责人合并入 `data/manifests/sample_manifest_v5.csv`（v5 当前口径）。外部公开数据集放在 `external-assets/`，登记方式见 `docs/13-外部数据使用说明.md`。
 5. 按质量检查清单逐项确认。
-6. 若样本包含人脸、二维码或文档内个人信息，按 `docs/04` 第 10 节打码，发布副本写入 `data/release/`。
+6. 自动打码已按 D-01 取消；若样本包含人脸、二维码或文档内个人信息，登记到 `data/manifests/exclusions.csv` 并从数据集剔除，不生成发布副本。
 
 ## 目录与类别对应
 

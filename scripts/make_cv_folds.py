@@ -5,6 +5,7 @@
 """
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import sys
@@ -21,10 +22,21 @@ sys.path.insert(0, str(ROOT / "src"))
 from docnorm.data.manifest import load_manifest  # noqa: E402
 from docnorm.data.split import load_split, assign_samples  # noqa: E402
 
-SPLIT = ROOT / "data/splits/split_v4.json"
+SPLIT = ROOT / "data/splits/split_v5.json"
+MANIFEST = ROOT / "data/manifests/sample_manifest_v5.csv"
 OUT = ROOT / "data/splits/cv"
-PAPER_MANIFEST = ROOT / "data/manifests/paper_content_extctl.csv"
+PAPER_MANIFEST = ROOT / "data/manifests/paper_content_v5.csv"
 PAPER_OUT = ROOT / "data/manifests/cv"
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--manifest", type=Path, default=MANIFEST)
+    parser.add_argument("--split", type=Path, default=SPLIT)
+    parser.add_argument("--out", type=Path, default=OUT)
+    parser.add_argument("--paper-manifest", type=Path, default=PAPER_MANIFEST)
+    parser.add_argument("--paper-out", type=Path, default=PAPER_OUT)
+    return parser.parse_args()
 
 
 def cell(sample) -> str:
@@ -32,11 +44,12 @@ def cell(sample) -> str:
 
 
 def main() -> int:
+    args = parse_args()
     samples = load_manifest(
-        ROOT / "data/manifests/sample_manifest.csv",
+        args.manifest,
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    split = load_split(SPLIT)
+    split = load_split(args.split)
     assignment = assign_samples(split, samples)
     by_group: dict[str, list] = defaultdict(list)
     for sample in samples:
@@ -46,8 +59,8 @@ def main() -> int:
     labels = [Counter(cell(s) for s in by_group[g]).most_common(1)[0][0] for g in groups]
     splitter = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=42)
     folds = list(splitter.split(groups, labels, groups=groups))
-    OUT.mkdir(parents=True, exist_ok=True)
-    PAPER_OUT.mkdir(parents=True, exist_ok=True)
+    args.out.mkdir(parents=True, exist_ok=True)
+    args.paper_out.mkdir(parents=True, exist_ok=True)
 
     original_val = list(split.groups["val"])
     original_test = list(split.groups["test"])
@@ -89,14 +102,14 @@ def main() -> int:
             "manifest_sha256": split.manifest_sha256,
             "note": f"5 折分组 CV，第 {fold_index} 折；原验证集 holdout，测试集不动",
         }
-        (OUT / f"fold_{fold_index}.json").write_text(
+        (args.out / f"fold_{fold_index}.json").write_text(
             json.dumps(payload, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
         )
         val_cells = Counter(cell(s) for g in val_groups for s in by_group[g])
         print(f"fold {fold_index}: train_groups={len(train_groups)} val_groups={len(val_groups)} val_cells={dict(val_cells)}")
 
         # 纸质分支折清单：外部训练样本全部保留；自采纸质按折分组；原 val 排除
-        paper_rows = list(csv.DictReader(PAPER_MANIFEST.open(encoding="utf-8")))
+        paper_rows = list(csv.DictReader(args.paper_manifest.open(encoding="utf-8")))
         manifest_by_id = {s.sample_id: s for s in samples}
         fold_rows = []
         for row in paper_rows:
@@ -114,7 +127,7 @@ def main() -> int:
             item = dict(row)
             item["split"] = name
             fold_rows.append(item)
-        with (PAPER_OUT / f"paper_fold_{fold_index}.csv").open(
+        with (args.paper_out / f"paper_fold_{fold_index}.csv").open(
             "w", encoding="utf-8", newline=""
         ) as stream:
             writer = csv.DictWriter(stream, fieldnames=list(paper_rows[0].keys()))

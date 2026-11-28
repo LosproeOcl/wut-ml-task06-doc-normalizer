@@ -61,13 +61,12 @@ QUAD_POLICY_ENV = "DOCNORM_QUAD_POLICY"
 QUAD_DISPLAY_ENV = "DOCNORM_QUAD_DISPLAY"
 QUAD_PPT_ENV = "DOCNORM_QUAD_PPT"
 QUAD_PAPER_ENV = "DOCNORM_QUAD_PAPER"
-DEFAULT_CARRIER_GATE = ROOT / "runs/carrier-gate-01/screen_gate.pt"
+DEFAULT_CARRIER_GATE = ROOT / "runs/carrier-gate-v5-01/screen_gate.pt"
 DEFAULT_PAPER_MODELS = (
-    ROOT / "runs/paper-cnn-extctl-01/paper_cnn.pt",
-    ROOT / "runs/paper-cnn-extctl-43/paper_cnn.pt",
-    ROOT / "runs/paper-cnn-extctl-44/paper_cnn.pt",
+    ROOT / "runs/paper-cnn-v5-s45/paper_cnn.pt",
+    ROOT / "runs/paper-cnn-v5-s47/paper_cnn.pt",
 )
-DEFAULT_PPT_MODEL = ROOT / "runs/exp-cnn-ppt-dedup-fw/cnn.pt"
+DEFAULT_PPT_MODEL = ROOT / "runs/exp-cnn-ppt-v5/cnn.pt"
 DEFAULT_QUAD_PPT = ROOT / "runs/quad-ppt-02/quad_ppt.pt"
 DEFAULT_QUAD_PAPER = ROOT / "runs/quad-paper-01/quad_ppt.pt"
 RESULT_ID_PATTERN = re.compile(r"^[0-9a-f]{32}$")

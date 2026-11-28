@@ -19,6 +19,16 @@ OUT = ROOT / "data/manifests/paper_content.csv"
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, default=OUT)
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        default=ROOT / "data/manifests/sample_manifest_v5.csv",
+    )
+    parser.add_argument(
+        "--split",
+        type=Path,
+        default=ROOT / "data/splits/split_v5.json",
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--mode",
@@ -43,10 +53,10 @@ def main() -> int:
     from docnorm.data.split import assign_samples, load_split
 
     samples = load_manifest(
-        ROOT / "data/manifests/sample_manifest.csv",
+        args.manifest,
         exclusions_path=ROOT / "data/manifests/exclusions.csv",
     )
-    split = assign_samples(load_split(ROOT / "data/splits/split_v4.json"), samples)
+    split = assign_samples(load_split(args.split), samples)
     rows = []
     for sample in samples:
         if not (sample.label or "").startswith("paper_"):
