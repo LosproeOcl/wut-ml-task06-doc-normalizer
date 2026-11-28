@@ -66,24 +66,109 @@ def dataset_examples() -> None:
     canvas.save(OUT / "dataset_examples.png", quality=92)
 
 
+def _load_quad(sample_id: str):
+    import csv
+
+    path = ROOT / "data/annotations/manual_corners.csv"
+    with path.open(encoding="utf-8-sig", newline="") as stream:
+        for row in csv.DictReader(stream):
+            if row["sample_id"] == sample_id:
+                import json
+
+                return json.loads(row["points"])
+    return None
+
+
+def _sample_files():
+    import csv
+
+    excluded = set()
+    with (ROOT / "data/manifests/exclusions.csv").open(encoding="utf-8-sig", newline="") as stream:
+        for row in csv.DictReader(stream):
+            excluded.add(row["sample_id"])
+    files = {}
+    with (ROOT / "data/manifests/sample_manifest_v5.csv").open(encoding="utf-8-sig", newline="") as stream:
+        for row in csv.DictReader(stream):
+            if row["sample_id"] in excluded:
+                continue
+            files[row["sample_id"]] = row["file"]
+    return files
+
+
+def draw_corners(path: Path, points, max_edge: int = 640) -> Image.Image:
+    with Image.open(path) as raw:
+        image = ImageOps.exif_transpose(raw).convert("RGB")
+    ow, oh = image.size
+    image.thumbnail((max_edge, max_edge), Image.LANCZOS)
+    sx, sy = image.width / ow, image.height / oh
+    draw = ImageDraw.Draw(image)
+    scaled = [(x * sx, y * sy) for x, y in points]
+    draw.polygon(scaled, outline=(220, 50, 47))
+    for x, y in scaled:
+        draw.ellipse([x - 6, y - 6, x + 6, y + 6], fill=(233, 196, 106), outline=(120, 90, 20))
+    return image
+
+
 def annotation_examples() -> None:
-    files = [
-        ("板书文字：整块黑板", "00_05160fce8d.jpg"),
-        ("纸质公式：单页", "10_522530a208.jpg"),
-        ("板书公式：面板", "23_8ba8df668b.jpg"),
+    files = _sample_files()
+    items = [
+        ("PPT 公式（人工四角）", "IMG_6209"),
+        ("PPT 文字（人工四角）", "IMG_6013"),
     ]
     tile_w, tile_h = 520, 500
     canvas = Image.new("RGB", (tile_w * 3, tile_h), "white")
     draw = ImageDraw.Draw(canvas)
     font = ImageFont.truetype(PIL_FONT, 24)
-    for index, (label, name) in enumerate(files):
-        with Image.open(ROOT / "reports/annotation_examples" / name) as raw:
-            image = contain(raw, (tile_w - 20, tile_h - 55))
+    panels = []
+    for label, sample_id in items:
+        points = _load_quad(sample_id)
+        if points and sample_id in files:
+            image = draw_corners(ROOT / "data/raw_samples" / files[sample_id], points, max_edge=tile_h - 55)
+            panels.append((label, image))
+    with Image.open(ROOT / "reports/annotation_examples/24_IMG2026112.jpg") as raw:
+        image = contain(raw, (tile_w - 20, tile_h - 55))
+    panels.append(("A4 纸质（人工四角）", image))
+    for index, (label, image) in enumerate(panels):
         x = index * tile_w
         canvas.paste(image, (x + (tile_w - image.width) // 2, 45))
         draw.text((x + 12, 10), label, fill=(20, 20, 20), font=font)
         draw.rectangle([x + 1, 1, x + tile_w - 2, tile_h - 2], outline=(210, 210, 210), width=2)
     canvas.save(OUT / "annotation_examples.png", quality=92)
+    print("saved annotation_examples.png")
+
+
+def annotation_overview() -> None:
+    import random
+
+    files = _sample_files()
+    import csv
+
+    ids = []
+    with (ROOT / "data/annotations/manual_corners.csv").open(encoding="utf-8-sig", newline="") as stream:
+        for row in csv.DictReader(stream):
+            if row["sample_id"] in files:
+                ids.append(row["sample_id"])
+    rng = random.Random(42)
+    ppt = [sid for sid in ids if files[sid].startswith(("01_", "02_"))]
+    paper = [sid for sid in ids if files[sid].startswith(("03_", "04_"))]
+    picked = rng.sample(ppt, min(6, len(ppt))) + rng.sample(paper, min(6, len(paper)))
+    cols, tile_w, tile_h = 4, 480, 400
+    rows = (len(picked) + cols - 1) // cols
+    canvas = Image.new("RGB", (cols * tile_w, rows * tile_h), "white")
+    draw = ImageDraw.Draw(canvas)
+    font = ImageFont.truetype(PIL_FONT, 18)
+    for index, sample_id in enumerate(picked):
+        points = _load_quad(sample_id)
+        if not points:
+            continue
+        image = draw_corners(ROOT / "data/raw_samples" / files[sample_id], points, max_edge=tile_h - 40)
+        row, col = divmod(index, cols)
+        x, y = col * tile_w, row * tile_h
+        canvas.paste(image, (x + (tile_w - image.width) // 2, y + (tile_h - 26 - image.height) // 2))
+        draw.text((x + 6, y + tile_h - 24), sample_id[:18], fill=(60, 60, 60), font=font)
+        draw.rectangle([x + 1, y + 1, x + tile_w - 2, y + tile_h - 2], outline=(220, 220, 220), width=1)
+    canvas.save(OUT / "annotation_examples_overview.png", quality=90)
+    print("saved annotation_examples_overview.png", canvas.size)
 
 
 def box(ax, xy, width, height, text, face, edge="#4a5a6a", size=11):
@@ -140,17 +225,17 @@ def architecture() -> None:
         (27, 84),
         40,
         10,
-        "载体门控 · MobileNetV3-Small 160\nTTA ±12° · 阈值 0.3",
+        "载体门控 carrier-gate-v5-01 · 160\nTTA ±12° · 阈值 0.3",
         green,
         size=13,
     )
 
-    box(ax, (4, 62), 25, 9, "分类拉正（OpenCV）\nPPT 90/250", orange, size=13)
-    box(ax, (34, 62), 26, 9, "PPT 分类\nMobileNetV3-Small 224", blue, size=12)
+    box(ax, (4, 62), 25, 9, "分类拉正（OpenCV）\nPPT 50/150", orange, size=13)
+    box(ax, (34, 62), 26, 9, "PPT 分类\nexp-cnn-ppt-v5 · 224", blue, size=12)
     box(ax, (67, 62), 28, 9, "文字 / 公式\n概率 + 置信度", green, size=13)
 
     box(ax, (4, 45), 25, 9, "分类拉正（OpenCV）\n纸质 50/150", orange, size=13)
-    box(ax, (34, 45), 26, 9, "纸质分类\n3×MobileNetV3 集成", blue, size=12)
+    box(ax, (34, 45), 26, 9, "纸质分类\npaper-cnn-v5-s45/s47 集成", blue, size=12)
     box(ax, (67, 45), 28, 9, "文字 / 公式\n概率 + 置信度", green, size=13)
 
     box(ax, (34, 29), 26, 8, "传统 SVM 兜底\n模型缺失时回退", gray, size=12)
@@ -265,9 +350,7 @@ def confusion() -> None:
 
 
 if __name__ == "__main__":
-    dataset_examples()
     annotation_examples()
+    annotation_overview()
     architecture()
-    metrics_chart()
-    confusion()
     print("assets written to", OUT)
