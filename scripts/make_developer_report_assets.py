@@ -112,8 +112,8 @@ def draw_corners(path: Path, points, max_edge: int = 640) -> Image.Image:
 def annotation_examples() -> None:
     files = _sample_files()
     items = [
-        ("PPT 公式（人工四角）", "IMG_6209"),
-        ("PPT 文字（人工四角）", "IMG_6013"),
+        ("PPT 公式（人工四角）", "IMG_5541"),
+        ("PPT 文字（人工四角）", "IMG_5597"),
     ]
     tile_w, tile_h = 520, 500
     canvas = Image.new("RGB", (tile_w * 3, tile_h), "white")
@@ -138,20 +138,12 @@ def annotation_examples() -> None:
 
 
 def annotation_overview() -> None:
-    import random
-
     files = _sample_files()
-    import csv
-
-    ids = []
-    with (ROOT / "data/annotations/manual_corners.csv").open(encoding="utf-8-sig", newline="") as stream:
-        for row in csv.DictReader(stream):
-            if row["sample_id"] in files:
-                ids.append(row["sample_id"])
-    rng = random.Random(42)
-    ppt = [sid for sid in ids if files[sid].startswith(("01_", "02_"))]
-    paper = [sid for sid in ids if files[sid].startswith(("03_", "04_"))]
-    picked = rng.sample(ppt, min(6, len(ppt))) + rng.sample(paper, min(6, len(paper)))
+    # 固定选取：PPT 6 张 + 纸质 6 张，均已人工核对不含人脸与可识别个人信息。
+    picked = [
+        "IMG_5597", "IMG_5605", "IMG_5541", "IMG_5588", "IMG_5603", "IMG_5595",
+        "text_07", "text_08", "text_11", "formula_02", "formula_09", "formula_13",
+    ]
     cols, tile_w, tile_h = 4, 480, 400
     rows = (len(picked) + cols - 1) // cols
     canvas = Image.new("RGB", (cols * tile_w, rows * tile_h), "white")
@@ -169,6 +161,34 @@ def annotation_overview() -> None:
         draw.rectangle([x + 1, y + 1, x + tile_w - 2, y + tile_h - 2], outline=(220, 220, 220), width=1)
     canvas.save(OUT / "annotation_examples_overview.png", quality=90)
     print("saved annotation_examples_overview.png", canvas.size)
+
+
+def record_gallery() -> None:
+    items = [
+        ("训练集四角（退回重标）", "人工标注过程记录 1.png"),
+        ("训练集标签（模糊化）", "人工标注过程 2.png"),
+        ("标注检查（按人筛选）", "标注检查页面.png"),
+        ("单图识别（PPT 文字）", "测试识别 PPT-text1-正面.png"),
+        ("单图识别（PPT 公式）", "测试识别 PPT-text2-正面.png"),
+        ("单图识别（纸质文字）", "测试识别 paper-text.png"),
+    ]
+    cell_w, cell_h, label_h, gap = 900, 720, 46, 12
+    cols = 2
+    rows = (len(items) + cols - 1) // cols
+    canvas = Image.new("RGB", (cols * cell_w + (cols + 1) * gap, rows * (cell_h + label_h) + (rows + 1) * gap), "white")
+    draw = ImageDraw.Draw(canvas)
+    font = ImageFont.truetype(PIL_FONT, 24)
+    for index, (label, name) in enumerate(items):
+        with Image.open(ROOT / "docs/record-img" / name) as raw:
+            image = contain(raw, (cell_w - 16, cell_h - 8))
+        row, col = divmod(index, cols)
+        x = gap + col * (cell_w + gap)
+        y = gap + row * (cell_h + label_h + gap)
+        canvas.paste(image, (x + (cell_w - image.width) // 2, y + label_h + (cell_h - image.height) // 2))
+        draw.text((x + 6, y + 8), label, fill=(20, 20, 20), font=font)
+        draw.rectangle([x, y, x + cell_w - 1, y + cell_h + label_h - 1], outline=(210, 210, 210), width=2)
+    canvas.save(OUT / "record_img_gallery.png", quality=90)
+    print("saved record_img_gallery.png", canvas.size)
 
 
 def box(ax, xy, width, height, text, face, edge="#4a5a6a", size=11):
@@ -352,5 +372,6 @@ def confusion() -> None:
 if __name__ == "__main__":
     annotation_examples()
     annotation_overview()
+    record_gallery()
     architecture()
     print("assets written to", OUT)

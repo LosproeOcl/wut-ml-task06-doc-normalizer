@@ -32,12 +32,48 @@ FONT_CANDIDATES = (
 )
 
 SAMPLES = [
-    ("01_ppt_text/IMG_6233.jpg", "PPT 幕布 · 文字"),
-    ("02_ppt_formula/IMG_6209.jpeg", "PPT 幕布 · 公式"),
+    ("01_ppt_text/IMG_5597.jpeg", "PPT 幕布 · 文字"),
+    ("02_ppt_formula/IMG_5541.jpg", "PPT 幕布 · 公式"),
     ("03_paper_text/IMG_20261125_232543.jpg", "A4 纸质 · 文字"),
     ("04_paper_formula/formula_05.jpg", "A4 纸质 · 公式"),
 ]
-RECTIFY_SAMPLE = "01_ppt_text/IMG_6233.jpg"
+RECTIFY_SAMPLE = "01_ppt_text/IMG_5597.jpeg"
+
+# 数据集总览固定抽样：每类 6 张，均已人工核对不含人脸与可识别个人信息。
+OVERVIEW_PICKS = {
+    "ppt_text": [
+        "01_ppt_text/IMG_5515.jpg",
+        "01_ppt_text/IMG_5594.jpg",
+        "01_ppt_text/IMG_5597.jpeg",
+        "01_ppt_text/IMG_5599.JPG",
+        "01_ppt_text/IMG_5605.jpeg",
+        "01_ppt_text/IMG_5613.jpg",
+    ],
+    "ppt_formula": [
+        "02_ppt_formula/IMG_5527.jpg",
+        "02_ppt_formula/IMG_5541.jpg",
+        "02_ppt_formula/IMG_5559.jpg",
+        "02_ppt_formula/IMG_5588.jpg",
+        "02_ppt_formula/IMG_5603.jpg",
+        "02_ppt_formula/IMG_6207.jpeg",
+    ],
+    "paper_text": [
+        "03_paper_text/text_07.jpg",
+        "03_paper_text/text_08.jpg",
+        "03_paper_text/text_11.jpg",
+        "03_paper_text/IMG_20261125_233317.jpg",
+        "03_paper_text/IMG_20261125_232543.jpg",
+        "03_paper_text/IMG20261126022607.jpg",
+    ],
+    "paper_formula": [
+        "04_paper_formula/IMG_20261125_232906.jpg",
+        "04_paper_formula/formula_02.jpg",
+        "04_paper_formula/formula_05.jpg",
+        "04_paper_formula/formula_09.jpg",
+        "04_paper_formula/formula_13.jpg",
+        "04_paper_formula/formula_page_05.jpg",
+    ],
+}
 
 
 def load_font(size: int = 34):
@@ -85,9 +121,7 @@ def compose(panels, labels, columns: int, out: Path, label_height: int = 46) -> 
 
 
 def fig_overview() -> None:
-    """数据总览缩略图：每类抽样 6 张，共 24 张（随机种子 42）。"""
-    import random
-
+    """数据总览缩略图：每类固定选取 6 张，共 24 张（均无个人信息）。"""
     import sys
 
     sys.path.insert(0, str(ROOT / "src"))
@@ -102,16 +136,17 @@ def fig_overview() -> None:
             "ppt_text", "ppt_formula", "paper_text", "paper_formula"
         }
     ]
-    rng = random.Random(42)
+    by_file = {r["file"]: r for r in rows}
     picked = []
     for label in ("ppt_text", "ppt_formula", "paper_text", "paper_formula"):
-        pool = [r for r in rows if r["label"] == label]
-        picked.extend(rng.sample(pool, min(6, len(pool))))
+        picked.extend(by_file[path] for path in OVERVIEW_PICKS[label])
+    cols, tw, th, gap = 6, 340, 260, 6
     thumbs = []
     for row in picked:
         loaded = load_image(ROOT / "data/raw_samples" / row["file"], max_long_edge=340)
-        thumbs.append(to_pil(loaded.image, long_edge=340))
-    cols, tw, th, gap = 6, 340, 260, 6
+        thumb = to_pil(loaded.image, long_edge=340)
+        thumb.thumbnail((tw - 8, th - 8), Image.LANCZOS)
+        thumbs.append(thumb)
     canvas = Image.new(
         "RGB",
         (cols * tw + (cols + 1) * gap, 4 * th + 5 * gap),
