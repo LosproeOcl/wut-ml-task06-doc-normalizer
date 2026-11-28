@@ -255,7 +255,7 @@ unzip -P <口令> dataset-self-442-encrypted.zip -d data/raw_samples/
 
 ## 6.1 线上演示
 
-演示入口为 [https://ml-proj.losproeocl.cn](https://ml-proj.losproeocl.cn)，使用 Nginx Basic Auth，用户名 `t06`，口令为 `admin`（公开演示口令）。应用运行在本机 54312，Server1 只通过 SSH 反向隧道做反向代理，不部署代码、不保存图像。GitHub Pages 只能托管静态文件，无法运行 FastAPI/模型，因此不用于完整 webapp。部署细节见 `docs/11-部署与访问.md`。
+演示入口为 [https://ml-proj.losproeocl.cn](https://ml-proj.losproeocl.cn)，使用 Nginx Basic Auth，用户名 `t06`，口令为 `admin`（公开演示口令）。应用与模型直接部署在 Server1 的 Docker 容器 `t06-web`（`docnorm:cpu-amd64`，`127.0.0.1:54312`），Nginx 反向代理，不使用 SSH 反向隧道。服务器以 `DOCNORM_PUBLIC_MODE=1` 运行，隐藏并关闭训练集标注、四角与标注检查。GitHub Pages 只能托管静态文件，无法运行 FastAPI/模型，因此不用于完整 webapp。部署细节见 `docs/11-部署与访问.md`。
 
 ## 7. 团队分工
 

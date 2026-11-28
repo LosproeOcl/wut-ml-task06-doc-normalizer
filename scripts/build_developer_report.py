@@ -800,9 +800,11 @@ def section_architecture(doc):
     heading(doc, "4.5  部署结构", 2)
     body(
         doc,
-        "服务使用 FastAPI[3] + Uvicorn，绑定 127.0.0.1:54312，Docker 镜像 docnorm:cpu-arm64 以 CPU 运行。"
+        "服务使用 FastAPI[3] + Uvicorn，直接运行在 Server1 的 Docker 容器 docnorm:cpu-amd64，"
+        "绑定 127.0.0.1:54312；Nginx 反向代理，不使用 SSH 反向隧道。公开部署设置 "
+        "DOCNORM_PUBLIC_MODE=1，前端隐藏训练集标签、四角与标注检查，后端对应接口返回 404。"
         "模型权重不进入 Git，部署时挂载 runs/ 目录；健康检查 /api/health 返回门控、PPT/纸质模型、"
-        "SVM、学习四角、quad_policy、quad_display 与 routing_ready。分析接口在线程池中执行，"
+        "SVM、学习四角、quad_policy、quad_display、public_mode 与 routing_ready。分析接口在线程池中执行，"
         "并发上限 2，上传长边限制 2,000 像素，解码像素上限 6,000 万，避免大图拖死整机。"
     )
 
@@ -1579,30 +1581,27 @@ def appendix_d(doc):
     body(
         doc,
         "本附录面向检查者，按“部署 → 测试 → 使用 → 数据集获取”四步组织；所有命令均可在提交包根目录"
-        "（或克隆 GitHub 仓库后）直接执行。推荐环境：Docker Desktop（arm64 或 amd64 均可）与 git。"
+        "（或克隆 GitHub 仓库后）直接执行。推荐环境：Ubuntu 22.04 x86_64 + Docker 与 git；"
+        "当前线上服务直接运行在 Server1 的 amd64 容器中。"
     )
 
     heading(doc, "D.1  部署：构建镜像并启动网页服务", 2)
-    body(
-        doc,
-        "第一步构建 CPU 镜像（Apple Silicon 用 arm64，Intel/服务器用 amd64，二者代码一致）："
-    )
-    _cmd(doc, "docker build --platform linux/arm64 -f env/Dockerfile -t docnorm:cpu-arm64 .")
-    _cmd(doc, "docker build --platform linux/amd64 -f env/Dockerfile -t docnorm:cpu-amd64 .")
-    body(doc, "第二步启动网页服务（挂载仓库目录运行，包含 v5 默认模型权重 runs/）：")
+    body(doc, "第一步在服务器项目目录构建 CPU 镜像（x86_64 使用 amd64）：")
+    _cmd(doc, "docker build --build-arg INSTALL_CJK_FONTS=0 -f env/Dockerfile -t docnorm:cpu-amd64 .")
+    body(doc, "第二步启动网页服务（公开模式，关闭训练集标注与标注检查；挂载仓库目录运行，包含 v5 权重）：")
     _cmd(
         doc,
         "docker run -d --name t06-web --restart unless-stopped -p 127.0.0.1:54312:54312 "
-        '-v "$PWD:/app" -w /app -e PYTHONPATH=/app/src:/app docnorm:cpu-arm64 '
-        "uvicorn web.app:app --host 0.0.0.0 --port 54312",
+        '-v "$PWD:/app" -w /app -e PYTHONPATH=/app/src:/app -e DOCNORM_PUBLIC_MODE=1 '
+        "docnorm:cpu-amd64 uvicorn web.app:app --host 0.0.0.0 --port 54312",
     )
-    body(doc, "第三步健康检查：返回 JSON 中 routing_ready=true 表示载体门控、纸质集成与 PPT 分支全部就绪；")
+    body(doc, "第三步健康检查：返回 JSON 中 routing_ready=true 表示载体门控、纸质集成与 PPT 分支全部就绪；public_mode=true 表示标注功能已关闭；")
     _cmd(doc, "curl -s http://127.0.0.1:54312/api/health")
     body(
         doc,
         "线上演示地址为 https://ml-proj.losproeocl.cn（Nginx Basic Auth，用户名 t06，口令 admin，"
-        "为公开演示口令；承诺维护至 2027 年 1 月 1 日）。检查者也可仅用本机 127.0.0.1:54312 完成全部功能验收，"
-        "两者运行同一份代码与模型。",
+        "为公开演示口令；承诺维护至 2027 年 1 月 1 日）。检查者也可在 Server1 上直接访问 "
+        "127.0.0.1:54312 完成全部功能验收，两者运行同一份代码与模型。",
     )
 
     heading(doc, "D.2  测试：数据契约、单元/集成与一次性评估复现", 2)
@@ -1614,7 +1613,7 @@ def appendix_d(doc):
         "单元与集成测试共 104 项（含 v4/v5 数据契约、划分互斥、哈希校验、网页接口契约）。"
         "网页契约测试需要 httpx2，可在容器内执行：",
     )
-    _cmd(doc, "docker run --rm -v \"$PWD:/app\" -w /app -e PYTHONPATH=/app/src:/app docnorm:cpu-arm64 sh -c \"pip install -q httpx2 && python -m pytest -q\"")
+    _cmd(doc, "docker run --rm -v \"$PWD:/app\" -w /app -e PYTHONPATH=/app/src:/app docnorm:cpu-amd64 sh -c \"pip install -q httpx2 && python -m pytest -q\"")
     body(
         doc,
         "预期输出 104 passed。挂载数据集后，数据契约测试会额外核对 472 张合格样本的文件存在性与哈希；"

@@ -1,6 +1,7 @@
-"""FastAPI 本机演示服务。"""
+"""FastAPI 本机/服务器演示服务。"""
 from __future__ import annotations
 
+import os
 from io import BytesIO
 from pathlib import Path
 
@@ -19,6 +20,23 @@ MAX_UPLOAD = int(services.CONFIG["web"]["max_upload_mb"]) * 1024 * 1024
 app = FastAPI(title="T06 文档规范化演示", version="0.1.0")
 app.mount("/static", StaticFiles(directory=STATIC), name="static")
 
+PUBLIC_MODE = os.environ.get("DOCNORM_PUBLIC_MODE", "").lower() in {"1", "true", "yes", "on"}
+ANNOTATION_PREFIXES = (
+    "/api/samples",
+    "/api/annotations",
+    "/api/corners",
+    "/api/annotators",
+    "/api/review",
+)
+
+
+@app.middleware("http")
+async def hide_annotation_apis(request, call_next):
+    """公开部署时不暴露训练集标注、四角与标注检查接口。"""
+    if PUBLIC_MODE and request.url.path.startswith(ANNOTATION_PREFIXES):
+        return JSONResponse(status_code=404, content={"detail": "标注功能未开放"})
+    return await call_next(request)
+
 
 @app.exception_handler(services.WebError)
 async def web_error_handler(_, exc: services.WebError):
@@ -34,16 +52,22 @@ def index():
 def health():
     model = services._model_path()
     routing = services.model_status()
-    return {
+    payload = {
         "status": "ok",
         "classic_model": str(model) if model else None,
         "routing": routing,
         "model_ready": model is not None or routing["routing_ready"],
-        "annotation": services.annotation_stats(),
-        "corners": services.corner_stats(),
-        "review": services.review_stats(),
-        "annotators": services.annotators(),
+        "public_mode": PUBLIC_MODE,
+        "annotation_enabled": not PUBLIC_MODE,
     }
+    if not PUBLIC_MODE:
+        payload.update(
+            annotation=services.annotation_stats(),
+            corners=services.corner_stats(),
+            review=services.review_stats(),
+            annotators=services.annotators(),
+        )
+    return payload
 
 
 @app.get("/api/samples")

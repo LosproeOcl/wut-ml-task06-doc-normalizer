@@ -20,6 +20,7 @@ const state = {
   cornerMoveStart: null,
   cornerMoveOriginal: null,
   person: "",
+  annotationEnabled: true,
   reviewItems: [],
   reviewOffset: 0,
   reviewTotal: 0,
@@ -670,16 +671,30 @@ async function applyCorners() {
   }
 }
 
+function applyPublicMode() {
+  if (state.annotationEnabled) return;
+  document.querySelectorAll('.tab[data-tab="annotate"], .tab[data-tab="corners"], .tab[data-tab="review"]')
+    .forEach((tab) => tab.classList.add("hidden"));
+  ["annotate-panel", "corner-panel", "review-panel"].forEach((id) => $(id).classList.add("hidden"));
+  $("person-bar").classList.add("hidden");
+  document.querySelector('.tab[data-tab="analyze"]')?.classList.add("active");
+  $("analyze-panel").classList.remove("hidden");
+}
+
 async function loadHealth() {
   try {
     const health = await fetchJSON("/api/health");
+    state.annotationEnabled = health.annotation_enabled !== false;
+    applyPublicMode();
     $("health").textContent = health.routing?.routing_ready
       ? "双分支模型已加载"
       : health.model_ready
         ? "分类模型已加载（使用兜底分支）"
         : "未找到分类模型，仅展示预处理";
+    return health;
   } catch (_) {
     $("health").textContent = "服务状态未知";
+    return null;
   }
 }
 
@@ -1322,5 +1337,8 @@ async function setupDeviceButtons() {
 
 bindUI();
 setupDeviceButtons();
-loadHealth();
-loadAnnotators().then(() => loadAnnotations());
+loadHealth().then(() => {
+  if (state.annotationEnabled) {
+    loadAnnotators().then(() => loadAnnotations());
+  }
+});
