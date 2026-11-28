@@ -10,8 +10,6 @@
 from __future__ import annotations
 
 import csv
-import json
-import os
 import subprocess
 from collections import Counter
 from pathlib import Path
@@ -24,9 +22,7 @@ from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = Path(os.environ.get("MEMBER_REPORT_OUT", ROOT / "docs/18-小组成员及其分工.docx"))
-STUDENT_ID_FILE = os.environ.get("STUDENT_ID_FILE")
-STUDENT_IDS = json.loads(Path(STUDENT_ID_FILE).read_text(encoding="utf-8")) if STUDENT_ID_FILE else {}
+OUTPUT = ROOT / "docs/18-小组成员及其分工.docx"
 BODY_FONT = "宋体"
 HEAD_FONT = "黑体"
 LATIN_FONT = "Times New Roman"
@@ -240,31 +236,17 @@ def main() -> int:
     )
 
     heading(doc, "2  成员与角色", 1)
-    if STUDENT_IDS:
-        table(
-            doc,
-            ["姓名", "学号", "GitHub 主页", "角色与分工"],
-            [
-                [name, STUDENT_IDS.get(name, ""), f"github.com/{handle}" if handle != "待补" else "（用户名待补）", role]
-                for name, handle, role in MEMBERS
-            ],
-            "表 1  成员与角色分工",
-            widths=[1.8, 2.4, 3.8, 7.4],
-            font_size=9.2,
-            align_center=False,
-        )
-    else:
-        table(
-            doc,
-            ["姓名", "GitHub 主页", "角色与分工"],
-            [
-                [name, f"github.com/{handle}" if handle != "待补" else "（用户名待补）", role]
-                for name, handle, role in MEMBERS
-            ],
-            "表 1  成员与角色分工",
-            widths=[2.2, 4.2, 8.6],
-            align_center=False,
-        )
+    table(
+        doc,
+        ["姓名", "GitHub 主页", "角色与分工"],
+        [
+            [name, f"github.com/{handle}" if handle != "待补" else "（用户名待补）", role]
+            for name, handle, role in MEMBERS
+        ],
+        "表 1  成员与角色分工",
+        widths=[2.2, 4.2, 8.6],
+        align_center=False,
+    )
     body(
         doc,
         "技术点责任顺序：余青阳作为项目负责人参与全部 9 个技术点；在由其主责的技术点（载体门控、"
