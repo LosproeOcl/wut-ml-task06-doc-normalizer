@@ -201,6 +201,76 @@ def fig_recall(payload: dict) -> None:
     save(fig, "eval_v5_recall")
 
 
+def fig_distribution() -> None:
+    import csv
+
+    excluded = {
+        row["sample_id"]
+        for row in csv.DictReader(
+            (ROOT / "data/manifests/exclusions.csv").open(encoding="utf-8-sig")
+        )
+    }
+    rows = [
+        row
+        for row in csv.DictReader(
+            (ROOT / "data/manifests/sample_manifest_v5.csv").open(encoding="utf-8-sig")
+        )
+        if row["sample_id"] not in excluded and row["label"] not in {"", "99_unlabeled"}
+    ]
+    split = json.loads((ROOT / "data/splits/split_v5.json").read_text(encoding="utf-8"))
+    group_to_set = {
+        group: name for name, groups in split["groups"].items() for group in groups
+    }
+    order = ["train", "val", "test"]
+    labels_cn = {"train": "训练 349", "val": "验证 51", "test": "测试 72"}
+    text_counts = [0, 0, 0]
+    formula_counts = [0, 0, 0]
+    for row in rows:
+        index = order.index(group_to_set[row["doc_page_id"]])
+        if row["content_label"] if False else row["label"].endswith("text"):
+            text_counts[index] += 1
+        else:
+            formula_counts[index] += 1
+    fig, axes = plt.subplots(1, 2, figsize=(9.8, 3.8))
+    ax = axes[0]
+    y = np.arange(len(order))[::-1]
+    ax.barh(y, text_counts, height=0.52, label="文字", color=NAVY)
+    ax.barh(y, formula_counts, height=0.52, left=text_counts, label="公式", color=GOLD)
+    for yi, (t, f) in zip(y, zip(text_counts, formula_counts)):
+        ax.text(t / 2, yi, str(t), ha="center", va="center", color="white", fontsize=10)
+        ax.text(t + f / 2, yi, str(f), ha="center", va="center", color=INK, fontsize=10)
+    ax.set_yticks(y, [labels_cn[name] for name in order])
+    ax.set_xlim(0, 360)
+    ax.set_xlabel("样本数")
+    ax.set_title("v5 各集合内容构成")
+    ax.legend(frameon=False, loc="lower right")
+
+    ax = axes[1]
+    lighting_order = ["ceiling", "side_lamp", "natural", "backlight"]
+    lighting_cn = ["教室顶灯", "侧向光源", "自然光", "逆光/反光"]
+    scene_order = ["classroom", "dorm", "outdoor"]
+    scene_cn = ["教室", "宿舍/桌面", "户外"]
+    light_counts = [sum(1 for r in rows if r["lighting"] == name) for name in lighting_order]
+    scene_counts = [sum(1 for r in rows if r["scene"] == name) for name in scene_order]
+    x = np.arange(len(lighting_order))
+    ax.bar(x, light_counts, width=0.55, color=TEAL, label="光照")
+    for xi, value in zip(x, light_counts):
+        ax.text(xi, value + 3, str(value), ha="center", fontsize=9.5, color=INK)
+    ax.set_xticks(x, lighting_cn)
+    ax.set_ylim(0, max(light_counts) * 1.25)
+    ax.set_ylabel("样本数")
+    ax2 = ax.twiny()
+    ax2.bar(np.arange(len(scene_order)) + 0.0, scene_counts, width=0.0)
+    ax2.set_xticks(np.arange(len(scene_order)) + 0.0, [])
+    ax2.set_xlim(ax.get_xlim())
+    for xi, (name, cn) in enumerate(zip(scene_order, scene_cn)):
+        count = scene_counts[xi]
+        ax.text(0.02 + xi * 0.0, 0, "", fontsize=1)
+    note = "  ".join(f"{cn} {count}" for cn, count in zip(scene_cn, scene_counts))
+    ax.set_title(f"采集条件分布（场景：{note}）", fontsize=11)
+    save(fig, "eval_v5_distribution")
+
+
 def fig_cv(summary: dict) -> None:
     order = ["svm", "cnn", "ppt", "paper"]
     labels = [summary[key]["label"] for key in order]
@@ -262,6 +332,7 @@ def main() -> int:
     fig_overall(payload)
     fig_confusion(payload)
     fig_recall(payload)
+    fig_distribution()
     fig_cv(cv_summary())
     fig_ci(payload)
     return 0

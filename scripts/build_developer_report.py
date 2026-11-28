@@ -104,10 +104,45 @@ def shade(cell, hex_color):
     tc_pr.append(shd)
 
 
+def _three_line_borders(table_obj) -> None:
+    """三线表：仅保留顶线与底线，表头下加细线，无竖线。"""
+    tbl_pr = table_obj._tbl.tblPr
+    borders = OxmlElement("w:tblBorders")
+    spec = (
+        ("top", "single", "12"),
+        ("bottom", "single", "12"),
+        ("left", "none", "0"),
+        ("right", "none", "0"),
+        ("insideH", "none", "0"),
+        ("insideV", "none", "0"),
+    )
+    for tag, val, size in spec:
+        element = OxmlElement(f"w:{tag}")
+        element.set(qn("w:val"), val)
+        if val == "single":
+            element.set(qn("w:sz"), size)
+            element.set(qn("w:space"), "0")
+            element.set(qn("w:color"), "000000")
+        borders.append(element)
+    tbl_pr.append(borders)
+
+
+def _header_bottom_border(cell) -> None:
+    tc_pr = cell._tc.get_or_add_tcPr()
+    borders = OxmlElement("w:tcBorders")
+    bottom = OxmlElement("w:bottom")
+    bottom.set(qn("w:val"), "single")
+    bottom.set(qn("w:sz"), "8")
+    bottom.set(qn("w:space"), "0")
+    bottom.set(qn("w:color"), "000000")
+    borders.append(bottom)
+    tc_pr.append(borders)
+
+
 def table(doc, headers, rows, cap, widths=None, font_size=10.5, align_center=True):
     caption(doc, cap, kind="表")
     table_obj = doc.add_table(rows=1, cols=len(headers))
-    table_obj.style = "Table Grid"
+    _three_line_borders(table_obj)
     table_obj.alignment = WD_TABLE_ALIGNMENT.CENTER
     header_row = table_obj.rows[0]
     tr_pr = header_row._tr.get_or_add_trPr()
@@ -122,7 +157,7 @@ def table(doc, headers, rows, cap, widths=None, font_size=10.5, align_center=Tru
         paragraph.paragraph_format.first_line_indent = Pt(0)
         run = paragraph.add_run(str(text))
         set_run_font(run, size=font_size, bold=True)
-        shade(header_cells[index], "DCE8F7")
+        _header_bottom_border(header_cells[index])
     for row in rows:
         cells = table_obj.add_row().cells
         for index, text in enumerate(row):
@@ -380,6 +415,12 @@ def section_data(doc):
         "表 2  v5 口径的集合、内容与载体分布",
         widths=[3.4, 2.4, 2.4, 2.4, 3.2, 3.2],
     )
+    figure(
+        doc,
+        "eval_v5_distribution.png",
+        "图 2  v5 各集合内容构成与采集条件分布（右图括号内为场景样本数）",
+        15.4,
+    )
     body(
         doc,
         "排除表的 36 条记录中，personal_info 25 条、non_course_document 4 条、unlabeled 3 条、"
@@ -420,7 +461,7 @@ def section_data(doc):
         "验证集和测试集不能写入。标注任务按人分配：原始 236 张分给 8 名成员；第一批 93 张按公式/文字分层，"
         "平均分给任万东、王康琦、余青阳各 31 张；第二批 9 张全部分给余青阳。最终训练集 338 张全部有记录。"
     )
-    figure(doc, "annotation_examples.png", "图 2  人工四角标注检查示例（红框为保存的四角，黄点为顶点顺序）", 15.2)
+    figure(doc, "annotation_examples.png", "图 3  人工四角标注检查示例（红框为保存的四角，黄点为顶点顺序）", 15.2)
     body(
         doc,
         "结构审计结果显示：338 条记录均为唯一 sample_id，全部属于训练集；四角面积占比 0.0455–0.9901，"
@@ -505,9 +546,9 @@ def section_architecture(doc):
         "当前线上架构可以概括为“一个门控、两条分类分支、两条拉正路径、一个兜底”。"
         "上传图像先做 EXIF 方向校正和长边限制，再进入载体门控；门控输出 PPT 或纸质，"
         "分别选择 OpenCV 分类拉正参数和内容分类模型；学习四角模型独立运行，只负责显示、扫描件和 PDF 的拉正。"
-        "两条路径在用户手动应用四角或手动切换载体时可以重新汇合。总体结构如图 3 所示。"
+        "两条路径在用户手动应用四角或手动切换载体时可以重新汇合。总体结构如图 4 所示。"
     )
-    figure(doc, "architecture.png", "图 3  当前线上模型与双路径拉正结构", 15.4)
+    figure(doc, "architecture.png", "图 4  当前线上模型与双路径拉正结构", 15.4)
 
     heading(doc, "4.2  载体门控", 2)
     body(
@@ -516,6 +557,12 @@ def section_architecture(doc):
         "做 TTA，对三个 softmax 输出取平均，阈值设为 0.30：P(screen) ≥ 0.30 判为 PPT，否则判为纸质。"
         "阈值 0.30 是空间偏度实验的结果：合成 30°/40° 条件下，门控 TTA + 0.3 把完整链路从 71.4% 提升到 81.0%。"
         "门控只决定分支，不直接决定内容标签。"
+    )
+    figure(
+        doc,
+        "carrier_gate_curves.png",
+        "图 5  载体门控训练曲线（v5 训练集 2,349 张 / 外部验证 1,000 张）",
+        14.0,
     )
 
     heading(doc, "4.3  内容分类分支", 2)
@@ -568,6 +615,12 @@ def section_architecture(doc):
         ],
         "表 3  双路径拉正的分工",
         widths=[2.6, 4.0, 5.2, 5.0],
+    )
+    figure(
+        doc,
+        "rectify_compare.png",
+        "图 6  拉正前后对比（左：斜拍原图；右：自动拉正结果）",
+        15.2,
     )
 
     heading(doc, "4.5  部署结构", 2)
@@ -631,7 +684,7 @@ def section_versions(doc):
         widths=[1.4, 3.0, 7.0, 4.6, 4.2],
         font_size=9.0,
     )
-    figure(doc, "metrics.png", "图 4  验证集 51 张上的版本与分支准确率对比（v4 时期）", 14.5)
+    figure(doc, "metrics.png", "图 7  验证集 51 张上的版本与分支准确率对比（v4 时期）", 14.5)
     body(
         doc,
         "需要特别说明 88.24% 与 84.31% 的关系。88.24% 是标签修正前的旧口径：当时 11 张样本的公式/文字标签"
@@ -698,7 +751,7 @@ def section_versions(doc):
         "取舍四：为什么门控不做自动跨分支切换？实测按“谁置信度高用谁”会把 4 张 PPT 误切到纸质，"
         "全链路降到 80.39%。最终只做 uncertain 标记和手动“按 PPT/纸质重试”，自动指标保持 86.27%。"
     )
-    figure(doc, "confusion.png", "图 5  当前路由链路验证集混淆矩阵（文字/公式）", 9.5)
+    figure(doc, "confusion.png", "图 8  v4 时期路由链路验证集混淆矩阵（文字/公式，历史口径）", 9.5)
     body(
         doc,
         "单次 21 张验证集不足以支撑 PPT 分支选择，因此补充了 5 折分组交叉验证："
@@ -764,6 +817,12 @@ def section_problems(doc):
         "旋转 TTA + 0.3 阈值在合成 30°/40° 上把完整链路从 71.4% 提升到 81.0%，但仍有高置信错误"
         "（如 IMG_6178，P(ppt)=0.082）。这类错误无法靠阈值修复，最终用结果卡的手动弹体重试兜底。"
     )
+    figure(
+        doc,
+        "synth_ppt_preview.jpg",
+        "图 9  合成投影 PPT 示例（SCB 教室背景 + 生成课件 + 投影退化，用于偏度与分布压力测试）",
+        15.2,
+    )
     body(
         doc,
         "学习四角的失败则说明“定位指标”和“分类指标”不是一回事。学习四角的角点 L2 更小，"
@@ -813,11 +872,11 @@ def section_screenshots(doc):
     heading(doc, "7.1  早期批量队列与单张结果页", 2)
     body(
         doc,
-        "图 6 是较早版本的 PPT 文字页结果页。页面已经具备批量队列、逐张完成状态、原图/矫正图/扫描件三栏、"
+        "图 10 是较早版本的 PPT 文字页结果页。页面已经具备批量队列、逐张完成状态、原图/矫正图/扫描件三栏、"
         "四角拖动、“应用四角”、PDF 模式与导出按钮。该版本还没有载体徽标、双路径显示切换和手动载体重试；"
         "这些是后续版本补充的。"
     )
-    figure(doc, "record_results.png", "图 6  早期版本的批量队列与结果页（左：PPT 文字；右：纸质文字）", 15.0)
+    figure(doc, "record_results.png", "图 10  早期版本的批量队列与结果页（左：PPT 文字；右：纸质文字）", 15.0)
     body(
         doc,
         "从截图可以看到，早期结果的矫正图与扫描件已经能把幕布内容拉正，但界面信息密度较高，"
@@ -828,11 +887,11 @@ def section_screenshots(doc):
     heading(doc, "7.2  偏度样本的失败与修正", 2)
     body(
         doc,
-        "图 7 是空间偏度样本的测试截图，文件名直接标注“偏度-不达预期”。该样本在早期链路中门控或定位不稳定，"
+        "图 11 是空间偏度样本的测试截图，文件名直接标注“偏度-不达预期”。该样本在早期链路中门控或定位不稳定，"
         "说明正面样本的高准确率不能外推到斜拍场景。后续用合成 0°–40° 压力测试定位瓶颈，"
         "引入门控旋转 TTA 与 0.3 阈值，并用学习四角提供失败建议，才把偏度场景的完整链路从 71.4% 提升到 81.0%。"
     )
-    figure(doc, "record_skew.png", "图 7  偏度样本测试截图（早期版本，标注为“不达预期”）", 13.0)
+    figure(doc, "record_skew.png", "图 11  偏度样本测试截图（早期版本，标注为“不达预期”）", 13.0)
 
     heading(doc, "7.3  当前双路径与显示切换", 2)
     body(
@@ -940,6 +999,42 @@ def section_status(doc):
         "表 10  v5 测试集一次性评估与交叉验证",
         widths=[4.6, 5.4, 2.4, 3.6],
         align_center=False,
+    )
+    figure(
+        doc,
+        "eval_v5_overall.png",
+        "图 12  v5 测试集方法对比与路由分层准确率（右图含 85% 门禁线）",
+        15.4,
+    )
+    figure(
+        doc,
+        "eval_v5_confusion.png",
+        "图 13  v5 测试集混淆矩阵（左：合计 72 张；右：自采 42 张）",
+        14.0,
+    )
+    figure(
+        doc,
+        "eval_v5_recall.png",
+        "图 14  分类别召回与 70% 下限（合计与自采口径）",
+        11.5,
+    )
+    figure(
+        doc,
+        "eval_v5_cv.png",
+        "图 15  v5 五折分组交叉验证（均值 ± 标准差）",
+        12.5,
+    )
+    figure(
+        doc,
+        "eval_v5_ci.png",
+        "图 16  v5 测试集准确率与自助法 95% 置信区间（含按载体点估计）",
+        13.5,
+    )
+    body(
+        doc,
+        "图 12 至图 16 由 scripts/make_eval_figures_v5.py 直接读取 reports/final_test_v5.json 与 "
+        "runs/cv-v5-* 的产物生成，可随评估结果重新渲染。需要注意图 12 右图：外部 30 张全部为文字类纸质页，"
+        "其 100% 不能解读为公式表现；图 14 的公式召回 83.33% 是更接近真实短板的数字。"
     )
     heading(doc, "8.4  阶段审计结论", 2)
     body(
