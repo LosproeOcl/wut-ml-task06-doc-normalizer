@@ -80,7 +80,7 @@ def build_html(toc_pages: dict[str, int] | None) -> str:
         insert_at = toc_index + len(toc_head)
         text = text[:insert_at] + '<div class="toc">' + text[insert_at:]
     # 在指定大图前强制分页，避免被上一页表格挤到页底裁切
-    for caption in ["图 9", "图 13(a)", "图 13(b)", "图 20"]:
+    for caption in ["图 9", "图 13(b)", "图 13(c)", "图 20"]:
         caption_index = text.find(f"<p>{caption}")
         if caption_index == -1:
             continue

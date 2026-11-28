@@ -197,22 +197,25 @@ def _record_grid(items, out_name: str, cols: int, cell_w: int, cell_h: int) -> N
 
 
 def record_gallery() -> None:
-    early = [
+    early_a = [
         ("训练集四角（退回重标）", "人工标注过程记录 1.png"),
         ("训练集标签（模糊化）", "人工标注过程 2.png"),
         ("标注检查（按人筛选）", "标注检查页面.png"),
-        ("早期单图识别 1（PPT 文字）", "测试识别 PPT-text1-正面.png"),
-        ("早期单图识别 2（PPT 文字）", "测试识别 PPT-text2-正面.png"),
+        ("早期批量队列（PPT 文字）", "测试识别 PPT-text1-正面.png"),
+    ]
+    early_b = [
+        ("早期单图分析 1（PPT 文字）", "测试识别 PPT-text2-正面.png"),
         ("早期偏度样本（不达预期）", "测试识别 PPT-text3-偏度-不达预期.png"),
-        ("早期单图识别 3（纸质文字）", "测试识别 paper-text.png"),
+        ("早期单图分析 2（纸质文字）", "测试识别 paper-text.png"),
     ]
     current = [
         ("v5 复验 1（PPT 公式）", "测试识别-v5-图 1.png"),
         ("v5 复验 2（纸质公式）", "测试识别-v5-图 2.png"),
         ("v5 复验 3（纸质文字）", "测试识别-v5-图 3.png"),
     ]
-    _record_grid(early, "record_img_gallery_early.png", 3, 900, 720)
-    _record_grid(current, "record_img_gallery_v5.png", 3, 700, 900)
+    _record_grid(early_a, "record_img_gallery_early_a.png", 2, 1200, 850)
+    _record_grid(early_b, "record_img_gallery_early_b.png", 2, 1200, 850)
+    _record_grid(current, "record_img_gallery_v5.png", 2, 900, 1100)
 
 
 def box(ax, xy, width, height, text, face, edge="#4a5a6a", size=11):
