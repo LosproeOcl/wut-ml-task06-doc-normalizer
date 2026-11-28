@@ -7,7 +7,7 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from PIL import Image, UnidentifiedImageError
 
@@ -45,7 +45,10 @@ async def web_error_handler(_, exc: services.WebError):
 
 @app.get("/")
 def index():
-    return FileResponse(STATIC / "index.html")
+    html = (STATIC / "index.html").read_text(encoding="utf-8")
+    if PUBLIC_MODE:
+        html = html.replace("<body>", '<body class="public-mode">', 1)
+    return HTMLResponse(html)
 
 
 @app.get("/about")

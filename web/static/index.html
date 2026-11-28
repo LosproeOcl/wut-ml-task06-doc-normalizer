@@ -9,14 +9,15 @@
 </head>
 <body>
   <header class="site-header">
+    <button id="lang-toggle" class="lang-toggle" type="button" aria-label="Switch to English">EN</button>
     <h1 class="site-title"><a href="/">文档矫正与分类</a></h1>
-    <p class="site-description">文档矫正 · 内容分类 · 扫描件 · <a href="/about">关于与口径</a> · <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub 仓库</a></p>
+    <p class="site-description">文档矫正 · 内容分类 · 扫描件 · <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub 仓库</a></p>
     <nav class="site-nav">
       <a href="#" class="tab active" data-tab="analyze">图片扫描</a>
+      <a href="#" class="tab" data-tab="about">关于</a>
       <a href="#" class="tab" data-tab="annotate">训练集标签</a>
       <a href="#" class="tab" data-tab="corners">训练集四角</a>
       <a href="#" class="tab" data-tab="review">标注检查</a>
-      <a href="/about" class="nav-link">关于</a>
     </nav>
     <div class="person-bar hidden" id="person-bar">
       <label for="person-select">标注人</label>
@@ -116,7 +117,6 @@
         <p class="hint" id="meta"></p>
       </div>
     </section>
-
     <section id="annotate-panel" class="hidden">
       <p class="hint">
         仅允许校正训练集标签。标注写入独立文件，不修改样本清单与冻结划分。
@@ -185,6 +185,148 @@
         <span id="review-page" class="hint"></span>
         <button id="review-next">下一页</button>
       </div>
+    </section>
+
+    <section id="about-panel" class="hidden about">
+      <div class="about-zh">
+
+
+    <section>
+      <h2>关于本项目</h2>
+      <p>
+        本系统面向课堂场景的斜拍文档：输入手机或相机拍摄的投影幕布、黑板板书或纸质笔记照片，
+        完成文档四角定位与透视矫正，并判定页面内容属于纯文字还是含公式。系统同时提供扫描件输出、
+        批量队列、四角校准与 PDF 导出，用于课堂演示与文档归档。
+      </p>
+      <p class="muted">
+        课程：武汉理工大学《机器学习》课程工程实践 · 第六组 · Task 06。
+        项目源码与完整开发历程见
+        <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>。
+      </p>
+    </section>
+
+    <section id="rectify">
+      <h2>“矫正”的口径</h2>
+      <p>
+        输入一张斜拍原图，系统定位文档四边，估计四个顶点，执行透视变换，输出正面矫正图。
+        “矫正”指几何透视矫正，目标是让文档平面与图像平面平行；它不承诺恢复已经被镜面反光、
+        过曝或运动模糊完全丢失的文字信息。
+      </p>
+      <ul>
+        <li>
+          <strong>分类路径：</strong>OpenCV Canny（PPT/纸质均为 50/150）、形态学闭运算、轮廓查找与四边形近似，
+          通过面积与凸性校验后做四点透视变换。检测失败时保留原图并标记
+          <code>rectify_failed</code>，避免错误裁切放大误差。
+        </li>
+        <li>
+          <strong>显示/PDF 路径：</strong>MobileNetV3-Small 回归 8 个归一化坐标，按 PPT/纸质分别训练；
+          用于在自动检测失败或用户需要更贴合边界的矫正图时提供显示与导出视图。
+          两条路径共享原图与人工四角，用户手动应用四角后同时切换。
+        </li>
+        <li>
+          <strong>分类与显示解耦：</strong>内容分类固定使用 OpenCV 视图，保证指标口径稳定；
+          “学习四角”视图只影响矫正图、扫描件与 PDF，不参与分类指标。
+        </li>
+        <li>
+          <strong>增强与扫描件：</strong>CLAHE 与自适应阈值用于显示与扫描件（白底黑字），
+          不进入分类输入，避免增强造成的分布漂移。
+        </li>
+      </ul>
+      <p class="note">
+        测试集 72 张中 61 张自动拉正成功；11 张失败按原图分类并在结果中标记。
+        “矫正成功”不等于“分类正确”，两者分别记录、分别分析。
+      </p>
+    </section>
+
+    <section id="classify">
+      <h2>“分类”的口径</h2>
+      <p>
+        内容分类采用二分类评估口径：<code>text</code>（纯文字为主）与 <code>formula</code>（含数学公式）。
+        数据集归档仍保留四格标签 <code>ppt_text / ppt_formula / paper_text / paper_formula</code>，
+        用于数据管理与分层统计；评估时按 <code>label_map</code> 映射为二分类（ADR-0008）。
+      </p>
+      <ul>
+        <li>
+          <strong>载体门控：</strong>先判定投影幕布（PPT）或纸质/板书，再进入对应分支；
+          门控低置信时标记 <code>uncertain</code>，允许用户手动重试另一分支，不自动跨分支切换。
+        </li>
+        <li>
+          <strong>分支模型：</strong>PPT 分支使用 MobileNetV3-Small；纸质分支使用两个种子的 CNN 概率平均；
+          模型缺失时回退传统 SVM。结果卡展示载体、命中分支、文字/公式概率与处理耗时。
+        </li>
+        <li>
+          <strong>指标：</strong>准确率、宏平均 F1、混淆矩阵、按载体分组与分类别召回；
+          测试集只做一次性评估，不用于阈值选择、早停或模型选择。
+        </li>
+      </ul>
+      <p class="note">
+        v5 测试集一次性评估为 93.06% / 宏 F1 92.65%；自采 42 张 88.10%，外部 30 张 100%，
+        公式召回 83.33%。外部 30 张全部为纸质文字页，不代表公式能力；合计 Wilson 95% 置信区间
+        下界约 84.8%，低于 85%，因此“达标”仅指合计点估计，不能表述为稳健达标。
+      </p>
+    </section>
+
+    <section id="boundary">
+      <h2>数据、评估与边界</h2>
+      <ul>
+        <li>当前划分 <code>split_v5</code>：训练 349 / 验证 51 / 测试 72；自采 442 张，外部测试 30 张只进 test。</li>
+        <li>同一文档页的多角度照片按 <code>doc_page_id</code> 整组划分，避免跨集合泄漏。</li>
+        <li>测试集不参与训练、阈值选择或早停；v4 的 67.92% 仅作历史对照，不与 v5 混用。</li>
+        <li>提交包权重为事故后恢复重建版，测试复评 90.28%；正式结果 93.06% 以原权重一次性评估记录为准。</li>
+        <li>自动隐私打码按 D-01 取消开发；含个人信息样本已从数据集与对外材料中剔除。</li>
+      </ul>
+    </section>
+
+    <section id="links">
+      <h2>相关链接</h2>
+      <p>
+        <a href="/">返回图片扫描</a>
+        <span class="footer-sep">·</span>
+        <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>
+        <span class="footer-sep">·</span>
+        <a href="https://github.com/LosproeOcl/doc-normalizer/blob/main/docs/16-%E5%BC%80%E5%8F%91%E5%8E%86%E7%A8%8B%E6%8A%A5%E5%91%8A.pdf" target="_blank" rel="noopener noreferrer">实验报告</a>
+      </p>
+    </section>
+      </div>
+
+      <div class="about-en hidden">
+        <section>
+          <h2>About this project</h2>
+          <p>This system handles obliquely photographed classroom documents: projection screens, blackboard notes, or paper notes. It locates the four corners, applies perspective rectification, and classifies the page as text-only or formula-bearing. It also provides scan output, batch queues, corner adjustment and PDF export.</p>
+          <p class="muted">Course: Wuhan University of Technology, Machine Learning Engineering Practice · Group 06 · Task 06. Source code and full development history: GitHub.</p>
+        </section>
+        <section>
+          <h2>What “rectification” means</h2>
+          <p>Rectification is geometric: detect the document boundary, estimate four corners, and apply a perspective warp to produce a frontal view. It does not recover information lost to glare, overexposure or motion blur.</p>
+          <ul>
+            <li><strong>Classification path:</strong> OpenCV Canny 50/150, morphology, contour and quadrilateral fitting, area/convexity checks, then a four-point warp. Failures keep the original image and are marked <code>rectify_failed</code>.</li>
+            <li><strong>Display/PDF path:</strong> MobileNetV3-Small regresses eight normalized corner coordinates; it is used for display and export views, not for classification metrics. Both paths share the original image and manual corners.</li>
+            <li><strong>Enhancement:</strong> CLAHE and adaptive thresholding are used for display and scan output only, and are not fed to the classifier.</li>
+          </ul>
+          <p class="note">On the 72-image test set, 61 images were auto-rectified and 11 fell back to the original image. Rectification success is not the same as classification correctness.</p>
+        </section>
+        <section>
+          <h2>What “classification” means</h2>
+          <p>Evaluation uses a two-class content label: <code>text</code> vs <code>formula</code>. The four archive labels (<code>ppt_text / ppt_formula / paper_text / paper_formula</code>) are for data management and are mapped to the two-class evaluation label (ADR-0008).</p>
+          <ul>
+            <li><strong>Carrier gate:</strong> PPT/screen vs paper/blackboard first; low-confidence samples are marked <code>uncertain</code> and can be retried manually; no automatic cross-branch switch.</li>
+            <li><strong>Branches:</strong> PPT MobileNetV3-Small; paper CNN ensemble of two seeds; SVM fallback. The result card shows carrier, branch, probabilities and latency.</li>
+            <li><strong>Metrics:</strong> accuracy, macro F1, confusion matrix, per-carrier and per-class recall. The test set is evaluated once and is not used for threshold selection or early stopping.</li>
+          </ul>
+          <p class="note">v5 test: 93.06% / macro F1 92.65%; self-collected 42 images 88.10%, external 30 images 100%, formula recall 83.33%. External 30 are all paper text pages; the overall Wilson 95% CI lower bound is about 84.8%, below 85%, so “passing” is a point estimate only.</p>
+        </section>
+        <section>
+          <h2>Data and boundaries</h2>
+          <ul>
+            <li>split_v5: train 349 / val 51 / test 72; 442 self-collected images plus 30 external test images (test only).</li>
+            <li>Multi-angle photos of the same document page are grouped by <code>doc_page_id</code> and kept in one split.</li>
+            <li>The test set is not used for training, thresholding or early stopping; v4 67.92% is historical only.</li>
+            <li>Submitted weights are the recovered build; test re-evaluation is 90.28%; official 93.06% is the original-weight one-shot evaluation.</li>
+            <li>Automatic privacy masking was cancelled under D-01; samples with personal information were excluded.</li>
+          </ul>
+        </section>
+      </div>
+
     </section>
   </main>
 

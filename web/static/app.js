@@ -32,6 +32,135 @@ const state = {
 const REVIEW_PAGE_SIZE = 12;
 
 const $ = (id) => document.getElementById(id);
+
+const I18N = {
+  zh: {
+    title: "文档矫正与分类",
+    site_title: "文档矫正与分类",
+    site_desc: '文档矫正 · 内容分类 · 扫描件 · <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub 仓库</a>',
+    nav_analyze: "图片扫描",
+    nav_about: "关于",
+    nav_annotate: "训练集标签",
+    nav_corners: "训练集四角",
+    nav_review: "标注检查",
+    camera: "拍照上传",
+    pick: "从文件选择",
+    drop: "也可以把图片拖到这里。支持相册多选或连续拍照，单张最大 15 MB；可重复点击继续添加。",
+    analyze: "分析队列",
+    clear: "清空队列",
+    apply: "应用四角",
+    cap_original: "原图与四角。拖动控制点，或在框内拖动整体移动；未检出时点击四个顶点，顺序不限。",
+    cap_rect: "矫正结果（点击放大）",
+    cap_scan: "扫描件（点击放大）",
+    result: "分类结果",
+    view_label: "拉正显示：",
+    view_quad: "学习四角",
+    view_opencv: "OpenCV",
+    view_note: "仅影响显示/PDF，分类不变。",
+    retry_ppt: "按 PPT 重试",
+    retry_paper: "按纸质重试",
+    pdf_mode: "PDF 模式",
+    pdf_scan: "扫描件",
+    pdf_rect: "矫正图",
+    pdf_original: "原图",
+    pdf_current: "导出当前单张",
+    pdf_selected: "导出选中",
+    pdf_all: "导出全部",
+    lang_button: "EN"
+  },
+  en: {
+    title: "Document Rectification & Classification",
+    site_title: "Document Rectification & Classification",
+    site_desc: 'Document rectification · content classification · scan output · <a href="https://github.com/LosproeOcl/doc-normalizer" target="_blank" rel="noopener noreferrer">GitHub</a>',
+    nav_analyze: "Image scan",
+    nav_about: "About",
+    nav_annotate: "Training labels",
+    nav_corners: "Training corners",
+    nav_review: "Review",
+    camera: "Camera upload",
+    pick: "Choose file",
+    drop: "You can also drop images here. Multi-select or take photos; max 15 MB each.",
+    analyze: "Analyze queue",
+    clear: "Clear queue",
+    apply: "Apply corners",
+    cap_original: "Original image and corners. Drag a point or the box; if no corners are detected, click four vertices in any order.",
+    cap_rect: "Rectified result (click to enlarge)",
+    cap_scan: "Scan (click to enlarge)",
+    result: "Classification result",
+    view_label: "Rectification view:",
+    view_quad: "Learned corners",
+    view_opencv: "OpenCV",
+    view_note: "Display/PDF only; classification unchanged.",
+    retry_ppt: "Retry as PPT",
+    retry_paper: "Retry as paper",
+    pdf_mode: "PDF mode",
+    pdf_scan: "Scan",
+    pdf_rect: "Rectified",
+    pdf_original: "Original",
+    pdf_current: "Export current",
+    pdf_selected: "Export selected",
+    pdf_all: "Export all",
+    lang_button: "中文"
+  }
+};
+
+function setText(selector, text) {
+  document.querySelectorAll(selector).forEach((node) => { node.textContent = text; });
+}
+
+function setHTML(selector, html) {
+  document.querySelectorAll(selector).forEach((node) => { node.innerHTML = html; });
+}
+
+function applyLanguage(lang) {
+  const t = I18N[lang] || I18N.zh;
+  document.documentElement.lang = lang === "en" ? "en" : "zh-CN";
+  document.title = t.title;
+  setText(".site-title a", t.site_title);
+  setHTML(".site-description", t.site_desc);
+  setText('[data-tab="analyze"]', t.nav_analyze);
+  setText('[data-tab="about"]', t.nav_about);
+  setText('[data-tab="annotate"]', t.nav_annotate);
+  setText('[data-tab="corners"]', t.nav_corners);
+  setText('[data-tab="review"]', t.nav_review);
+  setText("#camera-btn", t.camera);
+  setText("#pick-files", t.pick);
+  setText("#drop-zone p", t.drop);
+  setText("#analyze-btn", t.analyze);
+  setText("#clear-batch", t.clear);
+  setText("#apply-corners", t.apply);
+  const caps = document.querySelectorAll(".stages figcaption");
+  if (caps.length >= 3) {
+    caps[0].textContent = t.cap_original;
+    caps[1].textContent = t.cap_rect;
+    caps[2].textContent = t.cap_scan;
+  }
+  setText("#result-card h2", t.result);
+  const viewHints = document.querySelectorAll("#view-toggle .hint");
+  if (viewHints.length) viewHints[0].textContent = t.view_label;
+  setText('[data-view-mode="quad"]', t.view_quad);
+  setText('[data-view-mode="opencv"]', t.view_opencv);
+  setText("#view-note", t.view_note);
+  setText('[data-carrier-retry="ppt"]', t.retry_ppt);
+  setText('[data-carrier-retry="paper"]', t.retry_paper);
+  setText('label[for="pdf-mode"]', t.pdf_mode);
+  const pdfScan = document.querySelector('#pdf-mode option[value="scan"]');
+  const pdfRect = document.querySelector('#pdf-mode option[value="rectified"]');
+  const pdfOriginal = document.querySelector('#pdf-mode option[value="original"]');
+  if (pdfScan) pdfScan.textContent = t.pdf_scan;
+  if (pdfRect) pdfRect.textContent = t.pdf_rect;
+  if (pdfOriginal) pdfOriginal.textContent = t.pdf_original;
+  setText("#pdf-current", t.pdf_current);
+  setText("#pdf-selected", t.pdf_selected);
+  setText("#pdf-all", t.pdf_all);
+  const aboutZh = document.querySelector(".about-zh");
+  const aboutEn = document.querySelector(".about-en");
+  if (aboutZh) aboutZh.classList.toggle("hidden", lang === "en");
+  if (aboutEn) aboutEn.classList.toggle("hidden", lang !== "en");
+  const button = $("lang-toggle");
+  if (button) button.textContent = t.lang_button;
+  localStorage.setItem("t06-lang", lang);
+}
 const canvas = $("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -1179,6 +1308,10 @@ async function retryCarrier(carrier) {
 }
 
 function bindUI() {
+  $("lang-toggle").addEventListener("click", () => {
+    const next = document.documentElement.lang === "en" ? "zh" : "en";
+    applyLanguage(next);
+  });
   document.querySelectorAll(".tab").forEach((tab) => {
     tab.addEventListener("click", (event) => {
       event.preventDefault();
@@ -1187,6 +1320,7 @@ function bindUI() {
       const target = tab.dataset.tab;
       const panels = {
         analyze: "analyze-panel",
+        about: "about-panel",
         annotate: "annotate-panel",
         corners: "corner-panel",
         review: "review-panel",
@@ -1194,7 +1328,7 @@ function bindUI() {
       Object.entries(panels).forEach(([key, id]) => {
         $(id).classList.toggle("hidden", key !== target);
       });
-      $("person-bar").classList.toggle("hidden", target === "analyze" || target === "review");
+      $("person-bar").classList.toggle("hidden", target === "analyze" || target === "about" || target === "review");
       if (target === "annotate") loadAnnotations();
       if (target === "corners") loadCorners();
       if (target === "review") loadReview(true);
@@ -1335,6 +1469,7 @@ async function setupDeviceButtons() {
   }
 }
 
+applyLanguage(localStorage.getItem("t06-lang") || "zh");
 bindUI();
 setupDeviceButtons();
 loadHealth().then(() => {

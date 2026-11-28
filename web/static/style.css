@@ -38,7 +38,29 @@ main,
   padding-right: 24px;
 }
 
-.site-header { padding-top: 48px; }
+.site-header {
+  padding-top: 48px;
+  position: relative;
+}
+
+.lang-toggle {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--link);
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.lang-toggle:hover {
+  border-color: var(--link);
+}
 
 .site-title {
   margin: 0;
@@ -72,17 +94,14 @@ main,
 }
 
 .site-nav {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 9px 0;
+  padding: 9px 0 0;
   font-size: 14px;
 }
 
 .site-nav a {
   display: inline-block;
   margin-right: 24px;
-  padding-bottom: 9px;
-  margin-bottom: -10px;
+  padding: 2px 0 7px;
   color: #666666;
   border-bottom: 2px solid transparent;
 }
@@ -615,4 +634,14 @@ code {
 .about .muted {
   color: var(--muted);
   font-size: 13px;
+}
+
+
+body.public-mode .tab[data-tab="annotate"],
+body.public-mode .tab[data-tab="corners"],
+body.public-mode .tab[data-tab="review"],
+body.public-mode #annotate-panel,
+body.public-mode #corner-panel,
+body.public-mode #review-panel {
+  display: none !important;
 }
