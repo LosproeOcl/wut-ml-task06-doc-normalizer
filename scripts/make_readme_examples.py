@@ -82,11 +82,11 @@ def main() -> int:
         ]
 
     ppt_rows = [
-        ("PPT 文字 IMG_5597", process("01_ppt_text/IMG_5597.jpeg")),
-        ("PPT 公式 IMG_5541", process("02_ppt_formula/IMG_5541.jpg")),
+        ("PPT 文字 IMG_6233", process("01_ppt_text/IMG_6233.jpg")),
+        ("PPT 公式 IMG_6209", process("02_ppt_formula/IMG_6209.jpeg")),
     ]
     paper_rows = [
-        ("纸质文字 text_07", process("03_paper_text/text_07.jpg")),
+        ("纸质文字 IMG_20261125_232543", process("03_paper_text/IMG_20261125_232543.jpg")),
         ("纸质公式 formula_05", process("04_paper_formula/formula_05.jpg")),
     ]
     build(ppt_rows, "readme_ppt_effect.png", 620, 470, "投影幕布样例：原图 → OpenCV 拉正 → 扫描件")
