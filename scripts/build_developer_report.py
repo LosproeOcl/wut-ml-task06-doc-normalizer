@@ -457,7 +457,7 @@ def section_data(doc):
         "清单与图像一一对应并可复核，因此数据集本身即构成采数留证；组内 2026-11-28 决定以"
         "“实拍数据集 + 逐张元数据”作为留证口径，不再单独提交现场过程照片。"
         "自采合格样本 442 张；另引入 SmartDoc 2015 的 30 张外部实拍作为外部测试子集。"
-        "自采数据集以加密压缩包形式归档于 GitHub Release（口令经微信群单独发送，不写入任何公开文件）。"
+        "自采数据集以加密压缩包形式归档于 GitHub Release（解压口令见随附《项目访问与数据集口令.txt》，不随仓库上传）。"
     )
     body(
         doc,
@@ -1546,9 +1546,9 @@ def appendix_c(doc):
         ["资源", "地址"],
         [
             ["项目仓库（GitHub）", "https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer"],
-            ["线上演示", "https://ml-proj.losproeocl.cn（承诺维护至 2027 年 1 月 1 日）"],
+            ["线上演示", "https://ml-proj.losproeocl.cn（用户名 t06，口令 admin，公开；承诺维护至 2027 年 1 月 1 日）"],
             ["成员 GitHub 主页", "余青阳 github.com/LosproeOcl；张毅卓 github.com/qingwu0731；任万东 github.com/RenWandong；王康琦 github.com/qywkq；蒋翔恒 github.com/Jiang-Xiangheng；张艺萧 github.com/zhangyixiao123；孔泽宇 github.com/jsindkdneksn；李念 github.com/hanss0090"],
-            ["自采数据集归档", "GitHub Release：自采 442 张加密压缩包（口令经微信群单独发送，不写入公开文件）"],
+            ["自采数据集归档", "GitHub Release：自采 442 张加密压缩包（解压口令见随附 TXT，不随仓库上传）"],
         ],
         "表 C2  在线资源与成员主页",
         widths=[4.2, 10.8],
@@ -1584,8 +1584,8 @@ def appendix_d(doc):
     _cmd(doc, "curl -s http://127.0.0.1:54312/api/health")
     body(
         doc,
-        "线上演示地址为 https://ml-proj.losproeocl.cn（Nginx Basic Auth，用户名 t06，口令由组长经微信"
-        "单独提供；承诺维护至 2027 年 1 月 1 日）。检查者也可仅用本机 127.0.0.1:54312 完成全部功能验收，"
+        "线上演示地址为 https://ml-proj.losproeocl.cn（Nginx Basic Auth，用户名 t06，口令 admin，"
+        "为公开演示口令；承诺维护至 2027 年 1 月 1 日）。检查者也可仅用本机 127.0.0.1:54312 完成全部功能验收，"
         "两者运行同一份代码与模型。",
     )
 
@@ -1648,7 +1648,7 @@ def appendix_d(doc):
             ["显示标签", "自采数据集 442 张（加密）"],
             ["大小", "1,126,447,306 字节（约 1.05 GiB）"],
             ["SHA-256", "f2a5489d3463bedc0cdfece75b7df917d8c6c6b384c3797ee43c5b2280d2e597"],
-            ["解压口令", "经微信群单独发送给任课教师，不写入公开文件"],
+            ["解压口令", "见随附《项目访问与数据集口令.txt》，不随仓库上传"],
         ],
         "表 D1  自采数据集 Release 信息与获取命令",
         widths=[2.6, 12.0],

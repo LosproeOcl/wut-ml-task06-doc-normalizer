@@ -173,7 +173,7 @@
 
 ### 5.1 自采数据集获取
 
-原始照片不纳入版本控制，442 张合格样本以加密压缩包发布在 GitHub Release（tag `dataset-self-v5`），解压口令经微信群单独发送给任课教师、不写入仓库。
+原始照片不纳入版本控制，442 张合格样本以加密压缩包发布在 GitHub Release（tag `dataset-self-v5`）。解压口令见随附《项目访问与数据集口令.txt》，该文件仅供任课教师查阅，不随仓库上传。
 
 | 项目 | 内容 |
 |---|---|
@@ -181,7 +181,7 @@
 | 资产名 | `dataset-self-442-encrypted.zip` |
 | 大小 | 1,126,447,306 字节（约 1.05 GiB） |
 | SHA-256 | `f2a5489d3463bedc0cdfece75b7df917d8c6c6b384c3797ee43c5b2280d2e597` |
-| 解压口令 | 不写入仓库，经微信群单独发送 |
+| 解压口令 | 见随附《项目访问与数据集口令.txt》，不随仓库上传 |
 
 ```bash
 gh release download dataset-self-v5 --repo LosproeOcl/wut-ml-task06-doc-normalizer
@@ -213,7 +213,7 @@ unzip -P <口令> dataset-self-442-encrypted.zip -d data/raw_samples/
 
 ## 6.1 线上演示
 
-演示入口为 [https://ml-proj.losproeocl.cn](https://ml-proj.losproeocl.cn)，使用 Nginx Basic Auth，用户名 `t06`，口令保存在本机密钥库 `t06-web-basic`。应用运行在本机 54312，Server1 只通过 SSH 反向隧道做反向代理，不部署代码、不保存图像。GitHub Pages 只能托管静态文件，无法运行 FastAPI/模型，因此不用于完整 webapp。部署细节见 `docs/11-部署与访问.md`。
+演示入口为 [https://ml-proj.losproeocl.cn](https://ml-proj.losproeocl.cn)，使用 Nginx Basic Auth，用户名 `t06`，口令为 `admin`（公开演示口令）。应用运行在本机 54312，Server1 只通过 SSH 反向隧道做反向代理，不部署代码、不保存图像。GitHub Pages 只能托管静态文件，无法运行 FastAPI/模型，因此不用于完整 webapp。部署细节见 `docs/11-部署与访问.md`。
 
 ## 7. 团队分工
 

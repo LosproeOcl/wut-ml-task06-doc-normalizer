@@ -395,9 +395,9 @@ def main() -> int:
         ["资源", "地址"],
         [
             ["项目仓库", "https://github.com/LosproeOcl/wut-ml-task06-doc-normalizer"],
-            ["线上演示", "https://ml-proj.losproeocl.cn（Basic Auth，口令由组长保管；承诺维护至 2027-01-01）"],
+            ["线上演示", "https://ml-proj.losproeocl.cn（Basic Auth，用户名 t06，口令 admin，公开；承诺维护至 2027-01-01）"],
             ["成员 GitHub 主页", "余青阳 github.com/LosproeOcl；张毅卓 github.com/qingwu0731；任万东 github.com/RenWandong；王康琦 github.com/qywkq；蒋翔恒 github.com/Jiang-Xiangheng；张艺萧 github.com/zhangyixiao123；孔泽宇 github.com/jsindkdneksn；李念 github.com/hanss0090"],
-            ["数据集归档", "GitHub Release（自采 442 张加密压缩包，口令经微信群单独发送）"],
+            ["数据集归档", "GitHub Release（自采 442 张加密压缩包，解压口令见随附 TXT，不随仓库上传）"],
         ],
         "表 3  在线资源",
         widths=[3.2, 11.8],
