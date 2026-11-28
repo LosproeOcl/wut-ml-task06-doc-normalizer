@@ -63,6 +63,7 @@
 - 完成 5 折分组 CV：按 doc_page_id 分组、载体×内容分层，PPT/纸质各 5 折 × 3 种子；PPT 折内 70.44%±8.24，纸质 88.90%±5.29；OOF PPT 71.71%、纸质 90.23%，OOF 阈值 PPT 75.12%、纸质 90.98%，验证集检查 84.31%。原验证集 95.24% 被证实不可复现。见 `reports/cv_oof.md` 与 `scripts/make_cv_folds.py`、`scripts/cv_oof_report.py`。
 - 跨载体评估：纸质 CV 模型在 PPT 205 张上 63.41% / F1 58.89（公式召回 36.9%）；部署式纸质集成在 PPT val 21 张仅 42.86%。纸质模型不能替代 PPT 分支，分支拆分必要；测试集未使用。见 `reports/cross_carrier.md`。
 - 新增测试集路径清单 `reports/test_set_paths.csv/.md/.txt`：53 张测试样本的绝对路径、载体、标签与 doc_page_id；路径全部存在。
+- 测试集质量核查：清晰度最低 25% 组准确率 85.7%、最高 25% 组 69.2%；短边 <1500 组 85.7%，错误样本不比正确样本模糊；纸质文字测试清晰度中位数 2475.7 高于验证 1427.2。照片模糊/低分辨率不是主因，见 `reports/test_quality_analysis.md`。
 - 新增可点击路径 `reports/test_set_links.md` 与缩略图画廊 `reports/test_set_gallery.html`，便于在 OpenCode/浏览器直接查看测试图。
 - 复现核验：同一冻结配置在干净容器复跑测试脚本，最终链路、单 CNN、SVM 的指标与逐样本预测完全一致；报告见 `reports/repro_check.md`。
 - 提交 `ec5e3af` 并打标签 `m3-eval-20261127`；该提交包含数据/模型/网页/测试/文档全部当前变更。复现核验记录另提交。
