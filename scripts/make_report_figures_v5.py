@@ -149,14 +149,35 @@ def main() -> int:
         labels.append(label)
     compose(panels, labels, columns=2, out=OUT / "dataset_examples.png")
 
-    loaded = load_image(ROOT / "data/raw_samples" / RECTIFY_SAMPLE, max_long_edge=900)
-    original = services._limit_long_edge(loaded.image, 900)
+    loaded = load_image(ROOT / "data/raw_samples" / RECTIFY_SAMPLE, max_long_edge=1600)
+    original = services._limit_long_edge(loaded.image, 2000)
     rectified, _quad, status = services._apply_rectify(original, "ppt")
     assert status == "ok", f"rectify failed: {status}"
     scan = services._apply_scan(rectified)
-    panels = [to_pil(original), to_pil(rectified), to_pil(scan)]
-    labels = ["原图（正面 PPT）", "OpenCV 拉正（Canny 50/150）", "扫描件（自适应二值化）"]
-    compose(panels, labels, columns=3, out=OUT / "rectify_scan_ppt.png")
+    from PIL import ImageOps
+    def framed(image):
+        image = ImageOps.expand(image, border=10, fill="white")
+        draw = ImageDraw.Draw(image)
+        draw.rectangle([0, 0, image.width - 1, image.height - 1], outline="#cccccc")
+        return image
+    top = [framed(to_pil(original, long_edge=1100)), framed(to_pil(rectified, long_edge=1100))]
+    scan_img = framed(to_pil(scan, long_edge=2000))
+    font = load_font(32)
+    gap, label_h = 10, 40
+    width = max(top[0].width + top[1].width + gap, scan_img.width)
+    height = label_h + max(top[0].height, top[1].height) + gap + label_h + scan_img.height
+    canvas = Image.new("RGB", (width, height), "#fbfbf8")
+    draw = ImageDraw.Draw(canvas)
+    x = 0
+    for image, label in zip(top, ["原图（正面 PPT）", "OpenCV 拉正（Canny 50/150）"]):
+        draw.text((x + 6, 4), label, fill="#1f3a5f", font=font)
+        canvas.paste(image, (x, label_h))
+        x += image.width + gap
+    y2 = label_h + max(top[0].height, top[1].height) + gap
+    draw.text((6, y2), "扫描件（自适应二值化）", fill="#1f3a5f", font=font)
+    canvas.paste(scan_img, (0, y2 + label_h))
+    canvas.save(OUT / "rectify_scan_ppt.png", quality=92)
+    print("saved rectify_scan_ppt.png", canvas.size)
     return 0
 
 

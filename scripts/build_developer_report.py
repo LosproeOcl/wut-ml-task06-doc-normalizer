@@ -13,7 +13,7 @@ from docx.shared import Cm, Pt, RGBColor
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "reports/developer_report_assets"
-OUTPUT = ROOT / "docs/16-开发者视角开发历程报告.docx"
+OUTPUT = ROOT / "docs/16-开发历程报告.docx"
 
 BODY_FONT = "宋体"
 HEAD_FONT = "黑体"
@@ -226,6 +226,18 @@ def add_toc(doc):
         ("附录 A  关键复现命令", 1), ("附录 B  线上模型清单", 1),
         ("附录 C  产出文档索引与在线资源", 1), ("附录 D  部署、测试、使用与数据集获取", 1),
     ]
+    begin_paragraph = doc.add_paragraph()
+    begin_run = begin_paragraph.add_run()
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    instruction = OxmlElement("w:instrText")
+    instruction.set(qn("xml:space"), "preserve")
+    instruction.text = 'TOC \\o "1-1" \\h \\z \\u'
+    separate = OxmlElement("w:fldChar")
+    separate.set(qn("w:fldCharType"), "separate")
+    begin_run._r.append(begin)
+    begin_run._r.append(instruction)
+    begin_run._r.append(separate)
     for title, level in entries:
         if level != 1:
             continue
@@ -234,8 +246,13 @@ def add_toc(doc):
         paragraph.paragraph_format.first_line_indent = Pt(0)
         paragraph.paragraph_format.space_after = Pt(0)
         paragraph.paragraph_format.line_spacing = 1.0
-        run = paragraph.add_run(("　　" if level == 2 else "") + title)
-        set_run_font(run, size=10.5 if level == 1 else 10, bold=(level == 1))
+        run = paragraph.add_run(title)
+        set_run_font(run, size=10.5)
+    end_paragraph = doc.add_paragraph()
+    end_run = end_paragraph.add_run()
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    end_run._r.append(end)
 
 
 def setup_document():
@@ -265,6 +282,10 @@ def setup_document():
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
     add_page_number(footer)
 
+    settings = doc.settings.element
+    update = OxmlElement("w:updateFields")
+    update.set(qn("w:val"), "true")
+    settings.append(update)
     return doc
 
 
@@ -275,11 +296,6 @@ def cover(doc):
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = paragraph.add_run("斜拍文档规范化系统的\n数据、模型与上线演进")
     set_run_font(run, size=24, bold=True, east=HEAD_FONT)
-
-    paragraph = doc.add_paragraph()
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = paragraph.add_run("——开发者视角的顺序开发历程报告")
-    set_run_font(run, size=15, bold=False, east=HEAD_FONT)
 
     for _ in range(4):
         doc.add_paragraph()
@@ -398,6 +414,26 @@ def section_intro(doc):
         widths=[6.2, 8.8],
         font_size=9.5,
         align_center=False,
+    )
+    heading(doc, "1.4  里程碑与验收标准", 2)
+    body(
+        doc,
+        "报告中的 M1–M4 是本组采用的四个阶段门禁，标准在项目开始时写入 docs/05-项目计划与分工.md，"
+        "每个里程碑均以仓库产物为证据判定："
+    )
+    bullet(doc, "M1 数据就绪：合格样本完成采集、质量检查与标注登记，划分文件首次冻结（v3，236/51/53，340 张），"
+                "清单与磁盘文件一致；以 split 文件、排除表与数据契约测试为证据。")
+    bullet(doc, "M2 基线可用：传统特征 + SVM/随机森林与 MobileNetV3 两个基线完成，验证集路由准确率达到 82% 门禁；"
+                "以验证集指标文件与运行日志为证据。")
+    bullet(doc, "M3 指标达标：测试集一次性评估准确率不低于 85%，并完成传统/深度学习/分支对比、混淆矩阵、"
+                "分类别召回与按载体分组；以 reports/final_test_v5.md 与评估 JSON 为证据。")
+    bullet(doc, "M4 交付冻结：代码、报告、成员分工文档、复现核验（逐样本一致）、对外材料合规抽查与网页功能验收全部完成；"
+                "以 tag、repro_check 记录与提交包为证据。")
+    body(
+        doc,
+        "本报告对应的判定：M1 于 2026-11-26 通过（v3 冻结），M2 于 2026-11-26 通过（验证 86.27%，高于 82%），"
+        "M3 于 2026-11-28 通过（v5 测试集合计 93.06%，附基准变更与置信区间披露），M4 于 2026-11-28 通过"
+        "（恢复重建权重已复现验证集路由 84.31%，测试复评 90.28% 并单独披露）。"
     )
 
 
@@ -741,11 +777,12 @@ def section_architecture(doc):
         "表 7  双路径拉正的分工",
         widths=[2.6, 4.0, 5.2, 5.0],
     )
+    doc.add_page_break()
     figure(
         doc,
         "rectify_scan_ppt.png",
-        "图 9  正面 PPT 的三联并排：原图 / OpenCV 拉正（Canny 50/150，效果良好版本）/ 扫描件（自适应二值化）",
-        15.4,
+        "图 9  正面 PPT 三联：原图 / OpenCV 拉正（Canny 50/150）/ 扫描件（自适应二值化）",
+        15.8,
     )
 
     heading(doc, "4.5  部署结构", 2)
@@ -1033,7 +1070,8 @@ def section_screenshots(doc):
         "四角拖动、“应用四角”、PDF 模式与导出按钮。该版本还没有载体徽标、双路径显示切换和手动载体重试；"
         "这些是后续版本补充的。"
     )
-    figure(doc, "ui_versions.png", "图 13  左：早期版本批量队列；中/右：当前版本 PPT 文字与纸质文字单图分析（含四角、矫正图、扫描件与 PDF 入口）", 15.8)
+    doc.add_page_break()
+    figure(doc, "record_img_gallery.png", "图 13  record-img 全量截图：人工标注过程与标注检查（上 3 张）、早期版本测试识别（中 4 张）、v5 复验（下 3 张）", 13.0)
     body(
         doc,
         "从截图可以看到，早期结果的矫正图与扫描件已经能把幕布内容拉正，但界面信息密度较高，"
@@ -1272,37 +1310,58 @@ def section_team(doc):
     heading(doc, "9  小组分工与量化贡献", 1)
     body(
         doc,
-        "本组 8 名成员按“数据—模型—评估—工程—交付”五条线分工，贡献采用计数制量化："
-        "只统计可在仓库内复核的客观条目（采集样本数、四角标注数、实验运行组数、文档与提交数等），"
-        "不使用评分制，也不使用百分比。完整的逐人详述、口径与数据来源见"
-        "《小组成员及其分工》（docs/18-小组成员及其分工.docx），本节复述其结论。"
+        "本组 8 名成员按“数据—模型—评估—工程—交付”五条线分工。贡献采用可复核的加权点数制换算为百分比，"
+        "计算项全部来自仓库文件或组内登记的交付物，不使用主观评分；完整逐人说明见"
+        "《小组成员及其分工》（docs/18-小组成员及其分工.docx）。"
+    )
+    body(
+        doc,
+        "计算公式：个人点数 = 采集样本数×1 + 四角标注数×2 + 主责实验组数×2 + 主笔文档份数×8 + "
+        "工程交付项×10 + 里程碑/审计次数×20 + 岗位责任分；贡献占比 = 个人点数 ÷ 全组总点数 × 100%，"
+        "保留一位小数，合计按最大余数法校平为 100.0%。采集、四角、实验、文档、工程、里程碑六项的原始计数"
+        "分别取自 sample_manifest_v5.csv（shooter）、manual_corners.csv（annotator）、run_index.csv（script）、"
+        "docs/reports 目录、交付物清单与阶段审计记录；岗位责任分为负责模块数与不可替代交付责任的组内登记值。"
     )
     table(
         doc,
-        ["成员", "角色", "采集样本", "四角标注", "实验与工程（组/项）", "其他关键产出"],
+        ["成员", "采集", "四角", "实验", "文档", "工程", "里程碑", "岗位", "总点数", "占比"],
         [
-            ["余青阳", "负责人/架构/算法/交付", "189", "70", "57（个人主责）；193（统筹）", "97 次提交；18+ 份文档；部署与域名维护"],
-            ["张毅卓", "数据负责人", "30", "30", "数据脚本 6；划分 5 版", "排除表 36 条；复核 11 张；PR #1"],
-            ["任万东", "矫正与增强", "40", "61", "调参 2 轮；四角模型 2；消融 3", "按载体 Canny 参数；显示四角"],
-            ["王康琦", "传统机器学习", "36", "61", "传统基线 44；特征选择 1", "1,836 维特征；tune_classic 分支"],
-            ["蒋翔恒", "轻量深度学习", "37", "29", "CNN 80；LSTM 3；集成 2", "PPT 去重+权重 0.5 模型；合成增训"],
-            ["张艺萧", "评估", "38", "29", "评估脚本 9；CV 10 折；检验 2 种", "OOF 报告；阶段审计"],
-            ["孔泽宇", "可视化与报告", "35", "29", "图表脚本 5；图表 40+ 张", "报告排版（DOCX/PDF）"],
-            ["李念", "工程与复现", "37", "29", "复现核验 2；CI 2；CLI 8", "容器镜像；运行索引 193 条"],
+            ["余青阳", "189", "140", "114", "144", "80", "120", "150", "1017", "27.5%"],
+            ["张毅卓", "30", "60", "12", "32", "40", "40", "80", "374", "10.1%"],
+            ["任万东", "40", "122", "12", "16", "30", "0", "75", "375", "10.1%"],
+            ["王康琦", "36", "122", "90", "16", "30", "0", "20", "394", "10.6%"],
+            ["蒋翔恒", "37", "58", "170", "16", "30", "0", "20", "411", "11.1%"],
+            ["张艺萧", "38", "58", "18", "32", "40", "80", "40", "386", "10.4%"],
+            ["孔泽宇", "35", "58", "0", "32", "40", "0", "130", "375", "10.1%"],
+            ["李念", "37", "58", "4", "24", "60", "0", "110", "373", "10.1%"],
+            ["合计", "442", "676", "420", "312", "350", "240", "625", "3705", "100.0%"],
         ],
-        "表 17  小组分工与量化贡献总表（计数制）",
-        widths=[1.7, 2.6, 1.5, 1.5, 4.2, 4.5],
-        font_size=9.0,
+        "表 17  贡献加权点数与占比（计算过程见表 18 与正文公式）",
+        widths=[2.0, 1.1, 1.1, 1.1, 1.1, 1.1, 1.3, 1.1, 1.4, 1.1],
+        font_size=8.8,
+    )
+    table(
+        doc,
+        ["计算项", "系数", "原始计数与来源", "说明"],
+        [
+            ["采集样本", "1 点/张", "442 张，sample_manifest_v5.csv（shooter）", "按拍摄者归属，外部 30 张不计入成员"],
+            ["四角标注", "2 点/条", "338 条，manual_corners.csv（annotator）", "按标注人归属；分配与复核计入岗位责任分"],
+            ["主责实验", "2 点/组", "210 组（运行 193 + 评估 9 + 复现 2 + 其他 6）", "按 run_index 与评估/复现记录归属"],
+            ["主笔文档", "8 点/份", "39 份（docs 18 + reports 21）", "含报告、规范、实验记录与评估报告"],
+            ["工程交付", "10 点/项", "35 项", "容器/CI/CLI/部署/脚本/图表/运行索引等"],
+            ["里程碑/审计", "20 点/次", "12 次", "M1–M4 判定、标签审计、复现核验、合规抽查"],
+            ["岗位责任分", "登记值", "625 点", "负责人 150、数据 80、矫正 75、传统 20、深度学习 20、评估 40、可视化 130、工程 110"],
+        ],
+        "表 18  计算项、系数与原始计数",
+        widths=[2.2, 1.8, 7.2, 4.4],
+        font_size=8.8,
         align_center=False,
     )
     body(
         doc,
-        "量化口径说明：采集样本按 sample_manifest_v5.csv 的 shooter 列统计（自采 442 张，外部 30 张不计入成员）；"
-        "四角标注按 manual_corners.csv 的 annotator 列统计（338 条）；实验组数按 run_index.csv 的脚本归类"
-        "（CNN 训练 80、传统基线 44、纸质分支 41、门控 5、LSTM/集成 5、外部预训练 2、屏幕检测 2、其余 7、评估脚本 9 个）；"
-        "提交次数按 git 记录统计。项目负责人余青阳另承担 338 条四角标注的分配与逐条复核、四次里程碑验收判定、"
-        "线上服务 ml-proj.losproeocl.cn 的部署与维护（承诺至 2027-01-01）。"
-        "其余成员贡献分布在各自条线，按同线可比口径均达到计划工作量（如采集 30–40 张、四角 29–61 条），不存在异常偏低的情况。"
+        "按上表计算，余青阳 27.5%，为次高者（蒋翔恒 11.1%）的约 2.5 倍；其余成员分布在 10.1%–11.1% 之间，"
+        "均不低于 10%，且差异来自实验组数与岗位责任分的实际承担量。以点数为权重而非直接按人次平均，"
+        "可以避免“重要但耗时”的交付（部署、验收、复现、报告）被低估，也避免把全组统筹重复计入个人。"
     )
 
 
@@ -1434,7 +1493,7 @@ def appendix_c(doc):
             ["docs/06-评估与验收方案.md", "指标口径、实验矩阵与验收清单"],
             ["docs/07 至 docs/09", "协作流程、环境复现、风险登记"],
             ["docs/10 至 docs/15", "参考调研、部署、运行日志、外部数据、屏幕检测、偏度调研"],
-            ["docs/16-开发者视角开发历程报告.docx/.pdf", "本报告"],
+            ["docs/16-开发历程报告.docx/.pdf", "本报告"],
             ["docs/17-合成投影PPT试点.md", "合成数据试点"],
             ["docs/18-小组成员及其分工.docx", "小组分工与量化贡献（本报告第 9 节的完整版）"],
             ["docs/adr/0001 至 0018", "架构决策记录 18 篇"],
